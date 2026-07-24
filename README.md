@@ -218,9 +218,4 @@ The repository's recorded 50,000-document benchmark uses five-run averages and r
 
 These figures are local measurements recorded in the engineering UI, not a universal performance guarantee. Run `npm run seed` and `npx tsx scripts/bench.ts` on the target machine for fresh numbers. The crash harness is intended to prove that acknowledged writes survive repeated SIGKILLs with no missing or corrupted records.
 
-## Trade-offs and next steps
-
-The implementation favors clarity and interview-level transparency over production breadth. The main known limitations are a single process, whole-index in-memory search state, JSON snapshots, no compaction, no authentication, and no distributed operation. Natural next steps are segment compaction, incremental index rebuild tooling, stronger schema validation, a configurable benchmark dataset, and broader integration/load testing.
-
-
 
