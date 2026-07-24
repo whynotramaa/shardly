@@ -1,0 +1,9 @@
+node_modules/
+dist/
+data/
+web/.next/
+web/node_modules/
+web/out/
+*.log
+!src/**/*.ts
+.DS_Store
