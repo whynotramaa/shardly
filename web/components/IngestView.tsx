@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import { uploadFiles, resetStore, type UploadResult } from "@/lib/api";
+import WikipediaLoader from "@/components/WikipediaLoader";
 
 export default function IngestView({ onIngested }: { onIngested: () => void }) {
   const [busy, setBusy] = useState(false);
@@ -47,6 +48,7 @@ export default function IngestView({ onIngested }: { onIngested: () => void }) {
   const skipped = result?.results.filter((r) => r.status === "skipped") ?? [];
 
   return (
+    <>
     <div className="panel">
       <div
         className={`dropzone${dragging ? " dragging" : ""}`}
@@ -120,5 +122,8 @@ export default function IngestView({ onIngested }: { onIngested: () => void }) {
         </button>
       </div>
     </div>
+
+    <WikipediaLoader onIngested={onIngested} />
+    </>
   );
 }

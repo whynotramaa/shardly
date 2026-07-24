@@ -84,6 +84,50 @@ async function gh<T>(
   return { ok: res.ok, status: res.status, data, rateRemaining };
 }
 
+/** Run async `fn` over `items` with at most `limit` in flight — the difference
+ * between GitHub ingestion feeling instant vs. crawling one request at a time. */
+async function mapLimit<T, R>(
+  items: T[],
+  limit: number,
+  fn: (item: T, index: number) => Promise<R>,
+): Promise<R[]> {
+  const out: R[] = new Array(items.length);
+  let next = 0;
+  async function worker() {
+    for (;;) {
+      const i = next++;
+      if (i >= items.length) return;
+      out[i] = await fn(items[i]!, i);
+    }
+  }
+  const workers = Array.from({ length: Math.min(limit, items.length) }, worker);
+  await Promise.all(workers);
+  return out;
+}
+
+export interface GithubTarget {
+  kind: "user" | "repo";
+  /** For kind "user". */
+  user?: string;
+  /** For kind "repo". */
+  owner?: string;
+  repo?: string;
+}
+
+/** Accept a bare username, an `owner/repo`, or a full GitHub URL. */
+export function parseGithubTarget(input: string): GithubTarget {
+  const cleaned = input
+    .trim()
+    .replace(/^https?:\/\/github\.com\//i, "")
+    .replace(/^\/+|\/+$/g, "")
+    .replace(/\.git$/i, "");
+  const parts = cleaned.split("/").filter(Boolean);
+  if (parts.length >= 2) {
+    return { kind: "repo", owner: parts[0], repo: parts[1] };
+  }
+  return { kind: "user", user: parts[0] ?? "" };
+}
+
 /** Resolve which listing endpoint to use: the token owner's own account can
  * list private repos via /user/repos; otherwise public repos via /users/{user}. */
 async function repoListPath(
@@ -198,81 +242,146 @@ async function fetchRepoFiles(
     )
     .slice(0, maxFiles);
 
-  const docs: Document[] = [];
-  for (const entry of candidates) {
+  // Fetch blobs concurrently — the single biggest speedup for deep mode.
+  const results = await mapLimit<TreeEntry, Document | null>(candidates, 8, async (entry) => {
     const blob = await gh<{ content?: string; encoding?: string }>(
       `/repos/${repo.full_name}/git/blobs/${entry.sha}`,
       token,
     );
-    if (!blob.ok || !blob.data.content) continue;
+    if (!blob.ok || !blob.data.content) return null;
     try {
       const content = Buffer.from(blob.data.content, "base64").toString("utf8");
-      if (content.trim().length === 0) continue;
-      docs.push({
+      if (content.trim().length === 0) return null;
+      return {
         source: "github",
         type: "file",
         repo: repo.name,
         path: entry.path,
         url: `${repo.html_url}/blob/${repo.default_branch}/${entry.path}`,
         content,
-      });
+      } satisfies Document;
     } catch {
       errors.push(`failed to decode ${repo.full_name}/${entry.path}`);
+      return null;
     }
+  });
+
+  return results.filter((d): d is Document => d !== null);
+}
+
+/** Fetch a single repository's metadata object. */
+async function fetchRepo(
+  owner: string,
+  repo: string,
+  token: string | undefined,
+): Promise<{ repo: Repo; rateRemaining: number | null }> {
+  const res = await gh<Repo | { message?: string }>(
+    `/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}`,
+    token,
+  );
+  if (!res.ok) {
+    if (res.status === 404) throw new Error(`repository "${owner}/${repo}" not found`);
+    if (res.status === 401) throw new Error("invalid GitHub token");
+    if (res.status === 403)
+      throw new Error("GitHub rate limit reached — add a personal access token");
+    const msg = (res.data as { message?: string })?.message ?? `HTTP ${res.status}`;
+    throw new Error(`GitHub error: ${msg}`);
+  }
+  return { repo: res.data as Repo, rateRemaining: res.rateRemaining };
+}
+
+/** Build all documents for one repo: its metadata+README, plus source files in
+ * deep mode (bounded by `fileBudget`). */
+async function documentsForRepo(
+  repo: Repo,
+  token: string | undefined,
+  deep: boolean,
+  fileBudget: number,
+  maxFilesPerRepo: number,
+  maxFileBytes: number,
+  errors: string[],
+): Promise<Document[]> {
+  const readme = await fetchReadme(repo.full_name, token).catch(() => undefined);
+  const docs: Document[] = [repoDoc(repo, readme)];
+
+  if (deep && fileBudget > 0) {
+    const files = await fetchRepoFiles(
+      repo,
+      token,
+      Math.min(maxFilesPerRepo, fileBudget),
+      maxFileBytes,
+      errors,
+    ).catch((e) => {
+      errors.push(`${repo.full_name}: ${e instanceof Error ? e.message : e}`);
+      return [] as Document[];
+    });
+    docs.push(...files);
   }
   return docs;
 }
 
 /**
- * Fetch and build all documents for a GitHub account. Pure data-gathering — the
- * caller indexes the returned docs. Never leaves the store half-updated.
+ * Fetch and build documents for a GitHub target — either a whole account
+ * (`user`) or a single repository (`owner/repo` or a URL). Pure data-gathering;
+ * the caller indexes the returned docs.
  */
 export async function fetchGithubDocuments(
   opts: GithubOptions,
 ): Promise<{ docs: Document[]; summary: GithubSummary }> {
-  const user = opts.user.trim();
-  if (!user) throw new Error("a GitHub username is required");
+  const raw = opts.user.trim();
+  if (!raw) throw new Error("a GitHub username or repository is required");
 
-  const maxRepos = opts.maxRepos ?? 100;
-  const maxFilesPerRepo = opts.maxFilesPerRepo ?? 25;
-  const maxTotalFiles = opts.maxTotalFiles ?? 400;
-  const maxFileBytes = opts.maxFileBytes ?? 120_000;
+  const caps = {
+    maxRepos: opts.maxRepos ?? 100,
+    maxFilesPerRepo: opts.maxFilesPerRepo ?? 25,
+    maxTotalFiles: opts.maxTotalFiles ?? 400,
+    maxFileBytes: opts.maxFileBytes ?? 120_000,
+  };
   const deep = opts.deep ?? false;
   const errors: string[] = [];
 
-  const { repos, rateRemaining: listRate } = await listRepos(
-    user,
-    opts.token,
-    maxRepos,
-  );
+  const target = parseGithubTarget(raw);
+
+  // Gather the repositories to index (one for a repo target, many for a user).
+  let repos: Repo[];
+  let rateRemaining: number | null;
+  let label: string;
+  if (target.kind === "repo") {
+    const r = await fetchRepo(target.owner!, target.repo!, opts.token);
+    repos = [r.repo];
+    rateRemaining = r.rateRemaining;
+    label = `${target.owner}/${target.repo}`;
+  } else {
+    const listed = await listRepos(target.user!, opts.token, caps.maxRepos);
+    repos = listed.repos;
+    rateRemaining = listed.rateRemaining;
+    label = target.user!;
+  }
 
   const docs: Document[] = [];
   let filesIndexed = 0;
-  let rateRemaining = listRate;
 
-  for (const repo of repos) {
-    const readme = await fetchReadme(repo.full_name, opts.token).catch(() => undefined);
-    docs.push(repoDoc(repo, readme));
-
-    if (deep && filesIndexed < maxTotalFiles) {
-      const remaining = maxTotalFiles - filesIndexed;
-      const fileDocs = await fetchRepoFiles(
-        repo,
-        opts.token,
-        Math.min(maxFilesPerRepo, remaining),
-        maxFileBytes,
-        errors,
-      ).catch((e) => {
-        errors.push(`${repo.full_name}: ${e instanceof Error ? e.message : e}`);
-        return [] as Document[];
-      });
-      filesIndexed += fileDocs.length;
-      docs.push(...fileDocs);
+  if (deep) {
+    // Sequential across repos so the global file budget is honored exactly;
+    // blobs within each repo are still fetched concurrently.
+    for (const repo of repos) {
+      const budget = caps.maxTotalFiles - filesIndexed;
+      const repoDocs = await documentsForRepo(
+        repo, opts.token, true, budget, caps.maxFilesPerRepo, caps.maxFileBytes, errors,
+      );
+      filesIndexed += repoDocs.filter((d) => d.type === "file").length;
+      docs.push(...repoDocs);
     }
+  } else {
+    // No files to budget — fetch every repo's README concurrently.
+    const perRepo = await mapLimit(repos, 8, (repo) =>
+      documentsForRepo(repo, opts.token, false, 0, 0, caps.maxFileBytes, errors),
+    );
+    for (const ds of perRepo) docs.push(...ds);
   }
 
   const summary: GithubSummary = {
-    user,
+    user: label,
     reposFound: repos.length,
     reposIndexed: repos.length,
     filesIndexed,

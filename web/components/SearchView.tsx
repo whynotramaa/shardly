@@ -1,10 +1,32 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { search, type SearchResponse, type SearchHit } from "@/lib/api";
+import { describe, snippet } from "@/lib/docmeta";
+
+/** A column heading with an ⓘ hover tooltip explaining the metric. */
+function Tip({
+  label,
+  tip,
+  align = "center",
+}: {
+  label: string;
+  tip: string;
+  align?: "left" | "center" | "right";
+}) {
+  const cls =
+    align === "left" ? "tip tip-left" : align === "right" ? "tip tip-right" : "tip";
+  return (
+    <span className={cls} data-tip={tip}>
+      {label}
+      <i className="tip-i">i</i>
+    </span>
+  );
+}
 
 export default function SearchView() {
-  const [q, setQ] = useState("storage index recovery");
+  const [q, setQ] = useState("");
   const [res, setRes] = useState<SearchResponse | null>(null);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
@@ -34,7 +56,7 @@ export default function SearchView() {
             value={q}
             onChange={(e) => setQ(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && run()}
-            placeholder="e.g. distributed storage recovery"
+            placeholder="Search your indexed documents — e.g. storage crash recovery"
           />
           <button className="primary" onClick={run} disabled={busy}>
             {busy ? "Searching…" : "Search"}
@@ -67,81 +89,118 @@ export default function SearchView() {
       )}
 
       {res?.hits.map((hit, i) => (
-        <HitCard key={hit.docId} hit={hit} rank={i + 1} />
+        <HitCard key={hit.docId} hit={hit} rank={i + 1} query={res.query} />
       ))}
     </div>
   );
 }
 
-/** A human title + a source badge derived from the document's shape. */
-function describe(doc: Record<string, unknown>): { title: string; badge: string } {
-  if (doc.source === "github") {
-    if (doc.type === "file") {
-      return { title: `${doc.repo}/${doc.path}`, badge: "github file" };
-    }
-    return { title: String(doc.fullName ?? doc.repo ?? "repo"), badge: "github repo" };
-  }
-  if (doc.type === "pdf") {
-    return { title: String(doc.filename ?? "document.pdf"), badge: "pdf" };
-  }
-  if (typeof doc.filename === "string") {
-    return { title: doc.filename, badge: "file" };
-  }
-  return {
-    title: String(doc.title ?? doc.name ?? "Document"),
-    badge: "json",
-  };
-}
-
-function HitCard({ hit, rank }: { hit: SearchHit; rank: number }) {
+function HitCard({
+  hit,
+  rank,
+  query,
+}: {
+  hit: SearchHit;
+  rank: number;
+  query: string;
+}) {
   const { title, badge } = describe(hit.doc);
+  // Scale each term's contribution bar against the largest one in this hit.
+  const maxContribution = Math.max(...hit.breakdown.map((b) => b.contribution), 1e-9);
+  const href = `/document/${hit.docId}?q=${encodeURIComponent(query)}`;
+
   return (
     <div className="hit">
-      <div className="hit-head">
-        <div>
-          <span className={`badge src-${badge.split(" ")[0]}`}>{badge}</span>{" "}
-          <span style={{ fontWeight: 600 }}>
-            {rank}. {title}
-          </span>
-          <div className="docid">
-            {typeof hit.doc.url === "string" ? (
-              <a href={hit.doc.url} target="_blank" rel="noreferrer">
-                {hit.doc.url}
-              </a>
-            ) : (
-              hit.docId
-            )}
+      <Link href={href} className="hit-open">
+        <div className="hit-head">
+          <div>
+            <span className={`badge src-${badge.split(" ")[0]}`}>{badge}</span>{" "}
+            <span style={{ fontWeight: 600 }}>
+              {rank}. {title}
+            </span>
+            <div className="hit-snippet">{snippet(hit.doc)}</div>
+          </div>
+          <div className="hit-score-wrap">
+            <span className="score">{hit.score.toFixed(4)}</span>
+            <span className="open-hint">open →</span>
           </div>
         </div>
-        <span className="score">{hit.score.toFixed(4)}</span>
-      </div>
+      </Link>
 
-      <div className="breakdown">
-        <table>
-          <thead>
-            <tr>
-              <th>term</th>
-              <th>tf</th>
-              <th>idf</th>
-              <th>contribution</th>
-            </tr>
-          </thead>
-          <tbody>
-            {hit.breakdown.map((b) => (
-              <tr key={b.term}>
-                <td>
-                  <span className="term-chip">{b.term}</span>
-                </td>
-                <td>{b.termFrequency}</td>
-                <td>{b.idf.toFixed(3)}</td>
-                <td>{b.contribution.toFixed(4)}</td>
+      <details className="breakdown-details">
+        <summary>Why this ranked here — BM25 breakdown</summary>
+        <p className="breakdown-intro">
+          BM25 scores each match by combining three signals per query term —
+          term frequency (<code>tf</code>), inverse document frequency (
+          <code>idf</code>), and document-length normalization. Hover a column
+          heading for what it means.
+        </p>
+        <div className="breakdown">
+          <table>
+            <thead>
+              <tr>
+                <th>
+                  <Tip
+                    label="term"
+                    tip="A query word after tokenizing + stemming. Each term contributes to the score independently."
+                    align="left"
+                  />
+                </th>
+                <th>
+                  <Tip
+                    label="tf"
+                    tip="Term frequency — how many times this term appears in the document. BM25 saturates it: the 10th occurrence adds far less than the 2nd (controlled by k1 = 1.5)."
+                  />
+                </th>
+                <th>
+                  <Tip
+                    label="idf"
+                    tip="Inverse document frequency — how rare the term is across the whole corpus. Rare terms weigh heavily; a term in every document weighs almost nothing."
+                  />
+                </th>
+                <th>
+                  <Tip
+                    label="contribution"
+                    tip="This term's share of the final score = idf × saturated tf × length normalization (b = 0.75)."
+                  />
+                </th>
+                <th>
+                  <Tip
+                    label="weight"
+                    tip="The contribution as a fraction of this document's single largest term contribution — the bars are relative, not absolute."
+                    align="right"
+                  />
+                </th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      <pre className="doc-json">{JSON.stringify(hit.doc, null, 2)}</pre>
+            </thead>
+            <tbody>
+              {hit.breakdown.map((b) => (
+                <tr key={b.term}>
+                  <td>
+                    <span className="term-chip">{b.term}</span>
+                  </td>
+                  <td>{b.termFrequency}</td>
+                  <td>{b.idf.toFixed(3)}</td>
+                  <td>{b.contribution.toFixed(4)}</td>
+                  <td className="weight-cell">
+                    <span
+                      className="weight-bar"
+                      style={{ width: `${(b.contribution / maxContribution) * 100}%` }}
+                    />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+            <tfoot>
+              <tr>
+                <td colSpan={3}>total score</td>
+                <td>{hit.score.toFixed(4)}</td>
+                <td />
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </details>
     </div>
   );
 }

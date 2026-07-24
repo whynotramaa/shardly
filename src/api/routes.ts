@@ -1,8 +1,10 @@
+import { PassThrough } from "node:stream";
 import type { FastifyInstance } from "fastify";
 import type { Engine } from "../engine.js";
 import type { Document } from "../types.js";
 import { extractDocuments } from "../ingest/extract.js";
 import { fetchGithubDocuments } from "../ingest/github.js";
+import { countCorpus, streamCorpus } from "../ingest/corpus.js";
 
 interface IdParam {
   id: string;
@@ -11,6 +13,28 @@ interface IdParam {
 interface SearchQuery {
   q?: string;
   limit?: string;
+}
+
+interface ListQuery {
+  offset?: string;
+  limit?: string;
+}
+
+/** Trim long string fields so list/search responses stay small and the UI shows
+ * a snippet, not an entire file. The full document is served by GET /documents/:id. */
+function previewDoc(doc: Document, maxLen = 280): Document {
+  const out: Record<string, unknown> = {};
+  let truncated = false;
+  for (const [key, value] of Object.entries(doc)) {
+    if (typeof value === "string" && value.length > maxLen) {
+      out[key] = value.slice(0, maxLen).trimEnd() + "…";
+      truncated = true;
+    } else {
+      out[key] = value;
+    }
+  }
+  if (truncated) out._truncated = true;
+  return out;
 }
 
 /**
@@ -103,13 +127,89 @@ export function registerRoutes(app: FastifyInstance, engine: Engine): void {
     }
   });
 
+  // Wikipedia is bundled as a pre-fetched corpus on disk (the live API rate-
+  // limits at scale). Status reports how many articles are available in the
+  // file vs. currently indexed, so the UI can offer an index / de-index toggle.
+  app.get("/corpus/wikipedia/status", async () => ({
+    available: await countCorpus(),
+    indexed: engine.collectBySource("wikipedia").length,
+  }));
+
+  // Index the bundled Wikipedia corpus from disk (skipping any already indexed
+  // by pageid). Streams NDJSON progress so the UI shows a live progress bar.
+  app.post("/corpus/wikipedia/index", async (reqIgnored, reply) => {
+    void reqIgnored;
+    const total = await countCorpus();
+    reply.header("content-type", "application/x-ndjson");
+    reply.header("cache-control", "no-cache");
+    const stream = new PassThrough();
+    const write = (o: unknown) => stream.write(JSON.stringify(o) + "\n");
+
+    void (async () => {
+      try {
+        const existing = new Set(
+          engine
+            .collectBySource("wikipedia")
+            .map((d) => d.pageid)
+            .filter((p): p is number => typeof p === "number"),
+        );
+        let indexed = 0;
+        await streamCorpus((docs) => {
+          const fresh = docs.filter(
+            (d) =>
+              typeof d.pageid !== "number" || !existing.has(d.pageid as number),
+          );
+          if (fresh.length > 0) {
+            engine.addDocuments(fresh);
+            indexed += fresh.length;
+          }
+          write({ type: "progress", indexed, total });
+        });
+        engine.snapshot();
+        write({ type: "done", indexed, documents: engine.documentCount() });
+      } catch (e) {
+        write({
+          type: "error",
+          error: e instanceof Error ? e.message : "Corpus indexing failed",
+        });
+      } finally {
+        stream.end();
+      }
+    })();
+
+    return reply.send(stream);
+  });
+
+  // De-index the Wikipedia corpus: remove those documents from the store. The
+  // saved corpus file is untouched, so it can be re-indexed instantly.
+  app.post("/corpus/wikipedia/deindex", async () => {
+    const targets = engine.collectBySource("wikipedia");
+    let removed = 0;
+    for (const t of targets) if (engine.deleteDocument(t.id)) removed++;
+    engine.snapshot();
+    return { removed, documents: engine.documentCount() };
+  });
+
   // Clear the entire store — wipes seed data so uploads are the whole corpus.
   app.post("/reset", async () => {
     engine.reset();
     return { ok: true, documents: 0 };
   });
 
-  // O(1) lookup by id.
+  // Browse indexed documents (paginated), with snippet-trimmed previews.
+  app.get<{ Querystring: ListQuery }>("/documents", async (req) => {
+    const offset = Math.max(0, Number.parseInt(req.query.offset ?? "0", 10) || 0);
+    const limit = parseLimit(req.query.limit, 50, 200);
+    const { total, items } = engine.listDocuments(offset, limit);
+    return {
+      total,
+      offset,
+      limit,
+      items: items.map((it) => ({ id: it.id, doc: previewDoc(it.doc) })),
+    };
+  });
+
+  // O(1) lookup by id — returns the FULL document for the detail view.
   app.get<{ Params: IdParam }>("/documents/:id", async (req, reply) => {
     const doc = engine.getDocument(req.params.id);
     if (doc === null) return reply.code(404).send({ error: "not found" });
@@ -123,13 +223,18 @@ export function registerRoutes(app: FastifyInstance, engine: Engine): void {
     return reply.code(204).send();
   });
 
-  // Ranked full-text search with per-document score breakdown.
+  // Ranked full-text search with per-document score breakdown. Hits carry a
+  // snippet-trimmed document; the full text is fetched on the detail page.
   app.get<{ Querystring: SearchQuery }>("/search", async (req, reply) => {
     const q = req.query.q;
     if (!q || q.trim().length === 0) {
       return reply.code(400).send({ error: "query parameter 'q' is required" });
     }
-    return engine.search(q, parseLimit(req.query.limit));
+    const result = engine.search(q, parseLimit(req.query.limit));
+    return {
+      ...result,
+      hits: result.hits.map((h) => ({ ...h, doc: previewDoc(h.doc) })),
+    };
   });
 
   // Indexed search vs naive linear scan, timed side by side.
@@ -142,8 +247,8 @@ export function registerRoutes(app: FastifyInstance, engine: Engine): void {
   });
 }
 
-function parseLimit(raw: string | undefined): number {
-  const n = Number.parseInt(raw ?? "10", 10);
-  if (Number.isNaN(n) || n <= 0) return 10;
-  return Math.min(n, 100);
+function parseLimit(raw: string | undefined, fallback = 10, max = 100): number {
+  const n = Number.parseInt(raw ?? String(fallback), 10);
+  if (Number.isNaN(n) || n <= 0) return fallback;
+  return Math.min(n, max);
 }

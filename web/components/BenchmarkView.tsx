@@ -4,7 +4,7 @@ import { useState } from "react";
 import { benchmark, type BenchmarkResponse } from "@/lib/api";
 
 export default function BenchmarkView() {
-  const [q, setQ] = useState("storage index recovery");
+  const [q, setQ] = useState("");
   const [res, setRes] = useState<BenchmarkResponse | null>(null);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
@@ -40,6 +40,7 @@ export default function BenchmarkView() {
             value={q}
             onChange={(e) => setQ(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && run()}
+            placeholder="Query to race both ways — e.g. distributed replication shard"
           />
           <button className="primary" onClick={run} disabled={busy}>
             {busy ? "Running…" : "Run benchmark"}
@@ -63,9 +64,8 @@ export default function BenchmarkView() {
                 <div
                   className="bar-fill naive"
                   style={{ width: `${pct(res.naive.tookMs)}%` }}
-                >
-                  {res.naive.tookMs.toFixed(1)} ms
-                </div>
+                />
+                <span className="bar-value">{res.naive.tookMs.toFixed(1)} ms</span>
               </div>
             </div>
             <div className="bar-row">
@@ -74,9 +74,8 @@ export default function BenchmarkView() {
                 <div
                   className="bar-fill indexed"
                   style={{ width: `${pct(res.indexed.tookMs)}%` }}
-                >
-                  {res.indexed.tookMs.toFixed(2)} ms
-                </div>
+                />
+                <span className="bar-value">{res.indexed.tookMs.toFixed(2)} ms</span>
               </div>
             </div>
           </div>

@@ -91,6 +91,42 @@ describe("API", () => {
     expect(body.topHitsMatch).toBe(true);
   });
 
+  it("GET /documents lists docs with snippet-trimmed previews", async () => {
+    const long = "storage ".repeat(100); // ~800 chars
+    await post("/documents/bulk", [
+      { filename: "a.txt", content: long },
+      { filename: "b.txt", content: "short" },
+    ]);
+
+    const res = await app.inject({ method: "GET", url: "/documents?limit=10" });
+    expect(res.statusCode).toBe(200);
+    const body = res.json() as {
+      total: number;
+      items: { id: string; doc: Record<string, unknown> }[];
+    };
+    expect(body.total).toBe(2);
+    const longItem = body.items.find((i) => i.doc.filename === "a.txt")!;
+    expect((longItem.doc.content as string).length).toBeLessThan(long.length);
+    expect(longItem.doc._truncated).toBe(true);
+    // The full document is still available untrimmed by id.
+    const full = await app.inject({
+      method: "GET",
+      url: `/documents/${longItem.id}`,
+    });
+    expect(((full.json() as { doc: { content: string } }).doc.content).length).toBe(
+      long.length,
+    );
+  });
+
+  it("search hits carry a trimmed snippet, not the whole file", async () => {
+    const long = "indexing ".repeat(100);
+    await post("/documents", { filename: "big.txt", content: long });
+    const res = await app.inject({ method: "GET", url: "/search?q=indexing" });
+    const body = res.json() as { hits: { doc: Record<string, unknown> }[] };
+    expect((body.hits[0]!.doc.content as string).length).toBeLessThan(long.length);
+    expect(body.hits[0]!.doc._truncated).toBe(true);
+  });
+
   it("POST /reset clears all documents and the index", async () => {
     await post("/documents/bulk", [
       { filename: "a.txt", content: "storage engines and indexes" },

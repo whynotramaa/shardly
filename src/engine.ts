@@ -85,6 +85,35 @@ export class Engine {
     return this.storage.size();
   }
 
+  /** A page of stored documents (newest-written last), for the browse view. */
+  listDocuments(
+    offset: number,
+    limit: number,
+  ): { total: number; items: Array<{ id: string; doc: Document }> } {
+    const ids = this.storage.liveDocIds();
+    const items = ids.slice(offset, offset + limit).map((id) => ({
+      id,
+      doc: this.storage.read(id) ?? {},
+    }));
+    return { total: ids.length, items };
+  }
+
+  /** Collect the ids (and pageids, if present) of every live document whose
+   *  `source` field matches — used to de-index or dedupe a bundled corpus. */
+  collectBySource(source: string): Array<{ id: string; pageid?: number }> {
+    const out: Array<{ id: string; pageid?: number }> = [];
+    for (const id of this.storage.liveDocIds()) {
+      const doc = this.storage.read(id);
+      if (doc && doc.source === source) {
+        out.push({
+          id,
+          pageid: typeof doc.pageid === "number" ? doc.pageid : undefined,
+        });
+      }
+    }
+    return out;
+  }
+
   /** Clear every document and index — a clean slate for the user's own uploads. */
   reset(): void {
     this.storage.reset();

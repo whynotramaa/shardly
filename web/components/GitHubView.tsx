@@ -1,7 +1,50 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ingestGithub, type GithubResult } from "@/lib/api";
+
+/** Animated staged progress for the GitHub fetch. The GitHub REST API gives no
+ *  real progress, so stages advance on a timer to show the work is live — much
+ *  more reassuring than a frozen "Fetching…" during a slow multi-request pull. */
+function GithubProgress({ deep }: { deep: boolean }) {
+  const stages = [
+    "Resolving target",
+    "Listing repositories",
+    "Fetching READMEs & metadata",
+    ...(deep ? ["Reading source files"] : []),
+    "Tokenizing & indexing",
+  ];
+  const [active, setActive] = useState(0);
+
+  useEffect(() => {
+    // Advance through stages, then hold on the last until the request resolves.
+    const id = setInterval(() => {
+      setActive((a) => Math.min(a + 1, stages.length - 1));
+    }, 2200);
+    return () => clearInterval(id);
+  }, [stages.length]);
+
+  return (
+    <div className="loader">
+      <div className="loader-head">
+        <span className="loader-spin" />
+        Fetching from GitHub — this can take a moment for large accounts
+      </div>
+      <div className="loader-bar" />
+      <div className="stages">
+        {stages.map((label, i) => (
+          <div
+            key={label}
+            className={`stage${i === active ? " active" : i < active ? " done" : ""}`}
+          >
+            <span className="stage-mark" />
+            {label}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 export default function GitHubView({ onIngested }: { onIngested: () => void }) {
   const [user, setUser] = useState("");
@@ -34,13 +77,13 @@ export default function GitHubView({ onIngested }: { onIngested: () => void }) {
 
   return (
     <div className="panel">
-      <label htmlFor="ghuser">GitHub username or organization</label>
+      <label htmlFor="ghuser">GitHub account or repository</label>
       <div className="row">
         <input
           id="ghuser"
           type="text"
           value={user}
-          placeholder="e.g. octocat"
+          placeholder="octocat  ·  octocat/Hello-World  ·  https://github.com/user/repo"
           onChange={(e) => setUser(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && !busy && run()}
         />
@@ -48,6 +91,10 @@ export default function GitHubView({ onIngested }: { onIngested: () => void }) {
           {busy ? "Fetching…" : "Fetch & index"}
         </button>
       </div>
+      <p className="hint" style={{ marginTop: 6 }}>
+        Enter a whole account to index every repo, or a single{" "}
+        <code>owner/repo</code> (or its URL) to index just that one.
+      </p>
 
       <div style={{ marginTop: 14 }}>
         <label htmlFor="ghtoken">
@@ -80,8 +127,11 @@ export default function GitHubView({ onIngested }: { onIngested: () => void }) {
 
       <p className="hint">
         Default mode indexes one document per repository (name, description,
-        language, topics, stars, README). Then search across your whole account.
+        language, topics, stars, README). Then search across everything you
+        indexed.
       </p>
+
+      {busy && <GithubProgress deep={deep} />}
 
       {result && (
         <div className="notice ok">
