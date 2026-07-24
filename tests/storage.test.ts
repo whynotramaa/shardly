@@ -58,8 +58,6 @@ describe("Storage", () => {
   });
 
   it("recovers a committed write when the offset snapshot is stale", async () => {
-    // Write, then corrupt/blank the offset snapshot to simulate a crash that
-    // happened AFTER the segment+WAL write but BEFORE the next snapshot.
     const s = await freshStorage();
     const id = s.write({ important: true });
     s.close();
@@ -87,8 +85,6 @@ describe("Storage", () => {
   });
 
   it("discards a torn write: pending WAL entry with no matching segment bytes", async () => {
-    // Reproduce the crash window: a pending WAL record exists but the segment
-    // write never landed. Recovery must NOT surface a phantom document.
     const s = await freshStorage();
     s.write({ real: 1 });
     s.close();
@@ -101,7 +97,7 @@ describe("Storage", () => {
       op: "write",
       docId: "ghost",
       segment: seg,
-      byteOffset: segSize + 10, // beyond real data — never fsync'd
+      byteOffset: segSize + 10, // beyond real data ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â never fsync'd
       length: 42,
       status: "pending",
     };
@@ -112,3 +108,8 @@ describe("Storage", () => {
     s2.close();
   });
 });
+
+
+
+
+

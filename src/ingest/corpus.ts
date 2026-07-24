@@ -2,12 +2,7 @@ import { createReadStream, existsSync } from "node:fs";
 import { createInterface } from "node:readline";
 import type { Document } from "../types.js";
 
-/**
- * Read a pre-fetched NDJSON corpus (one JSON document per line) from disk.
- * This is how the Wikipedia toggle works offline: the corpus is fetched once
- * (scripts/fetch-wikipedia.ts) and then indexed / de-indexed from this file,
- * never re-hitting the rate-limited live API.
- */
+
 
 export const WIKI_CORPUS_PATH =
   process.env.WIKI_CORPUS ?? "./corpus/wikipedia.ndjson";
@@ -28,10 +23,7 @@ export async function countCorpus(path = WIKI_CORPUS_PATH): Promise<number> {
   return n;
 }
 
-/**
- * Stream the corpus in batches, invoking `onBatch` for each. Malformed lines
- * are skipped. Lets the caller index incrementally and report progress.
- */
+
 export async function streamCorpus(
   onBatch: (docs: Document[]) => void,
   batchSize = 500,
@@ -58,3 +50,10 @@ export async function streamCorpus(
   }
   if (batch.length > 0) onBatch(batch);
 }
+
+
+
+
+
+
+

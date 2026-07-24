@@ -1,18 +1,7 @@
 import fs from "node:fs";
 import type { InvertedIndex, PostingList, Posting } from "../types.js";
 
-/**
- * In-memory inverted index: term -> the documents containing it and how often.
- *
- * This is the structure that makes search fast: instead of scanning every
- * document for a query term, we jump straight to the (short) posting list for
- * that term. It also tracks the corpus statistics BM25 needs — document
- * frequency per term, total document count, and average document length — so
- * ranking never has to touch disk.
- *
- * Knows nothing about storage or BM25. It is fed token arrays and hands back
- * posting lists and stats.
- */
+
 export class InvertedIndexStore {
   /** term -> posting list. */
   private readonly index: InvertedIndex = new Map();
@@ -23,14 +12,8 @@ export class InvertedIndexStore {
   /** Running sum of all document lengths, for O(1) average. */
   private totalTokens = 0;
 
-  // ---------------------------------------------------------------------------
-  // Mutation
-  // ---------------------------------------------------------------------------
 
-  /**
-   * Index a document from its token stream. Idempotent per docId: re-adding an
-   * existing docId first removes its old postings, so updates are safe.
-   */
+
   addDocument(docId: string, tokens: string[]): void {
     if (this.docLengths.has(docId)) this.removeDocument(docId);
 
@@ -54,7 +37,7 @@ export class InvertedIndexStore {
     this.totalTokens += tokens.length;
   }
 
-  /** Drop the entire index — every posting and all corpus stats. */
+  /** Drop the entire index ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â every posting and all corpus stats. */
   clear(): void {
     this.index.clear();
     this.docFreq.clear();
@@ -84,9 +67,6 @@ export class InvertedIndexStore {
     this.totalTokens -= length;
   }
 
-  // ---------------------------------------------------------------------------
-  // Query surface (read by rank.ts)
-  // ---------------------------------------------------------------------------
 
   /** Posting list for a term, or an empty list if the term is unknown. */
   postings(term: string): PostingList {
@@ -114,9 +94,6 @@ export class InvertedIndexStore {
     return n === 0 ? 0 : this.totalTokens / n;
   }
 
-  // ---------------------------------------------------------------------------
-  // Persistence
-  // ---------------------------------------------------------------------------
 
   /** Serialize the whole index to a JSON snapshot for fast startup. */
   snapshot(filePath: string): void {
@@ -164,3 +141,10 @@ export class InvertedIndexStore {
     return true;
   }
 }
+
+
+
+
+
+
+

@@ -3,9 +3,7 @@
 import { useEffect, useState } from "react";
 import { ingestGithub, type GithubResult } from "@/lib/api";
 
-/** Animated staged progress for the GitHub fetch. The GitHub REST API gives no
- *  real progress, so stages advance on a timer to show the work is live — much
- *  more reassuring than a frozen "Fetching…" during a slow multi-request pull. */
+
 function GithubProgress({ deep }: { deep: boolean }) {
   const stages = [
     "Resolving target",
@@ -28,7 +26,7 @@ function GithubProgress({ deep }: { deep: boolean }) {
     <div className="loader">
       <div className="loader-head">
         <span className="loader-spin" />
-        Fetching from GitHub — this can take a moment for large accounts
+        Fetching from GitHub ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â this can take a moment for large accounts
       </div>
       <div className="loader-bar" />
       <div className="stages">
@@ -83,12 +81,12 @@ export default function GitHubView({ onIngested }: { onIngested: () => void }) {
           id="ghuser"
           type="text"
           value={user}
-          placeholder="octocat  ·  octocat/Hello-World  ·  https://github.com/user/repo"
+          placeholder="octocat  ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â·  octocat/Hello-World  ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â·  https://github.com/user/repo"
           onChange={(e) => setUser(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && !busy && run()}
         />
         <button className="primary" onClick={run} disabled={busy || !user.trim()}>
-          {busy ? "Fetching…" : "Fetch & index"}
+          {busy ? "FetchingÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â¦" : "Fetch & index"}
         </button>
       </div>
       <p className="hint" style={{ marginTop: 6 }}>
@@ -100,14 +98,14 @@ export default function GitHubView({ onIngested }: { onIngested: () => void }) {
         <label htmlFor="ghtoken">
           Personal access token{" "}
           <span style={{ color: "var(--muted)" }}>
-            — optional, for private repos &amp; a higher rate limit (60 → 5000/hr)
+            ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â optional, for private repos &amp; a higher rate limit (60 ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ 5000/hr)
           </span>
         </label>
         <input
           id="ghtoken"
           type="password"
           value={token}
-          placeholder="ghp_… (never stored; used for this request only)"
+          placeholder="ghp_ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â¦ (never stored; used for this request only)"
           onChange={(e) => setToken(e.target.value)}
           autoComplete="off"
         />
@@ -120,7 +118,7 @@ export default function GitHubView({ onIngested }: { onIngested: () => void }) {
           onChange={(e) => setDeep(e.target.checked)}
         />
         <span>
-          <b>Deep index</b> — also index each repo&apos;s source files (many more
+          <b>Deep index</b> ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â also index each repo&apos;s source files (many more
           API calls; a token is recommended)
         </span>
       </label>
@@ -144,7 +142,7 @@ export default function GitHubView({ onIngested }: { onIngested: () => void }) {
               {result.filesIndexed === 1 ? "" : "s"}
             </>
           )}{" "}
-          for <b>{result.user}</b> — {result.documents} document
+          for <b>{result.user}</b> ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â {result.documents} document
           {result.documents === 1 ? "" : "s"} added.
           {result.rateRemaining !== null && (
             <span style={{ color: "var(--muted)" }}>
@@ -169,3 +167,10 @@ export default function GitHubView({ onIngested }: { onIngested: () => void }) {
     </div>
   );
 }
+
+
+
+
+
+
+

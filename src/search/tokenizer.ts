@@ -1,20 +1,6 @@
-/**
- * Hand-written tokenizer. No NLP library — the pipeline is deliberately simple
- * and fully explainable:
- *
- *   1. lowercase
- *   2. strip everything that isn't a letter/digit/space
- *   3. split on whitespace
- *   4. drop stopwords
- *   5. lightweight rule-based stemming (plurals + common verb suffixes)
- *
- * `rank.ts` and `index.ts` both tokenize through here so a query is processed
- * identically to the documents it searches — the property that makes the
- * inverted index correct.
- */
 
-/** ~40 highest-frequency English function words. Big enough to help, small
- * enough to read at a glance. */
+
+
 const STOPWORDS = new Set<string>([
   "the", "a", "an", "and", "or", "but", "if", "of", "at", "by", "for",
   "with", "about", "to", "from", "in", "on", "is", "are", "was", "were",
@@ -28,13 +14,7 @@ const STOPWORDS = new Set<string>([
 const NON_ALNUM = /[^a-z0-9\s]+/g;
 const WHITESPACE = /\s+/;
 
-/**
- * Very small rule-based stemmer. This is intentionally naive — a full Porter
- * stemmer is overkill and harder to explain. It collapses the most common
- * inflections so "runs"/"running"/"ran"... (well, not "ran") map together.
- *
- * Order matters: longer suffixes are checked first.
- */
+
 export function stem(token: string): string {
   if (token.length <= 3) return token; // too short to safely strip
 
@@ -48,11 +28,7 @@ export function stem(token: string): string {
   return token;
 }
 
-/**
- * Tokenize free text into normalized, stemmed terms ready for indexing or
- * querying. Returns an array (with duplicates preserved) so callers can count
- * term frequencies.
- */
+
 export function tokenize(text: string): string[] {
   const cleaned = text.toLowerCase().replace(NON_ALNUM, " ");
   const tokens: string[] = [];
@@ -64,12 +40,7 @@ export function tokenize(text: string): string[] {
   return tokens;
 }
 
-/**
- * Flatten an arbitrary JSON document into one searchable string, then tokenize.
- * Every string/number field contributes; nested objects and arrays are walked.
- * This is what makes "full-text search across all documents" work regardless of
- * document shape.
- */
+
 export function tokenizeDocument(doc: unknown): string[] {
   const parts: string[] = [];
   collectStrings(doc, parts);
@@ -91,3 +62,10 @@ function collectStrings(value: unknown, out: string[]): void {
     }
   }
 }
+
+
+
+
+
+
+

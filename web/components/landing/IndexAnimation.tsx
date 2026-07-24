@@ -2,16 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 
-/**
- * The signature element: a live cross-section of the inverted index.
- *
- * A row of segment files, each holding a grid of posting dots. When a query
- * term is active (typed, or a looping demo term when idle), the postings that
- * match light up in ember and thin lines draw from each segment to a ranked
- * result node — mirroring exactly what a real BM25 lookup does underneath.
- * Deterministic (a term always lights the same postings), so it reads as a
- * real mechanism, not decoration. Honours prefers-reduced-motion.
- */
+
 
 const SEGMENTS = 6;
 const COLS = 3;
@@ -155,7 +146,7 @@ export default function IndexAnimation() {
     <div className="index-anim">
       <div className="index-anim-bar">
         <span>
-          inverted index · <span className="q">term “{activeTerm}”</span> →{" "}
+          inverted index ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â· <span className="q">term ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã¢â‚¬Å“{activeTerm}ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â</span> ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢{" "}
           {frame.postings} postings
         </span>
         <span className="live">live</span>
@@ -186,7 +177,7 @@ export default function IndexAnimation() {
           );
         })}
 
-        {/* match lines: each segment's representative hot posting → result node */}
+        {/* match lines: each segment's representative hot posting ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ result node */}
         {ready &&
           frame.reps.map((rep) => (
             <path
@@ -223,7 +214,7 @@ export default function IndexAnimation() {
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="type a term — watch the postings light up"
+          placeholder="type a term ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â watch the postings light up"
           aria-label="Demo query term"
           style={{
             width: "100%",
@@ -240,3 +231,10 @@ export default function IndexAnimation() {
     </div>
   );
 }
+
+
+
+
+
+
+

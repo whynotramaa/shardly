@@ -7,10 +7,6 @@ import "highlight.js/styles/github-dark.css";
 // Set the saved theme before first paint to avoid a flash of the wrong theme.
 const THEME_INIT = `try{var t=localStorage.getItem('shardly-theme');if(t==='light'||t==='dark')document.documentElement.dataset.theme=t;}catch(e){}`;
 
-// Three type roles, per the design system:
-//   Fraunces  → display serif, hero + section titles only
-//   Syne      → labels, nav, buttons, body
-//   Geist Mono→ data: paths, offsets, scores, benchmark numbers, code
 const serif = Fraunces({
   subsets: ["latin"],
   variable: "--font-serif",
@@ -28,7 +24,7 @@ const mono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Shardly — A document store that searches itself",
+  title: "Shardly ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â A document store that searches itself",
   description:
     "A hand-rolled document store with append-only storage, a WAL for crash recovery, an in-memory inverted index, and BM25 full-text search in milliseconds.",
 };
@@ -51,3 +47,8 @@ export default function RootLayout({
     </html>
   );
 }
+
+
+
+
+

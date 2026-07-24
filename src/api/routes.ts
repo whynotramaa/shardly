@@ -20,14 +20,13 @@ interface ListQuery {
   limit?: string;
 }
 
-/** Trim long string fields so list/search responses stay small and the UI shows
- * a snippet, not an entire file. The full document is served by GET /documents/:id. */
+
 function previewDoc(doc: Document, maxLen = 280): Document {
   const out: Record<string, unknown> = {};
   let truncated = false;
   for (const [key, value] of Object.entries(doc)) {
     if (typeof value === "string" && value.length > maxLen) {
-      out[key] = value.slice(0, maxLen).trimEnd() + "…";
+      out[key] = value.slice(0, maxLen).trimEnd() + "ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â¦";
       truncated = true;
     } else {
       out[key] = value;
@@ -37,11 +36,7 @@ function previewDoc(doc: Document, maxLen = 280): Document {
   return out;
 }
 
-/**
- * All HTTP routes, as a Fastify plugin over a single Engine instance. The
- * routes are thin: parse/validate input, call the engine, shape the response.
- * No storage or ranking logic leaks up here.
- */
+
 export function registerRoutes(app: FastifyInstance, engine: Engine): void {
   app.get("/health", async () => ({ status: "ok" }));
 
@@ -57,7 +52,7 @@ export function registerRoutes(app: FastifyInstance, engine: Engine): void {
     return reply.code(201).send({ id });
   });
 
-  // Bulk ingest — accepts an array of documents. Convenient for seeding/UI.
+  // Bulk ingest ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â accepts an array of documents. Convenient for seeding/UI.
   app.post<{ Body: Document[] }>("/documents/bulk", async (req, reply) => {
     const body = req.body;
     if (!Array.isArray(body)) {
@@ -67,9 +62,6 @@ export function registerRoutes(app: FastifyInstance, engine: Engine): void {
     return reply.code(201).send({ ids, count: ids.length });
   });
 
-  // Upload files (multipart). Each file is turned into searchable text:
-  // PDFs are extracted, structured formats parsed, binaries skipped with a
-  // reason — so nothing garbage ends up in the index.
   app.post("/documents/upload", async (req, reply) => {
     if (!req.isMultipart()) {
       return reply.code(400).send({ error: "expected a multipart upload" });
@@ -100,9 +92,6 @@ export function registerRoutes(app: FastifyInstance, engine: Engine): void {
       .send({ results, indexed, documents: engine.documentCount() });
   });
 
-  // Index a GitHub account: one document per repo (name/description/README),
-  // optionally its source files too. An optional token unlocks private repos
-  // and a higher rate limit.
   app.post<{
     Body: { user?: string; token?: string; deep?: boolean };
   }>("/ingest/github", async (req, reply) => {
@@ -127,16 +116,11 @@ export function registerRoutes(app: FastifyInstance, engine: Engine): void {
     }
   });
 
-  // Wikipedia is bundled as a pre-fetched corpus on disk (the live API rate-
-  // limits at scale). Status reports how many articles are available in the
-  // file vs. currently indexed, so the UI can offer an index / de-index toggle.
   app.get("/corpus/wikipedia/status", async () => ({
     available: await countCorpus(),
     indexed: engine.collectBySource("wikipedia").length,
   }));
 
-  // Index the bundled Wikipedia corpus from disk (skipping any already indexed
-  // by pageid). Streams NDJSON progress so the UI shows a live progress bar.
   app.post("/corpus/wikipedia/index", async (reqIgnored, reply) => {
     void reqIgnored;
     const total = await countCorpus();
@@ -180,8 +164,6 @@ export function registerRoutes(app: FastifyInstance, engine: Engine): void {
     return reply.send(stream);
   });
 
-  // De-index the Wikipedia corpus: remove those documents from the store. The
-  // saved corpus file is untouched, so it can be re-indexed instantly.
   app.post("/corpus/wikipedia/deindex", async () => {
     const targets = engine.collectBySource("wikipedia");
     let removed = 0;
@@ -190,7 +172,7 @@ export function registerRoutes(app: FastifyInstance, engine: Engine): void {
     return { removed, documents: engine.documentCount() };
   });
 
-  // Clear the entire store — wipes seed data so uploads are the whole corpus.
+  // Clear the entire store ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â wipes seed data so uploads are the whole corpus.
   app.post("/reset", async () => {
     engine.reset();
     return { ok: true, documents: 0 };
@@ -209,7 +191,7 @@ export function registerRoutes(app: FastifyInstance, engine: Engine): void {
     };
   });
 
-  // O(1) lookup by id — returns the FULL document for the detail view.
+  // O(1) lookup by id ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â returns the FULL document for the detail view.
   app.get<{ Params: IdParam }>("/documents/:id", async (req, reply) => {
     const doc = engine.getDocument(req.params.id);
     if (doc === null) return reply.code(404).send({ error: "not found" });
@@ -223,8 +205,6 @@ export function registerRoutes(app: FastifyInstance, engine: Engine): void {
     return reply.code(204).send();
   });
 
-  // Ranked full-text search with per-document score breakdown. Hits carry a
-  // snippet-trimmed document; the full text is fetched on the detail page.
   app.get<{ Querystring: SearchQuery }>("/search", async (req, reply) => {
     const q = req.query.q;
     if (!q || q.trim().length === 0) {
@@ -252,3 +232,10 @@ function parseLimit(raw: string | undefined, fallback = 10, max = 100): number {
   if (Number.isNaN(n) || n <= 0) return fallback;
   return Math.min(n, max);
 }
+
+
+
+
+
+
+

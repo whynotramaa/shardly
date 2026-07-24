@@ -41,7 +41,7 @@ const STEPS = [
     n: "02",
     icon: <IconIndex />,
     title: "Index",
-    desc: "Every document is tokenized and folded into an in-memory inverted index — term → postings — with corpus statistics for BM25.",
+    desc: "Every document is tokenized and folded into an in-memory inverted index ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â term ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢ postings ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â with corpus statistics for BM25.",
   },
   {
     n: "03",
@@ -65,7 +65,7 @@ export default function Landing() {
           <Link href="/engineering" className="hide-sm">engineering</Link>
           <ThemeToggle />
           <Link href="/app" className="cta">
-            Try it <span className="arrow">→</span>
+            Try it <span className="arrow">ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢</span>
           </Link>
         </div>
       </nav>
@@ -81,13 +81,13 @@ export default function Landing() {
         <p className="hero-sub">
           Upload your own documents or a GitHub repository. Shardly stores them
           in a hand-rolled, crash-safe engine and gives you ranked full-text
-          search back in milliseconds — no database, no search library.
+          search back in milliseconds ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â no database, no search library.
         </p>
         <div className="hero-cta-row">
           <Link href="/app" className="cta">
-            Try it <span className="arrow">→</span>
+            Try it <span className="arrow">ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢</span>
           </Link>
-          <span className="hero-cta-note">no signup · runs locally</span>
+          <span className="hero-cta-note">no signup Ãƒâ€šÃ‚Â· runs locally</span>
         </div>
 
         <IndexAnimation />
@@ -116,10 +116,10 @@ export default function Landing() {
 
       <hr className="lp-rule" />
 
-      {/* Benchmark — real measured numbers */}
+      {/* Benchmark ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â real measured numbers */}
       <section className="section" id="benchmark">
         <div className="section-label">
-          Benchmark · query “vector” · 50,000 documents · 5-run average
+          Benchmark Ãƒâ€šÃ‚Â· query ÃƒÂ¢Ã¢â€šÂ¬Ã…â€œvectorÃƒÂ¢Ã¢â€šÂ¬Ã‚Â Ãƒâ€šÃ‚Â· 50,000 documents Ãƒâ€šÃ‚Â· 5-run average
         </div>
         <div className="bench-grid">
           <div className="bench-cell">
@@ -138,7 +138,7 @@ export default function Landing() {
           </div>
           <div className="bench-cell">
             <div className="bench-cell-label">Speedup</div>
-            <div className="bench-num">125×</div>
+            <div className="bench-num">125ÃƒÆ’Ã¢â‚¬â€</div>
             <div className="bench-cell-sub">identical BM25 top hit</div>
           </div>
         </div>
@@ -150,10 +150,10 @@ export default function Landing() {
 
       <hr className="lp-rule" />
 
-      {/* Architecture — the signal path a query actually follows */}
+      {/* Architecture ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â the signal path a query actually follows */}
       <section className="section" id="architecture">
         <div className="section-label">
-          How it actually works · the signal path
+          How it actually works Ãƒâ€šÃ‚Â· the signal path
         </div>
         <SignalPath />
         <p className="bench-foot">
@@ -167,21 +167,26 @@ export default function Landing() {
 
       <hr className="lp-rule" />
 
-      {/* Try it — live search */}
+      {/* Try it ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â live search */}
       <section className="section" id="tryit">
-        <div className="section-label">Try it — search the live index</div>
+        <div className="section-label">Try it ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â search the live index</div>
         <TryItSearch />
       </section>
 
       <hr className="lp-rule" />
 
       <footer className="lp-footer">
-        <span className="prompt">shardly — append-only storage · WAL recovery · BM25</span>
+        <span className="prompt">shardly ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â append-only storage Ãƒâ€šÃ‚Â· WAL recovery Ãƒâ€šÃ‚Â· BM25</span>
         <span style={{ display: "flex", gap: 20 }}>
-          <Link href="/engineering">engineering deep-dive →</Link>
-          <Link href="/app">open the workspace →</Link>
+          <Link href="/engineering">engineering deep-dive ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢</Link>
+          <Link href="/app">open the workspace ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢</Link>
         </span>
       </footer>
     </div>
   );
 }
+
+
+
+
+

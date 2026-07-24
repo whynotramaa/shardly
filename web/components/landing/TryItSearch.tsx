@@ -5,8 +5,7 @@ import Link from "next/link";
 import { search, type SearchResponse } from "@/lib/api";
 import { describe } from "@/lib/docmeta";
 
-/** A real live search against the running engine, in mono, on the landing page.
- *  Kept last per the build order — proven visual language, real backend. */
+
 export default function TryItSearch() {
   const [q, setQ] = useState("");
   const [res, setRes] = useState<SearchResponse | null>(null);
@@ -35,21 +34,21 @@ export default function TryItSearch() {
           value={q}
           onChange={(e) => setQ(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && !busy && run()}
-          placeholder="query the live index — e.g. storage recovery"
+          placeholder="query the live index ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â e.g. storage recovery"
           aria-label="Live search query"
         />
         <button onClick={run} disabled={busy || !q.trim()}>
-          {busy ? "…" : "Search"}
+          {busy ? "ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â¦" : "Search"}
         </button>
       </div>
 
-      {err && <div className="tryit-empty">Engine unreachable — {err}</div>}
+      {err && <div className="tryit-empty">Engine unreachable ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â {err}</div>}
 
       {res && (
         <>
           <div className="tryit-meta">
-            {res.total.toLocaleString()} matches · ranked in{" "}
-            {res.tookMs.toFixed(2)} ms · terms [{res.terms.join(" ")}]
+            {res.total.toLocaleString()} matches ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â· ranked in{" "}
+            {res.tookMs.toFixed(2)} ms ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â· terms [{res.terms.join(" ")}]
           </div>
           {res.hits.length === 0 ? (
             <div className="tryit-empty">
@@ -79,3 +78,10 @@ export default function TryItSearch() {
     </div>
   );
 }
+
+
+
+
+
+
+

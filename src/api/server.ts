@@ -4,13 +4,8 @@ import multipart from "@fastify/multipart";
 import { Engine } from "../engine.js";
 import { registerRoutes } from "./routes.js";
 
-/**
- * Build a Fastify app around an Engine instance. Kept as a factory so tests can
- * spin up an app against a temp data dir with no network binding.
- */
+
 export async function buildServer(dataDir?: string) {
-  // 64 MB body limit so file uploads (single doc or a bulk array of files)
-  // aren't rejected by Fastify's 1 MB default.
   const app = Fastify({ logger: false, bodyLimit: 64 * 1024 * 1024 });
   await app.register(cors, { origin: true });
   // File uploads (PDFs, text, code) stream through here; 64 MB per file.
@@ -58,3 +53,10 @@ if (isMain) {
     process.exit(1);
   });
 }
+
+
+
+
+
+
+

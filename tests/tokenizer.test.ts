@@ -42,8 +42,6 @@ describe("tokenizer", () => {
     });
 
     it("maps inflections of the same word together", () => {
-      // The property that matters: a query and a doc using different forms
-      // still collide on the same term.
       expect(tokenize("indexing")).toEqual(tokenize("index"));
     });
   });
@@ -65,3 +63,8 @@ describe("tokenizer", () => {
     });
   });
 });
+
+
+
+
+

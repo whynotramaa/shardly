@@ -1,19 +1,7 @@
 import type { Document } from "../types.js";
 import { TEXT_EXTENSIONS, extensionOf } from "./extract.js";
 
-/**
- * Index a GitHub account into the document store.
- *
- * Two modes:
- *  - default: one document per repository (name, description, language, topics,
- *    stars, URL, README text) — cheap, ~2 API calls per repo.
- *  - deep: additionally index each repo's individual text/source files — far
- *    more searchable but many more API calls, so it's rate-limit gated and best
- *    used with a token.
- *
- * An optional personal access token raises the rate limit (60 → 5000 req/hr)
- * and unlocks private repos of the token owner.
- */
+
 
 const API = "https://api.github.com";
 
@@ -84,8 +72,7 @@ async function gh<T>(
   return { ok: res.ok, status: res.status, data, rateRemaining };
 }
 
-/** Run async `fn` over `items` with at most `limit` in flight — the difference
- * between GitHub ingestion feeling instant vs. crawling one request at a time. */
+
 async function mapLimit<T, R>(
   items: T[],
   limit: number,
@@ -128,8 +115,7 @@ export function parseGithubTarget(input: string): GithubTarget {
   return { kind: "user", user: parts[0] ?? "" };
 }
 
-/** Resolve which listing endpoint to use: the token owner's own account can
- * list private repos via /user/repos; otherwise public repos via /users/{user}. */
+
 async function repoListPath(
   user: string,
   token: string | undefined,
@@ -167,7 +153,7 @@ async function listRepos(
       if (res.status === 401) throw new Error("invalid GitHub token");
       if (res.status === 403)
         throw new Error(
-          "GitHub rate limit reached — add a personal access token to continue",
+          "GitHub rate limit reached ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â add a personal access token to continue",
         );
       const msg = (res.data as { message?: string })?.message ?? `HTTP ${res.status}`;
       throw new Error(`GitHub error: ${msg}`);
@@ -242,7 +228,7 @@ async function fetchRepoFiles(
     )
     .slice(0, maxFiles);
 
-  // Fetch blobs concurrently — the single biggest speedup for deep mode.
+  // Fetch blobs concurrently ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â the single biggest speedup for deep mode.
   const results = await mapLimit<TreeEntry, Document | null>(candidates, 8, async (entry) => {
     const blob = await gh<{ content?: string; encoding?: string }>(
       `/repos/${repo.full_name}/git/blobs/${entry.sha}`,
@@ -283,15 +269,14 @@ async function fetchRepo(
     if (res.status === 404) throw new Error(`repository "${owner}/${repo}" not found`);
     if (res.status === 401) throw new Error("invalid GitHub token");
     if (res.status === 403)
-      throw new Error("GitHub rate limit reached — add a personal access token");
+      throw new Error("GitHub rate limit reached ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â add a personal access token");
     const msg = (res.data as { message?: string })?.message ?? `HTTP ${res.status}`;
     throw new Error(`GitHub error: ${msg}`);
   }
   return { repo: res.data as Repo, rateRemaining: res.rateRemaining };
 }
 
-/** Build all documents for one repo: its metadata+README, plus source files in
- * deep mode (bounded by `fileBudget`). */
+
 async function documentsForRepo(
   repo: Repo,
   token: string | undefined,
@@ -320,11 +305,7 @@ async function documentsForRepo(
   return docs;
 }
 
-/**
- * Fetch and build documents for a GitHub target — either a whole account
- * (`user`) or a single repository (`owner/repo` or a URL). Pure data-gathering;
- * the caller indexes the returned docs.
- */
+
 export async function fetchGithubDocuments(
   opts: GithubOptions,
 ): Promise<{ docs: Document[]; summary: GithubSummary }> {
@@ -362,8 +343,6 @@ export async function fetchGithubDocuments(
   let filesIndexed = 0;
 
   if (deep) {
-    // Sequential across repos so the global file budget is honored exactly;
-    // blobs within each repo are still fetched concurrently.
     for (const repo of repos) {
       const budget = caps.maxTotalFiles - filesIndexed;
       const repoDocs = await documentsForRepo(
@@ -373,7 +352,7 @@ export async function fetchGithubDocuments(
       docs.push(...repoDocs);
     }
   } else {
-    // No files to budget — fetch every repo's README concurrently.
+    // No files to budget ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â fetch every repo's README concurrently.
     const perRepo = await mapLimit(repos, 8, (repo) =>
       documentsForRepo(repo, opts.token, false, 0, 0, caps.maxFileBytes, errors),
     );
@@ -392,3 +371,10 @@ export async function fetchGithubDocuments(
   };
   return { docs, summary };
 }
+
+
+
+
+
+
+

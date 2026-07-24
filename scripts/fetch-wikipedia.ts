@@ -1,12 +1,4 @@
-/**
- * Pre-fetch a Wikipedia corpus to a local NDJSON file so the app can index it
- * offline (the live API rate-limits at scale). Run once; the file is then the
- * source of truth for the "index / de-index Wikipedia" toggle.
- *
- * Usage: tsx scripts/fetch-wikipedia.ts [count] [outFile]
- *   count    default 20000
- *   outFile  default ./corpus/wikipedia.ndjson
- */
+
 import { createWriteStream, mkdirSync } from "node:fs";
 import { dirname } from "node:path";
 import { fetchWikipediaDocuments } from "../src/ingest/wikipedia.js";
@@ -20,7 +12,7 @@ async function main() {
   const start = Date.now();
   let written = 0;
 
-  console.log(`Fetching ${count} Wikipedia articles → ${outFile}`);
+  console.log(`Fetching ${count} Wikipedia articles ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ ${outFile}`);
   await fetchWikipediaDocuments({
     count,
     concurrency: 5, // gentle: avoid tripping the rate limiter
@@ -44,3 +36,10 @@ main().catch((e) => {
   console.error(e);
   process.exit(1);
 });
+
+
+
+
+
+
+

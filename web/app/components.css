@@ -1,7 +1,4 @@
-/* =========================================================================
-   Additional component styles (imported after globals.css):
-   theme toggle · tooltips · loaders · engineering page.
-   ========================================================================= */
+
 
 /* ---- Theme toggle ---- */
 .theme-toggle {
@@ -266,9 +263,7 @@
   .arch-pulse { display: none; }
 }
 
-/* =========================================================================
-   ENGINEERING PAGE
-   ========================================================================= */
+
 .eng {
   max-width: 860px;
   margin: 0 auto;
@@ -600,9 +595,7 @@
   }
 }
 
-/* =========================================================================
-   MATCH HIGHLIGHT — query terms marked in a rendered document
-   ========================================================================= */
+
 mark,
 .markdown mark,
 .code-block mark,
@@ -629,10 +622,7 @@ mark,
   margin-bottom: 14px;
 }
 
-/* =========================================================================
-   SIGNAL PATH — homepage architecture (redesigned from scratch)
-   A horizontal data-flow: the document's actual representation at each stage.
-   ========================================================================= */
+
 .signal {
   border: 1px solid var(--hairline);
   border-radius: 3px;
@@ -809,3 +799,10 @@ mark,
     border-top: none;
   }
 }
+
+
+
+
+
+
+

@@ -1,20 +1,16 @@
-/* =========================================================================
-   SHARDLY — design token system
-   Instrument-panel aesthetic: near-black surfaces, one ember accent,
-   hairline dividers, three type roles (serif display / sans / mono data).
-   ========================================================================= */
+
 :root {
-  /* Color — 5 named values */
+  /* Color ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â 5 named values */
   --bg: #0b0b0c; /* near-black base, not pure #000 */
   --surface: #141416; /* panels, one step up from bg */
   --surface-2: #1b1b1e; /* nested panels / hover */
   --ink: #ededec; /* primary text */
   --ink-muted: #87878c; /* secondary text, labels, captions */
-  --ember: #c4552e; /* the single accent — muted rust */
+  --ember: #c4552e; /* the single accent ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â muted rust */
   --ember-soft: rgba(196, 85, 46, 0.16);
   --ember-line: rgba(196, 85, 46, 0.5);
 
-  /* Hairline dividers — muted ink at low opacity, never a separate gray */
+  /* Hairline dividers ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â muted ink at low opacity, never a separate gray */
   --hairline: rgba(135, 135, 140, 0.22);
   --hairline-strong: rgba(135, 135, 140, 0.34);
 
@@ -37,8 +33,7 @@
   --border: var(--hairline);
 }
 
-/* Light theme — same instrument-panel language inverted, tuned for contrast.
-   Applied when <html data-theme="light"> is set by the theme toggle. */
+
 :root[data-theme="light"] {
   --bg: #f4f4f3;
   --surface: #ffffff;
@@ -118,16 +113,14 @@ a {
   font-family: var(--mono);
 }
 
-/* =========================================================================
-   LANDING PAGE
-   ========================================================================= */
+
 .lp {
   max-width: 1120px;
   margin: 0 auto;
   padding: 0 28px;
 }
 
-/* full-bleed hairline between sections — the "engineering diagram" cue */
+/* full-bleed hairline between sections ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â the "engineering diagram" cue */
 .lp-rule {
   border: 0;
   border-top: 1px solid var(--hairline);
@@ -166,7 +159,7 @@ a {
   color: var(--ink);
 }
 
-/* single CTA — ember outline only, never filled */
+/* single CTA ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ember outline only, never filled */
 .cta {
   display: inline-flex;
   align-items: center;
@@ -639,9 +632,7 @@ a {
   }
 }
 
-/* =========================================================================
-   WORKSPACE (/app) — same instrument-panel language, denser
-   ========================================================================= */
+
 .container {
   max-width: 1000px;
   margin: 0 auto;
@@ -988,7 +979,7 @@ label.check input {
   color: var(--ink-muted);
 }
 
-/* Badges — monochrome with ember for source of record */
+/* Badges ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â monochrome with ember for source of record */
 .badge {
   display: inline-block;
   font-family: var(--mono);
@@ -1388,3 +1379,10 @@ button.pager:disabled {
   font-family: var(--mono);
   font-weight: 500;
 }
+
+
+
+
+
+
+

@@ -19,17 +19,7 @@ function segmentName(index: number): string {
   return `${SEGMENT_PREFIX}${String(index).padStart(4, "0")}${SEGMENT_SUFFIX}`;
 }
 
-/**
- * Hand-rolled, append-only document store.
- *
- * - Writes append one NDJSON record per document to the current segment and
- *   are wrapped in WAL pending/committed records for crash safety.
- * - Reads seek directly to a byte range via the in-memory offset index — O(1)
- *   disk seek, never a scan.
- * - Deletes tombstone the offset entry; space is reclaimed only by compaction.
- *
- * Knows nothing about tokenization, indexing, or BM25 — pure storage.
- */
+
 export class Storage {
   private readonly offsetIndex: OffsetIndex = new Map();
   private readonly wal: WriteAheadLog;
@@ -56,9 +46,6 @@ export class Storage {
     return path.join(this.paths.segmentsDir, name);
   }
 
-  // ---------------------------------------------------------------------------
-  // Public API
-  // ---------------------------------------------------------------------------
 
   /** Append a document, returning its generated id. */
   write(doc: Document): string {
@@ -67,13 +54,7 @@ export class Storage {
     return docId;
   }
 
-  /**
-   * Group-commit batch write: append many documents with amortized fsync (one
-   * per segment flush + one WAL commit fsync for the whole batch) instead of
-   * three fsyncs per document. Same durability contract as {@link write} — the
-   * batch is atomic per segment flush — but dramatically higher throughput,
-   * which is what makes bulk ingest and the load test practical.
-   */
+
   writeBatch(docs: Document[]): string[] {
     if (docs.length === 0) return [];
 
@@ -96,8 +77,6 @@ export class Storage {
       const lineBytes = Buffer.byteLength(record, "utf8") + 1; // + newline
       const length = lineBytes - 1;
 
-      // Rotate mid-batch if this record would overflow the current segment.
-      // Flush what we've accumulated first so byte offsets stay correct.
       if (
         this.currentSegmentSize + Buffer.byteLength(chunk, "utf8") > 0 &&
         this.currentSegmentSize +
@@ -153,8 +132,7 @@ export class Storage {
     return true;
   }
 
-  /** Ids of every live (non-deleted) document. Used by the index and the
-   * naive-scan benchmark. */
+
   liveDocIds(): string[] {
     const ids: string[] = [];
     for (const [id, entry] of this.offsetIndex) {
@@ -170,8 +148,7 @@ export class Storage {
     return n;
   }
 
-  /** Snapshot the offset index to disk and truncate the WAL. After this,
-   * every committed/deleted record is captured, so replay starts clean. */
+
   snapshot(): void {
     const obj: Record<string, OffsetEntry> = {};
     for (const [id, entry] of this.offsetIndex) obj[id] = entry;
@@ -190,12 +167,7 @@ export class Storage {
     this.wal.close();
   }
 
-  /**
-   * Delete every document and start from an empty store — used to clear seed
-   * data so a user's own uploads are the whole corpus. Removes all segment
-   * files, the offset snapshot, and truncates the WAL, then reopens a fresh
-   * segment 0.
-   */
+
   reset(): void {
     if (this.writeFd >= 0) fs.closeSync(this.writeFd);
     for (const fd of this.readFds.values()) fs.closeSync(fd);
@@ -215,9 +187,6 @@ export class Storage {
     this.openCurrentSegment();
   }
 
-  // ---------------------------------------------------------------------------
-  // Write path
-  // ---------------------------------------------------------------------------
 
   private append(docId: string, doc: Document): void {
     const stored: StoredDocument = { id: docId, doc };
@@ -270,9 +239,6 @@ export class Storage {
     this.currentSegmentSize = fs.existsSync(p) ? fs.statSync(p).size : 0;
   }
 
-  // ---------------------------------------------------------------------------
-  // Read path
-  // ---------------------------------------------------------------------------
 
   private readAt(entry: OffsetEntry): StoredDocument {
     const fd = this.getReadFd(entry.segment);
@@ -290,9 +256,6 @@ export class Storage {
     return fd;
   }
 
-  // ---------------------------------------------------------------------------
-  // Startup / recovery
-  // ---------------------------------------------------------------------------
 
   private loadOffsetSnapshot(): void {
     if (!fs.existsSync(this.paths.offsetSnapshot)) return;
@@ -310,17 +273,7 @@ export class Storage {
     this.currentSegmentSize = parsed.segmentSize;
   }
 
-  /**
-   * Catch up on anything that happened after the last snapshot, and recover
-   * from a mid-write crash.
-   *
-   * - committed write  -> location is authoritative, apply it
-   * - delete           -> re-tombstone
-   * - pending-only write -> the crash window: the segment write may or may not
-   *   have landed. Verify by reading the exact byte range; if it parses to the
-   *   expected id, the data is intact so recover it — otherwise it was torn and
-   *   is discarded (the caller never got an ack).
-   */
+
   replayWal(): void {
     const records = this.wal.readAll();
     const committed = new Set<string>();
@@ -337,7 +290,7 @@ export class Storage {
       }
     }
 
-    // Second pass: pending writes with no matching commit — the crash window.
+    // Second pass: pending writes with no matching commit ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â the crash window.
     for (const r of records) {
       if (r.op !== "write" || r.status !== "pending") continue;
       if (committed.has(walKey(r))) continue;
@@ -366,8 +319,7 @@ export class Storage {
     }
   }
 
-  /** True if the segment actually holds an intact record matching this WAL
-   * entry (i.e. the fsync'd write survived the crash). */
+
   private verifySegmentRecord(r: WalRecord): boolean {
     const p = this.segmentPath(r.segment);
     if (!fs.existsSync(p)) return false;
@@ -384,9 +336,6 @@ export class Storage {
   }
 }
 
-// -----------------------------------------------------------------------------
-// Helpers
-// -----------------------------------------------------------------------------
 
 function ensureDirs(paths: DataPaths): void {
   for (const dir of [paths.dataDir, paths.segmentsDir, paths.indexDir]) {
@@ -403,8 +352,7 @@ function segmentIndexOf(segment: string): number {
   return Number.parseInt(n, 10);
 }
 
-/** Write JSON via a temp file + rename so a crash never leaves a half-written
- * snapshot. */
+
 function writeJsonAtomic(target: string, value: unknown): void {
   const tmp = `${target}.tmp`;
   const fd = fs.openSync(tmp, "w");
@@ -413,3 +361,10 @@ function writeJsonAtomic(target: string, value: unknown): void {
   fs.closeSync(fd);
   fs.renameSync(tmp, target);
 }
+
+
+
+
+
+
+

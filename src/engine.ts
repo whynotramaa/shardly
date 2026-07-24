@@ -24,15 +24,7 @@ export interface BenchmarkResponse {
   topHitsMatch: boolean;
 }
 
-/**
- * The engine wires the four independent modules together into one document
- * store: storage (durability), the inverted index (fast candidate lookup),
- * the tokenizer (text -> terms), and BM25 (ranking).
- *
- * Latency design: every corpus statistic BM25 needs lives in the in-memory
- * inverted index, so a search touches disk only to hydrate the final top-N
- * documents — each via a single O(1) offset seek. Nothing scans segments.
- */
+
 export class Engine {
   private readonly storage: Storage;
   private readonly index = new InvertedIndexStore();
@@ -45,9 +37,6 @@ export class Engine {
     this.hydrateIndex();
   }
 
-  // ---------------------------------------------------------------------------
-  // Document CRUD
-  // ---------------------------------------------------------------------------
 
   addDocument(doc: Document): string {
     const docId = this.storage.write(doc);
@@ -56,8 +45,7 @@ export class Engine {
     return docId;
   }
 
-  /** Group-commit batch ingest — one amortized fsync for the batch. Use for
-   * bulk import; far higher throughput than looping {@link addDocument}. */
+
   addDocuments(docs: Document[]): string[] {
     const ids = this.storage.writeBatch(docs);
     for (let i = 0; i < ids.length; i++) {
@@ -98,8 +86,7 @@ export class Engine {
     return { total: ids.length, items };
   }
 
-  /** Collect the ids (and pageids, if present) of every live document whose
-   *  `source` field matches — used to de-index or dedupe a bundled corpus. */
+
   collectBySource(source: string): Array<{ id: string; pageid?: number }> {
     const out: Array<{ id: string; pageid?: number }> = [];
     for (const id of this.storage.liveDocIds()) {
@@ -114,7 +101,7 @@ export class Engine {
     return out;
   }
 
-  /** Clear every document and index — a clean slate for the user's own uploads. */
+  /** Clear every document and index ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â a clean slate for the user's own uploads. */
   reset(): void {
     this.storage.reset();
     this.index.clear();
@@ -122,9 +109,6 @@ export class Engine {
     this.writesSinceSnapshot = 0;
   }
 
-  // ---------------------------------------------------------------------------
-  // Search
-  // ---------------------------------------------------------------------------
 
   /** Ranked full-text search via the inverted index. */
   search(query: string, limit = 10): SearchResponse {
@@ -141,19 +125,13 @@ export class Engine {
     return { query, terms, tookMs, total, hits };
   }
 
-  /**
-   * The baseline the benchmark exists to beat: score the query by reading and
-   * tokenizing EVERY live document from disk — no index, no shortcuts. This is
-   * what a store without an inverted index is forced to do on every query.
-   */
+
   naiveSearch(query: string, limit = 10): SearchResponse {
     const terms = [...new Set(tokenize(query))];
     const start = performance.now();
 
     const ids = this.storage.liveDocIds();
 
-    // Single linear pass: gather each doc's length + query-term frequencies,
-    // plus the corpus stats BM25 needs — all recomputed from scratch.
     const docTokens = new Map<string, Map<string, number>>();
     const docLen = new Map<string, number>();
     const docFreq = new Map<string, number>();
@@ -204,7 +182,7 @@ export class Engine {
     return { query, terms, tookMs, total: scored.length, hits };
   }
 
-  /** Run the same query both ways and compare timings — the interview demo. */
+  /** Run the same query both ways and compare timings ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â the interview demo. */
   benchmark(query: string, limit = 10): BenchmarkResponse {
     const indexed = this.search(query, limit);
     const naive = this.naiveSearch(query, limit);
@@ -230,9 +208,6 @@ export class Engine {
     };
   }
 
-  // ---------------------------------------------------------------------------
-  // Lifecycle
-  // ---------------------------------------------------------------------------
 
   /** Persist both index snapshots and truncate the WAL. */
   snapshot(): void {
@@ -250,12 +225,7 @@ export class Engine {
     if (++this.writesSinceSnapshot >= SNAPSHOT_EVERY_N_WRITES) this.snapshot();
   }
 
-  /**
-   * Rebuild the in-memory inverted index at startup. Prefer the snapshot for a
-   * fast start, but if it's missing or out of sync with storage (e.g. a crash
-   * recovered writes the snapshot never saw), rebuild from the durable segments
-   * — storage is always the source of truth.
-   */
+
   private hydrateIndex(): void {
     const loaded = this.index.load(this.paths.invertedSnapshot);
     if (loaded && this.index.documentCount() === this.storage.size()) return;
@@ -270,3 +240,10 @@ export class Engine {
     }
   }
 }
+
+
+
+
+
+
+

@@ -1,14 +1,6 @@
 import type { Document } from "../types.js";
 
-/**
- * Load real articles from Wikipedia as searchable documents.
- *
- * Uses the MediaWiki API's `generator=random` with `prop=extracts` to pull
- * batches of ~20 random article intros at a time (the `exlimit` cap), running
- * many requests concurrently until the requested count of *unique* articles is
- * reached. Documents are streamed out via `onDocs` as they arrive so the caller
- * can index and report progress incrementally rather than buffering 50k in RAM.
- */
+
 
 const API =
   "https://en.wikipedia.org/w/api.php?action=query&format=json&formatversion=2" +
@@ -28,7 +20,7 @@ const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 async function fetchBatch(attempt = 0): Promise<WikiPage[]> {
   const res = await fetch(API, { headers: { "user-agent": UA } });
   if (res.status === 429 || res.status === 503) {
-    // Rate limited / overloaded — honour Retry-After, else exponential backoff.
+    // Rate limited / overloaded ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â honour Retry-After, else exponential backoff.
     if (attempt >= 6) throw new Error(`Wikipedia API ${res.status}`);
     const retryAfter = Number(res.headers.get("retry-after"));
     const wait = Number.isFinite(retryAfter) && retryAfter > 0
@@ -59,11 +51,7 @@ export interface WikipediaOptions {
   onDocs: (docs: Document[]) => void;
 }
 
-/**
- * Fetch `count` unique Wikipedia articles, invoking `onDocs` with each freshly
- * seen batch. Resolves with the number produced. Tolerates transient request
- * failures; gives up only if the API is persistently unreachable.
- */
+
 export async function fetchWikipediaDocuments(
   opts: WikipediaOptions,
 ): Promise<number> {
@@ -125,3 +113,10 @@ export async function fetchWikipediaDocuments(
     pump();
   });
 }
+
+
+
+
+
+
+

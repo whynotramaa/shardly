@@ -1,13 +1,9 @@
-/**
- * Core domain types. These are the structures you explain in an interview,
- * so they are kept small, precise, and free of `any`.
- */
+
 
 /** An arbitrary JSON document supplied by the caller. Stored verbatim. */
 export type Document = Record<string, unknown>;
 
-/** A document as it lives on disk / is returned to callers: the user's fields
- * plus the engine-assigned id. */
+
 export interface StoredDocument {
   id: string;
   doc: Document;
@@ -21,7 +17,7 @@ export interface OffsetEntry {
   byteOffset: number;
   /** Exact byte length of the record (excluding the trailing newline). */
   length: number;
-  /** Tombstone flag — deleted docs stay in the segment until compaction. */
+  /** Tombstone flag ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â deleted docs stay in the segment until compaction. */
   deleted: boolean;
 }
 
@@ -43,8 +39,7 @@ export type InvertedIndex = Map<string, PostingList>;
 /** WAL record states. */
 export type WalStatus = "pending" | "committed";
 
-/** WAL operation. Writes use the pending→committed handshake; deletes only
- * flip a tombstone flag so a single committed record is enough. */
+
 export type WalOp = "write" | "delete";
 
 export interface WalRecord {
@@ -56,8 +51,7 @@ export interface WalRecord {
   status: WalStatus;
 }
 
-/** Per-term breakdown of why a document scored the way it did — surfaced to
- * the frontend so a result's ranking is explainable. */
+
 export interface TermScore {
   term: string;
   termFrequency: number;
@@ -71,3 +65,10 @@ export interface SearchHit {
   doc: Document;
   breakdown: TermScore[];
 }
+
+
+
+
+
+
+

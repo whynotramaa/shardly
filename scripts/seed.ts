@@ -1,19 +1,9 @@
-/**
- * Load-test seeder. Generates N synthetic documents with varied lengths and a
- * Zipf-ish term distribution (so IDF actually varies) and indexes them through
- * the real Engine — same write path as the API.
- *
- * Usage: tsx scripts/seed.ts [count] [dataDir]
- *   count   default 50000
- *   dataDir default ./data
- */
+
 import { Engine } from "../src/engine.js";
 
 const COUNT = Number.parseInt(process.argv[2] ?? "50000", 10);
 const dataDir = process.argv[3]; // undefined -> default ./data
 
-// A topic vocabulary. Earlier words appear far more often than later ones,
-// giving a realistic frequency spread across the corpus.
 const VOCAB = [
   "storage", "index", "search", "database", "system", "engine", "document",
   "query", "ranking", "segment", "offset", "durability", "crash", "recovery",
@@ -48,7 +38,7 @@ function sampleWord(): string {
 }
 
 function makeDocument(i: number) {
-  const bodyLen = 20 + Math.floor(rand() * 180); // 20–200 tokens
+  const bodyLen = 20 + Math.floor(rand() * 180); // 20ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã…â€œ200 tokens
   const words: string[] = [];
   for (let w = 0; w < bodyLen; w++) words.push(sampleWord());
   return {
@@ -100,3 +90,10 @@ function main() {
 }
 
 main();
+
+
+
+
+
+
+

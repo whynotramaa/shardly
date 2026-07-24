@@ -33,29 +33,20 @@ describe("BM25 ranking", () => {
   });
 
   it("length normalization (b) is what penalizes an over-long doc", () => {
-    // Two docs with the SAME term frequency for the query term, differing only
-    // in length. This isolates b's effect: nothing else can explain a score gap.
     const idx = new InvertedIndexStore();
     idx.addDocument("tight", ["bm25", "bm25", "filler1", "filler2"]); // len 4
     const longTokens = ["bm25", "bm25", ...Array(30).fill(0).map((_, i) => `w${i}`)];
     idx.addDocument("bloated", longTokens); // len 32, same tf=2
 
-    // With normalization ON (default b), the bloated doc is penalized for its
-    // length and ranks below the tight one.
     const withNorm = rankBM25(idx, ["bm25"]).results;
     expect(withNorm[0]!.docId).toBe("tight");
     expect(withNorm[0]!.score).toBeGreaterThan(withNorm[1]!.score);
 
-    // With normalization OFF (b = 0), length is ignored and the two docs — same
-    // tf, same idf — score identically. This is the concrete before/after.
     const noNorm = rankBM25(idx, ["bm25"], { k1: 1.5, b: 0 }).results;
     expect(noNorm[0]!.score).toBeCloseTo(noNorm[1]!.score, 10);
   });
 
   it("a genuinely more relevant long doc still wins when it earns it", () => {
-    // The long doc is truly about the topic: many occurrences of the query
-    // term. BM25 lets it win despite the length penalty — relevance, not raw
-    // term fraction, decides the ranking.
     const idx = new InvertedIndexStore();
     idx.addDocument("short", ["bm25", "trick"]); // tf 1, len 2
     const longTokens = [
@@ -99,3 +90,8 @@ describe("BM25 ranking", () => {
     );
   });
 });
+
+
+
+
+

@@ -1,9 +1,4 @@
-/**
- * Open an already-seeded data dir and report indexed-vs-naive timings.
- * Averages several runs per query to smooth out JIT/GC noise.
- *
- * Usage: tsx scripts/bench.ts [dataDir]
- */
+
 import { Engine } from "../src/engine.js";
 
 const dataDir = process.argv[2];
@@ -51,3 +46,10 @@ function main() {
 }
 
 main();
+
+
+
+
+
+
+

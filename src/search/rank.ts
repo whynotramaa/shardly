@@ -2,35 +2,7 @@ import { BM25_K1, BM25_B } from "../config.js";
 import type { InvertedIndexStore } from "./index.js";
 import type { TermScore } from "../types.js";
 
-/**
- * BM25 ranking, implemented by hand.
- *
- * Per query term qi, per document D:
- *
- *   score += IDF(qi) * ( f * (k1 + 1) ) / ( f + k1 * (1 - b + b * |D|/avgdl) )
- *
- * where
- *   f     = frequency of qi in D
- *   |D|   = length of D in tokens
- *   avgdl = average document length in the corpus
- *   IDF   = ln( (N - n + 0.5) / (n + 0.5) + 1 )
- *   N     = total docs, n = docs containing qi
- *
- * The `b` term normalizes for document length, so a long doc isn't unfairly
- * favored just for having more room to contain a term (tested in rank.test.ts).
- *
- * Latency design (two passes):
- *   1. Accumulate a single running score per candidate — numbers only, no
- *      per-term object allocation. This is the O(total postings) work.
- *   2. Select the top-N with a bounded min-heap (O(candidates · log N)), then
- *      compute the explanatory per-term breakdown for those ≤N winners only.
- * The naive one-pass version allocated a breakdown array for every candidate
- * and sorted all of them; deferring that to the winners is the big win when a
- * common term matches tens of thousands of documents.
- *
- * Depends only on the index's read surface and the two constants — it knows
- * nothing about `fs` or how documents are stored.
- */
+
 
 export interface RankResult {
   docId: string;
@@ -51,8 +23,7 @@ export interface RankOptions {
   b?: number;
 }
 
-/** IDF(qi) = ln( (N - n + 0.5) / (n + 0.5) + 1 ). The `+1` keeps IDF
- * non-negative even for terms that appear in most documents. */
+
 export function idf(totalDocs: number, docsContaining: number): number {
   return Math.log(
     (totalDocs - docsContaining + 0.5) / (docsContaining + 0.5) + 1,
@@ -92,7 +63,7 @@ export function rankBM25(
     idfByTerm.set(term, idf(totalDocs, index.documentFrequency(term)));
   }
 
-  // Pass 1: accumulate total scores. Numbers only — no per-candidate objects.
+  // Pass 1: accumulate total scores. Numbers only ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â no per-candidate objects.
   const scores = new Map<string, number>();
   for (const term of uniqueTerms) {
     const termIdf = idfByTerm.get(term)!;
@@ -134,8 +105,7 @@ export function rankBM25(
   return { total: scores.size, results };
 }
 
-/** Term frequency of `term` in `docId` via its posting list. Winners only, so
- * this runs at most N·|query| times regardless of corpus size. */
+
 function termFrequencyIn(
   index: InvertedIndexStore,
   term: string,
@@ -147,11 +117,7 @@ function termFrequencyIn(
   return 0;
 }
 
-/**
- * Return the highest-scoring entries, descending. For a bounded limit this uses
- * a size-`limit` min-heap so the cost is O(candidates · log limit) instead of
- * sorting the entire candidate set.
- */
+
 function selectTopN(
   scores: Map<string, number>,
   limit: number,
@@ -222,3 +188,10 @@ class MinHeap {
     [this.scores[a], this.scores[b]] = [this.scores[b]!, this.scores[a]!];
   }
 }
+
+
+
+
+
+
+

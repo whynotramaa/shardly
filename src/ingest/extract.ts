@@ -1,20 +1,12 @@
 import { extractText, getDocumentProxy } from "unpdf";
 import type { Document } from "../types.js";
 
-/**
- * Turns an uploaded file's raw bytes into searchable documents.
- *
- * The problem this solves: reading a PDF (or any binary) as UTF-8 text yields
- * replacement/garbage characters that pollute the index and display. Here we
- * dispatch on file type — PDFs get real text extraction, structured formats
- * stay structured, plain text is decoded, and anything that still looks binary
- * is skipped with a reason instead of being indexed as noise.
- */
+
 
 export interface ExtractResult {
   filename: string;
   status: "indexed" | "skipped";
-  /** Present when skipped — why we couldn't index it. */
+  /** Present when skipped ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â why we couldn't index it. */
   reason?: string;
   /** The documents to index (empty when skipped). */
   docs: Document[];
@@ -38,25 +30,20 @@ export function extensionOf(filename: string): string {
   return base.slice(dot + 1);
 }
 
-/**
- * Heuristic: a buffer is "binary" if it contains NUL bytes or a high fraction
- * of non-text control characters in its first chunk. Cheap and good enough to
- * keep images/executables/etc. out of a text index.
- */
+
 function isProbablyBinary(buffer: Buffer): boolean {
   const sample = buffer.subarray(0, Math.min(buffer.length, 8192));
   if (sample.length === 0) return false;
   let suspicious = 0;
   for (const byte of sample) {
-    if (byte === 0) return true; // NUL — definitively binary
+    if (byte === 0) return true; // NUL ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â definitively binary
     // Allow tab(9), LF(10), CR(13); flag other C0 control chars.
     if (byte < 9 || (byte > 13 && byte < 32)) suspicious++;
   }
   return suspicious / sample.length > 0.3;
 }
 
-/** Attach the originating filename so results are traceable and filename terms
- * are themselves searchable. */
+
 function withSource(value: unknown, filename: string): Document {
   if (value && typeof value === "object" && !Array.isArray(value)) {
     return { ...(value as Record<string, unknown>), filename };
@@ -107,10 +94,7 @@ function extractNdjson(filename: string, text: string): Document[] {
   return docs;
 }
 
-/**
- * Extract indexable documents from one uploaded file. Never throws for bad
- * content — returns a "skipped" result with a reason instead.
- */
+
 export async function extractDocuments(
   filename: string,
   buffer: Buffer,
@@ -135,7 +119,7 @@ export async function extractDocuments(
     if (ext === "json") {
       const docs = extractJson(filename, text);
       if (docs) return { filename, status: "indexed", docs };
-      // Not valid JSON — fall back to storing the raw text.
+      // Not valid JSON ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â fall back to storing the raw text.
     }
 
     if (ext === "ndjson" || ext === "jsonl") {
@@ -161,3 +145,10 @@ export async function extractDocuments(
     };
   }
 }
+
+
+
+
+
+
+

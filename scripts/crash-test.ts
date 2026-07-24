@@ -1,17 +1,4 @@
-/**
- * Crash-recovery harness (the brief's "kill -9 in a loop" test).
- *
- * Repeatedly:
- *   1. spawn a writer child that appends docs and prints each acknowledged id
- *   2. SIGKILL it at a random moment — no cleanup, no flush, just death
- *   3. reopen Storage and assert every acknowledged id is readable and intact
- *
- * A crash between the segment fsync and the WAL "committed" record is the
- * dangerous window; the WAL replay must recover those. Any acknowledged id that
- * fails to read back after recovery is a durability bug.
- *
- * Usage: tsx scripts/crash-test.ts [rounds]
- */
+
 import { spawn } from "node:child_process";
 import fs from "node:fs";
 import os from "node:os";
@@ -26,9 +13,6 @@ function runWriterUntilKilled(
 ): Promise<string[]> {
   return new Promise((resolve) => {
     const acked: string[] = [];
-    // Spawn the writer as ONE node process (no shell wrapper), using tsx's
-    // loader. child.pid is then the real writer, so SIGKILL actually stops it
-    // — a shell wrapper would be killed while orphaning the node writer.
     const child = spawn(
       process.execPath,
       ["--import", "tsx", path.join("scripts", "crash-writer.ts"), dataDir],
@@ -77,16 +61,23 @@ async function main() {
         `missing=${missing}  corrupt=${corrupt}`,
     );
     if (missing > 0 || corrupt > 0) {
-      console.error("✗ DURABILITY BUG: acknowledged write not recoverable");
+      console.error("ÃƒÆ’Ã‚Â¢Ãƒâ€¦Ã¢â‚¬Å“ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â DURABILITY BUG: acknowledged write not recoverable");
       fs.rmSync(dataDir, { recursive: true, force: true });
       process.exit(1);
     }
   }
 
   console.log(
-    `\n✓ ${allAcked.length} acknowledged writes survived ${ROUNDS} SIGKILLs with zero loss or corruption`,
+    `\nÃƒÆ’Ã‚Â¢Ãƒâ€¦Ã¢â‚¬Å“ÃƒÂ¢Ã¢â€šÂ¬Ã…â€œ ${allAcked.length} acknowledged writes survived ${ROUNDS} SIGKILLs with zero loss or corruption`,
   );
   fs.rmSync(dataDir, { recursive: true, force: true });
 }
 
 main();
+
+
+
+
+
+
+

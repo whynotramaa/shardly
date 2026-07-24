@@ -14,8 +14,7 @@ function escapeRegex(s: string): string {
   return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
-/** Match each term as a word prefix, so a search for `recover` also highlights
- *  `recovery` / `recovering`. Case-insensitive, global. */
+
 function buildRegex(terms: string[]): RegExp {
   const alt = terms.map(escapeRegex).join("|");
   return new RegExp(`\\b(?:${alt})\\w*`, "gi");
@@ -44,8 +43,7 @@ export function markText(text: string, terms: string[]): ReactNode {
   return out;
 }
 
-/** Wrap matches inside an already-rendered DOM subtree (code, markdown).
- *  Walks text nodes only, never breaking existing markup. Returns match count. */
+
 export function highlightDom(root: HTMLElement, terms: string[]): number {
   if (terms.length === 0) return 0;
   const re = buildRegex(terms);
@@ -95,3 +93,10 @@ export function highlightDom(root: HTMLElement, terms: string[]): number {
   }
   return count;
 }
+
+
+
+
+
+
+

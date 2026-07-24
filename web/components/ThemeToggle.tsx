@@ -4,8 +4,7 @@ import { useEffect, useState } from "react";
 
 type Theme = "dark" | "light";
 
-/** Light/dark toggle. Reads the theme the inline head-script already applied,
- *  flips <html data-theme>, and persists the choice. Default is dark. */
+
 export default function ThemeToggle() {
   const [theme, setTheme] = useState<Theme>("dark");
 
@@ -51,3 +50,10 @@ export default function ThemeToggle() {
     </button>
   );
 }
+
+
+
+
+
+
+

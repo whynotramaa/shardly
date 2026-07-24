@@ -44,8 +44,7 @@ export function CodeBlock({
   );
 }
 
-/** Rendered, sanitized Markdown — with real code highlighting and optional
- *  query-match highlighting. */
+
 export function MarkdownBlock({
   markdown,
   highlight = [],
@@ -73,3 +72,10 @@ export function MarkdownBlock({
 
   return <div className="markdown" ref={ref} />;
 }
+
+
+
+
+
+
+

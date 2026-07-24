@@ -1,5 +1,4 @@
-/** Thin typed client for the Shardly API. Base URL is configurable so the UI
- * can point at a remote engine; defaults to the local dev server. */
+
 export const API_BASE =
   process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
 
@@ -139,8 +138,7 @@ export async function wikipediaStatus(): Promise<WikipediaStatus> {
   return json(await fetch(`${API_BASE}/corpus/wikipedia/status`));
 }
 
-/** Index the bundled Wikipedia corpus from disk, reading streamed NDJSON
- *  progress. No live API calls — works offline and can't be rate-limited. */
+
 export async function indexWikipedia(
   onProgress: (p: { indexed: number; total: number }) => void,
 ): Promise<{ indexed: number; documents: number }> {
@@ -225,3 +223,10 @@ export async function stats(): Promise<{ documents: number }> {
 export async function resetStore(): Promise<{ ok: boolean; documents: number }> {
   return json(await fetch(`${API_BASE}/reset`, { method: "POST" }));
 }
+
+
+
+
+
+
+
