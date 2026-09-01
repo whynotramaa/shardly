@@ -20,29 +20,33 @@ interface ListQuery {
   limit?: string;
 }
 
-
 function previewDoc(doc: Document, maxLen = 280): Document {
-  const out: Record<string, unknown> = {};
   let truncated = false;
-  for (const [key, value] of Object.entries(doc)) {
+
+  const trim = (value: unknown): unknown => {
     if (typeof value === "string" && value.length > maxLen) {
-      out[key] = value.slice(0, maxLen).trimEnd() + "ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â¦";
       truncated = true;
-    } else {
-      out[key] = value;
+      return value.slice(0, maxLen).trimEnd() + "\u2026";
     }
-  }
+    if (Array.isArray(value)) return value.map(trim);
+    if (value !== null && typeof value === "object") {
+      const out: Record<string, unknown> = {};
+      for (const [k, v] of Object.entries(value)) out[k] = trim(v);
+      return out;
+    }
+    return value;
+  };
+
+  const out = trim(doc) as Record<string, unknown>;
   if (truncated) out._truncated = true;
   return out;
 }
-
 
 export function registerRoutes(app: FastifyInstance, engine: Engine): void {
   app.get("/health", async () => ({ status: "ok" }));
 
   app.get("/stats", async () => ({ documents: engine.documentCount() }));
 
-  // Ingest a single JSON document.
   app.post<{ Body: Document }>("/documents", async (req, reply) => {
     const body = req.body;
     if (body === null || typeof body !== "object" || Array.isArray(body)) {
@@ -52,7 +56,6 @@ export function registerRoutes(app: FastifyInstance, engine: Engine): void {
     return reply.code(201).send({ id });
   });
 
-  // Bulk ingest ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â accepts an array of documents. Convenient for seeding/UI.
   app.post<{ Body: Document[] }>("/documents/bulk", async (req, reply) => {
     const body = req.body;
     if (!Array.isArray(body)) {
@@ -172,13 +175,17 @@ export function registerRoutes(app: FastifyInstance, engine: Engine): void {
     return { removed, documents: engine.documentCount() };
   });
 
-  // Clear the entire store ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â wipes seed data so uploads are the whole corpus.
+  // Clear the entire store — wipes seed data so uploads are the whole corpus.
+  app.post("/compact", async () => ({
+    ...engine.compact(),
+    documents: engine.documentCount(),
+  }));
+
   app.post("/reset", async () => {
     engine.reset();
     return { ok: true, documents: 0 };
   });
 
-  // Browse indexed documents (paginated), with snippet-trimmed previews.
   app.get<{ Querystring: ListQuery }>("/documents", async (req) => {
     const offset = Math.max(0, Number.parseInt(req.query.offset ?? "0", 10) || 0);
     const limit = parseLimit(req.query.limit, 50, 200);
@@ -191,14 +198,13 @@ export function registerRoutes(app: FastifyInstance, engine: Engine): void {
     };
   });
 
-  // O(1) lookup by id ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â returns the FULL document for the detail view.
+  // O(1) lookup by id — returns the FULL document for the detail view.
   app.get<{ Params: IdParam }>("/documents/:id", async (req, reply) => {
     const doc = engine.getDocument(req.params.id);
     if (doc === null) return reply.code(404).send({ error: "not found" });
     return { id: req.params.id, doc };
   });
 
-  // Tombstone + de-index.
   app.delete<{ Params: IdParam }>("/documents/:id", async (req, reply) => {
     const ok = engine.deleteDocument(req.params.id);
     if (!ok) return reply.code(404).send({ error: "not found" });
@@ -232,10 +238,3 @@ function parseLimit(raw: string | undefined, fallback = 10, max = 100): number {
   if (Number.isNaN(n) || n <= 0) return fallback;
   return Math.min(n, max);
 }
-
-
-
-
-
-
-

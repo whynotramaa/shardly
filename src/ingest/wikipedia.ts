@@ -1,7 +1,5 @@
 import type { Document } from "../types.js";
 
-
-
 const API =
   "https://en.wikipedia.org/w/api.php?action=query&format=json&formatversion=2" +
   "&generator=random&grnnamespace=0&grnlimit=20" +
@@ -20,7 +18,7 @@ const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 async function fetchBatch(attempt = 0): Promise<WikiPage[]> {
   const res = await fetch(API, { headers: { "user-agent": UA } });
   if (res.status === 429 || res.status === 503) {
-    // Rate limited / overloaded ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â honour Retry-After, else exponential backoff.
+    // Rate limited / overloaded — honour Retry-After, else exponential backoff.
     if (attempt >= 6) throw new Error(`Wikipedia API ${res.status}`);
     const retryAfter = Number(res.headers.get("retry-after"));
     const wait = Number.isFinite(retryAfter) && retryAfter > 0
@@ -50,7 +48,6 @@ export interface WikipediaOptions {
   concurrency?: number;
   onDocs: (docs: Document[]) => void;
 }
-
 
 export async function fetchWikipediaDocuments(
   opts: WikipediaOptions,
@@ -113,10 +110,3 @@ export async function fetchWikipediaDocuments(
     pump();
   });
 }
-
-
-
-
-
-
-

@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 
 type Theme = "dark" | "light";
 
-
 export default function ThemeToggle() {
   const [theme, setTheme] = useState<Theme>("dark");
 
@@ -50,10 +49,3 @@ export default function ThemeToggle() {
     </button>
   );
 }
-
-
-
-
-
-
-

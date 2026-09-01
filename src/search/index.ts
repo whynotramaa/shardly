@@ -1,23 +1,19 @@
 import fs from "node:fs";
 import type { InvertedIndex, PostingList, Posting } from "../types.js";
 
-
 export class InvertedIndexStore {
-  /** term -> posting list. */
   private readonly index: InvertedIndex = new Map();
   /** term -> number of distinct docs containing it (BM25 IDF input). */
   private readonly docFreq = new Map<string, number>();
   /** docId -> its length in tokens (BM25 length normalization input). */
   private readonly docLengths = new Map<string, number>();
-  /** Running sum of all document lengths, for O(1) average. */
+  /** docId -> the distinct terms it contributed, so delete touches only those. */
+  private readonly docTerms = new Map<string, string[]>();
   private totalTokens = 0;
-
-
 
   addDocument(docId: string, tokens: string[]): void {
     if (this.docLengths.has(docId)) this.removeDocument(docId);
 
-    // Count term frequencies within this document.
     const tf = new Map<string, number>();
     for (const token of tokens) {
       tf.set(token, (tf.get(token) ?? 0) + 1);
@@ -34,26 +30,27 @@ export class InvertedIndexStore {
     }
 
     this.docLengths.set(docId, tokens.length);
+    this.docTerms.set(docId, [...tf.keys()]);
     this.totalTokens += tokens.length;
   }
 
-  /** Drop the entire index ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â every posting and all corpus stats. */
   clear(): void {
     this.index.clear();
     this.docFreq.clear();
     this.docLengths.clear();
+    this.docTerms.clear();
     this.totalTokens = 0;
   }
 
-  /** Strip a document from every term's posting list. Needed for delete/update. */
+  /** Strip a document from its own terms' posting lists. Needed for delete/update. */
   removeDocument(docId: string): void {
     const length = this.docLengths.get(docId);
     if (length === undefined) return;
 
-    for (const [term, list] of this.index) {
+    for (const term of this.docTerms.get(docId) ?? []) {
+      const list = this.index.get(term);
+      if (list === undefined) continue;
       const next = list.filter((p) => p.docId !== docId);
-      if (next.length === list.length) continue; // term wasn't in this doc
-
       if (next.length === 0) {
         this.index.delete(term);
         this.docFreq.delete(term);
@@ -64,11 +61,10 @@ export class InvertedIndexStore {
     }
 
     this.docLengths.delete(docId);
+    this.docTerms.delete(docId);
     this.totalTokens -= length;
   }
 
-
-  /** Posting list for a term, or an empty list if the term is unknown. */
   postings(term: string): PostingList {
     return this.index.get(term) ?? [];
   }
@@ -94,10 +90,9 @@ export class InvertedIndexStore {
     return n === 0 ? 0 : this.totalTokens / n;
   }
 
-
-  /** Serialize the whole index to a JSON snapshot for fast startup. */
-  snapshot(filePath: string): void {
+  snapshot(filePath: string, version: number): void {
     const payload = {
+      version,
       index: Object.fromEntries(this.index),
       docFreq: Object.fromEntries(this.docFreq),
       docLengths: Object.fromEntries(this.docLengths),
@@ -111,22 +106,21 @@ export class InvertedIndexStore {
     fs.renameSync(tmp, filePath);
   }
 
-  /** Load a snapshot back into memory. Returns false if none exists. */
-  load(filePath: string): boolean {
-    if (!fs.existsSync(filePath)) return false;
+  /** Load a snapshot. Returns the storage version it was built at, or null if none. */
+  load(filePath: string): number | null {
+    if (!fs.existsSync(filePath)) return null;
     const raw = fs.readFileSync(filePath, "utf8");
-    if (raw.trim().length === 0) return false;
+    if (raw.trim().length === 0) return null;
 
     const payload = JSON.parse(raw) as {
+      version?: number;
       index: Record<string, PostingList>;
       docFreq: Record<string, number>;
       docLengths: Record<string, number>;
       totalTokens: number;
     };
 
-    this.index.clear();
-    this.docFreq.clear();
-    this.docLengths.clear();
+    this.clear();
 
     for (const [term, list] of Object.entries(payload.index)) {
       this.index.set(term, list as Posting[]);
@@ -138,13 +132,18 @@ export class InvertedIndexStore {
       this.docLengths.set(id, len);
     }
     this.totalTokens = payload.totalTokens;
-    return true;
+
+    // docTerms is derivable, so it stays out of the snapshot format.
+    for (const [term, list] of this.index) {
+      for (const p of list) {
+        let terms = this.docTerms.get(p.docId);
+        if (terms === undefined) {
+          terms = [];
+          this.docTerms.set(p.docId, terms);
+        }
+        terms.push(term);
+      }
+    }
+    return payload.version ?? -1;
   }
 }
-
-
-
-
-
-
-

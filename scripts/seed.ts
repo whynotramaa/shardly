@@ -38,7 +38,7 @@ function sampleWord(): string {
 }
 
 function makeDocument(i: number) {
-  const bodyLen = 20 + Math.floor(rand() * 180); // 20ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã…â€œ200 tokens
+  const bodyLen = 20 + Math.floor(rand() * 180); // 20–200 tokens
   const words: string[] = [];
   for (let w = 0; w < bodyLen; w++) words.push(sampleWord());
   return {
@@ -90,10 +90,3 @@ function main() {
 }
 
 main();
-
-
-
-
-
-
-

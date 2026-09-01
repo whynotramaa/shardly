@@ -97,7 +97,7 @@ describe("Storage", () => {
       op: "write",
       docId: "ghost",
       segment: seg,
-      byteOffset: segSize + 10, // beyond real data ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â never fsync'd
+      byteOffset: segSize + 10, // beyond real data — never fsync'd
       length: 42,
       status: "pending",
     };
@@ -109,7 +109,47 @@ describe("Storage", () => {
   });
 });
 
+describe("compaction", () => {
+  it("reclaims tombstoned bytes and keeps live docs readable", async () => {
+    let storage = freshStorage();
+    const ids = storage.writeBatch(
+      Array.from({ length: 200 }, (_, i) => ({ n: i, pad: "x".repeat(500) })),
+    );
+    storage.snapshot();
+    const before = segmentBytes(tmpDir);
 
+    for (let i = 0; i < 200; i += 2) storage.delete(ids[i]!);
+    const { reclaimedBytes, removedDocuments } = storage.compact();
 
+    expect(removedDocuments).toBe(100);
+    expect(reclaimedBytes).toBeGreaterThan(0);
+    expect(segmentBytes(tmpDir)).toBeLessThan(before);
+    expect(storage.size()).toBe(100);
+    expect(storage.read(ids[0]!)).toBeNull();
+    expect(storage.read(ids[1]!)).toEqual({ n: 1, pad: "x".repeat(500) });
+    storage.close();
 
+    // Survives a reopen: the new offsets were committed, not just in memory.
+    storage = freshStorage();
+    expect(storage.size()).toBe(100);
+    expect(storage.read(ids[199]!)).toEqual({ n: 199, pad: "x".repeat(500) });
+    expect(storage.read(ids[0]!)).toBeNull();
+    storage.close();
+  });
 
+  it("is a no-op with nothing tombstoned", async () => {
+    const storage = freshStorage();
+    storage.writeBatch([{ a: 1 }, { b: 2 }]);
+    expect(storage.compact()).toEqual({ reclaimedBytes: 0, removedDocuments: 0 });
+    expect(storage.size()).toBe(2);
+    storage.close();
+  });
+});
+
+function segmentBytes(dir: string): number {
+  const segs = path.join(dir, "segments");
+  return fs
+    .readdirSync(segs)
+    .filter((n) => n.startsWith("segment-"))
+    .reduce((sum, n) => sum + fs.statSync(path.join(segs, n)).size, 0);
+}

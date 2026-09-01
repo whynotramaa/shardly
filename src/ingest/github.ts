@@ -1,8 +1,6 @@
 import type { Document } from "../types.js";
 import { TEXT_EXTENSIONS, extensionOf } from "./extract.js";
 
-
-
 const API = "https://api.github.com";
 
 export interface GithubOptions {
@@ -72,7 +70,6 @@ async function gh<T>(
   return { ok: res.ok, status: res.status, data, rateRemaining };
 }
 
-
 async function mapLimit<T, R>(
   items: T[],
   limit: number,
@@ -115,7 +112,6 @@ export function parseGithubTarget(input: string): GithubTarget {
   return { kind: "user", user: parts[0] ?? "" };
 }
 
-
 async function repoListPath(
   user: string,
   token: string | undefined,
@@ -153,7 +149,7 @@ async function listRepos(
       if (res.status === 401) throw new Error("invalid GitHub token");
       if (res.status === 403)
         throw new Error(
-          "GitHub rate limit reached ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â add a personal access token to continue",
+          "GitHub rate limit reached — add a personal access token to continue",
         );
       const msg = (res.data as { message?: string })?.message ?? `HTTP ${res.status}`;
       throw new Error(`GitHub error: ${msg}`);
@@ -228,7 +224,7 @@ async function fetchRepoFiles(
     )
     .slice(0, maxFiles);
 
-  // Fetch blobs concurrently ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â the single biggest speedup for deep mode.
+  // Fetch blobs concurrently — the single biggest speedup for deep mode.
   const results = await mapLimit<TreeEntry, Document | null>(candidates, 8, async (entry) => {
     const blob = await gh<{ content?: string; encoding?: string }>(
       `/repos/${repo.full_name}/git/blobs/${entry.sha}`,
@@ -269,13 +265,12 @@ async function fetchRepo(
     if (res.status === 404) throw new Error(`repository "${owner}/${repo}" not found`);
     if (res.status === 401) throw new Error("invalid GitHub token");
     if (res.status === 403)
-      throw new Error("GitHub rate limit reached ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â add a personal access token");
+      throw new Error("GitHub rate limit reached — add a personal access token");
     const msg = (res.data as { message?: string })?.message ?? `HTTP ${res.status}`;
     throw new Error(`GitHub error: ${msg}`);
   }
   return { repo: res.data as Repo, rateRemaining: res.rateRemaining };
 }
-
 
 async function documentsForRepo(
   repo: Repo,
@@ -304,7 +299,6 @@ async function documentsForRepo(
   }
   return docs;
 }
-
 
 export async function fetchGithubDocuments(
   opts: GithubOptions,
@@ -352,7 +346,7 @@ export async function fetchGithubDocuments(
       docs.push(...repoDocs);
     }
   } else {
-    // No files to budget ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â fetch every repo's README concurrently.
+    // No files to budget — fetch every repo's README concurrently.
     const perRepo = await mapLimit(repos, 8, (repo) =>
       documentsForRepo(repo, opts.token, false, 0, 0, caps.maxFileBytes, errors),
     );
@@ -371,10 +365,3 @@ export async function fetchGithubDocuments(
   };
   return { docs, summary };
 }
-
-
-
-
-
-
-

@@ -1,7 +1,6 @@
 import fs from "node:fs";
 import type { WalRecord } from "../types.js";
 
-
 export class WriteAheadLog {
   private fd: number;
 
@@ -26,7 +25,6 @@ export class WriteAheadLog {
     this.append({ ...record, op: "write", status: "committed" });
   }
 
-
   logManyPending(records: Omit<WalRecord, "status" | "op">[]): void {
     this.appendMany(records.map((r) => ({ ...r, op: "write", status: "pending" })));
   }
@@ -43,7 +41,6 @@ export class WriteAheadLog {
     fs.fsyncSync(this.fd);
   }
 
-
   logDelete(docId: string): void {
     this.append({
       op: "delete",
@@ -54,7 +51,6 @@ export class WriteAheadLog {
       status: "committed",
     });
   }
-
 
   readAll(): WalRecord[] {
     if (!fs.existsSync(this.path)) return [];
@@ -70,7 +66,6 @@ export class WriteAheadLog {
     return records;
   }
 
-
   checkpoint(): void {
     fs.closeSync(this.fd);
     fs.truncateSync(this.path, 0);
@@ -81,10 +76,3 @@ export class WriteAheadLog {
     fs.closeSync(this.fd);
   }
 }
-
-
-
-
-
-
-

@@ -14,7 +14,6 @@ function escapeRegex(s: string): string {
   return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
-
 function buildRegex(terms: string[]): RegExp {
   const alt = terms.map(escapeRegex).join("|");
   return new RegExp(`\\b(?:${alt})\\w*`, "gi");
@@ -42,7 +41,6 @@ export function markText(text: string, terms: string[]): ReactNode {
   if (last < text.length) out.push(text.slice(last));
   return out;
 }
-
 
 export function highlightDom(root: HTMLElement, terms: string[]): number {
   if (terms.length === 0) return 0;
@@ -93,10 +91,3 @@ export function highlightDom(root: HTMLElement, terms: string[]): number {
   }
   return count;
 }
-
-
-
-
-
-
-

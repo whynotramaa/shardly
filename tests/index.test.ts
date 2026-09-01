@@ -55,10 +55,10 @@ describe("InvertedIndexStore", () => {
     idx.addDocument("d2", ["dog", "bird"]);
 
     const tmp = `${process.env.TEMP ?? "/tmp"}/shardly-idx-${Date.now()}.json`;
-    idx.snapshot(tmp);
+    idx.snapshot(tmp, 7);
 
     const loaded = new InvertedIndexStore();
-    expect(loaded.load(tmp)).toBe(true);
+    expect(loaded.load(tmp)).toBe(7);
     expect(loaded.postings("cat")).toEqual([{ docId: "d1", termFrequency: 2 }]);
     expect(loaded.documentCount()).toBe(2);
     expect(loaded.averageDocumentLength()).toBe(2.5);

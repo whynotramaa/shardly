@@ -2,8 +2,6 @@ import { BM25_K1, BM25_B } from "../config.js";
 import type { InvertedIndexStore } from "./index.js";
 import type { TermScore } from "../types.js";
 
-
-
 export interface RankResult {
   docId: string;
   score: number;
@@ -22,7 +20,6 @@ export interface RankOptions {
   k1?: number;
   b?: number;
 }
-
 
 export function idf(totalDocs: number, docsContaining: number): number {
   return Math.log(
@@ -63,7 +60,7 @@ export function rankBM25(
     idfByTerm.set(term, idf(totalDocs, index.documentFrequency(term)));
   }
 
-  // Pass 1: accumulate total scores. Numbers only ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â no per-candidate objects.
+  // Pass 1: accumulate total scores. Numbers only — no per-candidate objects.
   const scores = new Map<string, number>();
   for (const term of uniqueTerms) {
     const termIdf = idfByTerm.get(term)!;
@@ -83,13 +80,20 @@ export function rankBM25(
   // Select the winners: partial top-N when a limit is set, else full sort.
   const winners = selectTopN(scores, limit);
 
-  // Pass 2: build the per-term breakdown for winners only.
+  // Pass 2: one walk per term collecting tf for winners only, not one walk per winner.
+  const winnerIds = new Set(winners.map((w) => w.docId));
+  const tfByDoc = new Map<string, Map<string, number>>();
+  for (const id of winnerIds) tfByDoc.set(id, new Map());
+  for (const term of uniqueTerms) {
+    for (const { docId, termFrequency } of index.postings(term)) {
+      tfByDoc.get(docId)?.set(term, termFrequency);
+    }
+  }
+
   const results = winners.map(({ docId, score }) => {
     const docLen = index.documentLength(docId);
     const breakdown: TermScore[] = [];
-    for (const term of uniqueTerms) {
-      const tf = termFrequencyIn(index, term, docId);
-      if (tf === 0) continue;
+    for (const [term, tf] of tfByDoc.get(docId)!) {
       const termIdf = idfByTerm.get(term)!;
       breakdown.push({
         term,
@@ -104,19 +108,6 @@ export function rankBM25(
 
   return { total: scores.size, results };
 }
-
-
-function termFrequencyIn(
-  index: InvertedIndexStore,
-  term: string,
-  docId: string,
-): number {
-  for (const p of index.postings(term)) {
-    if (p.docId === docId) return p.termFrequency;
-  }
-  return 0;
-}
-
 
 function selectTopN(
   scores: Map<string, number>,
@@ -188,10 +179,3 @@ class MinHeap {
     [this.scores[a], this.scores[b]] = [this.scores[b]!, this.scores[a]!];
   }
 }
-
-
-
-
-
-
-

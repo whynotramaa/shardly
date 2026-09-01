@@ -1,6 +1,5 @@
 
 
-
 const STOPWORDS = new Set<string>([
   "the", "a", "an", "and", "or", "but", "if", "of", "at", "by", "for",
   "with", "about", "to", "from", "in", "on", "is", "are", "was", "were",
@@ -13,7 +12,6 @@ const STOPWORDS = new Set<string>([
 /** Keep letters and digits; turn everything else into a split point. */
 const NON_ALNUM = /[^a-z0-9\s]+/g;
 const WHITESPACE = /\s+/;
-
 
 export function stem(token: string): string {
   if (token.length <= 3) return token; // too short to safely strip
@@ -28,7 +26,6 @@ export function stem(token: string): string {
   return token;
 }
 
-
 export function tokenize(text: string): string[] {
   const cleaned = text.toLowerCase().replace(NON_ALNUM, " ");
   const tokens: string[] = [];
@@ -39,7 +36,6 @@ export function tokenize(text: string): string[] {
   }
   return tokens;
 }
-
 
 export function tokenizeDocument(doc: unknown): string[] {
   const parts: string[] = [];
@@ -62,10 +58,3 @@ function collectStrings(value: unknown, out: string[]): void {
     }
   }
 }
-
-
-
-
-
-
-

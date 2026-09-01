@@ -8,7 +8,6 @@ import {
   type WikipediaStatus,
 } from "@/lib/api";
 
-
 export default function WikipediaLoader({
   onIngested,
 }: {
@@ -85,7 +84,7 @@ export default function WikipediaLoader({
         <p className="hint" style={{ marginTop: 0 }}>
           <b>{available.toLocaleString()}</b> real Wikipedia articles are
           pre-fetched to disk. Indexing loads them through the same write path as
-          your uploads ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â no live API calls, nothing to rate-limit. De-indexing
+          your uploads — no live API calls, nothing to rate-limit. De-indexing
           removes them from search but keeps the saved file.
         </p>
       )}
@@ -97,7 +96,7 @@ export default function WikipediaLoader({
             onClick={doIndex}
             disabled={busy || isIndexed}
           >
-            {isIndexed ? "Indexed ÃƒÆ’Ã‚Â¢Ãƒâ€¦Ã¢â‚¬Å“ÃƒÂ¢Ã¢â€šÂ¬Ã…â€œ" : `Index ${available.toLocaleString()} articles`}
+            {isIndexed ? "Indexed ✓" : `Index ${available.toLocaleString()} articles`}
           </button>
           <button
             className="danger"
@@ -116,7 +115,7 @@ export default function WikipediaLoader({
         <div className="loader">
           <div className="loader-head">
             <span className="loader-spin" />
-            Indexing bundled corpusÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â¦
+            Indexing bundled corpus…
           </div>
           <div className="progress-track">
             <div className="progress-fill" style={{ width: `${pct}%` }} />
@@ -135,10 +134,3 @@ export default function WikipediaLoader({
     </div>
   );
 }
-
-
-
-
-
-
-

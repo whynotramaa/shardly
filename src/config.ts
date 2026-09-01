@@ -1,8 +1,5 @@
 import path from "node:path";
 
-
-
-
 export const DEFAULT_DATA_DIR = process.env.SHARDLY_DATA_DIR
   ? path.resolve(process.env.SHARDLY_DATA_DIR)
   : path.resolve(process.cwd(), "data");
@@ -32,19 +29,9 @@ export function dataPaths(dataDir: string = DEFAULT_DATA_DIR): DataPaths {
   };
 }
 
-
 export const SEGMENT_MAX_BYTES = 64 * 1024 * 1024;
-
 
 export const BM25_K1 = 1.5;
 export const BM25_B = 0.75;
 
-
 export const SNAPSHOT_EVERY_N_WRITES = 500;
-
-
-
-
-
-
-

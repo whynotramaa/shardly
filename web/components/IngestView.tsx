@@ -69,9 +69,9 @@ export default function IngestView({ onIngested }: { onIngested: () => void }) {
           hidden
           onChange={(e) => handleFiles(e.target.files)}
         />
-        <div className="dz-icon">{busy ? "ÃƒÂ¢Ã‚ÂÃ‚Â³" : "ÃƒÂ¢Ã‚Â¬Ã¢â‚¬Â "}</div>
+        <div className="dz-icon">{busy ? "⏳" : "⬆"}</div>
         <div className="dz-title">
-          {busy ? "Extracting & indexingÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¦" : "Drop files here, or click to choose"}
+          {busy ? "Extracting & indexing…" : "Drop files here, or click to choose"}
         </div>
         <div className="dz-sub">
           <code>.pdf</code> is extracted to text, then indexed.{" "}
@@ -125,8 +125,3 @@ export default function IngestView({ onIngested }: { onIngested: () => void }) {
     </>
   );
 }
-
-
-
-
-

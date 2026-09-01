@@ -2,6 +2,7 @@
   "name": "shardly-web",
   "version": "1.0.0",
   "private": true,
+  "engines": { "node": ">=20" },
   "scripts": {
     "dev": "next dev -p 3000",
     "build": "next build",

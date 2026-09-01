@@ -5,7 +5,7 @@ import Link from "next/link";
 import { search, type SearchResponse, type SearchHit } from "@/lib/api";
 import { describe, snippet } from "@/lib/docmeta";
 
-/** A column heading with an ÃƒÂ¢Ã¢â‚¬Å“Ã‹Å“ hover tooltip explaining the metric. */
+/** A column heading with an ⓘ hover tooltip explaining the metric. */
 function Tip({
   label,
   tip,
@@ -56,10 +56,10 @@ export default function SearchView() {
             value={q}
             onChange={(e) => setQ(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && run()}
-            placeholder="Search your indexed documents ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â e.g. storage crash recovery"
+            placeholder="Search your indexed documents — e.g. storage crash recovery"
           />
           <button className="primary" onClick={run} disabled={busy}>
-            {busy ? "SearchingÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¦" : "Search"}
+            {busy ? "Searching…" : "Search"}
           </button>
         </div>
         {res && (
@@ -122,15 +122,15 @@ function HitCard({
           </div>
           <div className="hit-score-wrap">
             <span className="score">{hit.score.toFixed(4)}</span>
-            <span className="open-hint">open ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢</span>
+            <span className="open-hint">open →</span>
           </div>
         </div>
       </Link>
 
       <details className="breakdown-details">
-        <summary>Why this ranked here ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â BM25 breakdown</summary>
+        <summary>Why this ranked here — BM25 breakdown</summary>
         <p className="breakdown-intro">
-          BM25 scores each match by combining three signals per query term ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â
+          BM25 scores each match by combining three signals per query term —
           term frequency (<code>tf</code>), inverse document frequency (
           <code>idf</code>), and document-length normalization. Hover a column
           heading for what it means.
@@ -149,25 +149,25 @@ function HitCard({
                 <th>
                   <Tip
                     label="tf"
-                    tip="Term frequency ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â how many times this term appears in the document. BM25 saturates it: the 10th occurrence adds far less than the 2nd (controlled by k1 = 1.5)."
+                    tip="Term frequency — how many times this term appears in the document. BM25 saturates it: the 10th occurrence adds far less than the 2nd (controlled by k1 = 1.5)."
                   />
                 </th>
                 <th>
                   <Tip
                     label="idf"
-                    tip="Inverse document frequency ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â how rare the term is across the whole corpus. Rare terms weigh heavily; a term in every document weighs almost nothing."
+                    tip="Inverse document frequency — how rare the term is across the whole corpus. Rare terms weigh heavily; a term in every document weighs almost nothing."
                   />
                 </th>
                 <th>
                   <Tip
                     label="contribution"
-                    tip="This term's share of the final score = idf ÃƒÆ’Ã¢â‚¬â€ saturated tf ÃƒÆ’Ã¢â‚¬â€ length normalization (b = 0.75)."
+                    tip="This term's share of the final score = idf × saturated tf × length normalization (b = 0.75)."
                   />
                 </th>
                 <th>
                   <Tip
                     label="weight"
-                    tip="The contribution as a fraction of this document's single largest term contribution ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â the bars are relative, not absolute."
+                    tip="The contribution as a fraction of this document's single largest term contribution — the bars are relative, not absolute."
                     align="right"
                   />
                 </th>
@@ -204,8 +204,3 @@ function HitCard({
     </div>
   );
 }
-
-
-
-
-

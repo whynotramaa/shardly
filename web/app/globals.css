@@ -1,16 +1,16 @@
 
 :root {
-  /* Color ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â 5 named values */
+  /* Color — 5 named values */
   --bg: #0b0b0c; /* near-black base, not pure #000 */
   --surface: #141416; /* panels, one step up from bg */
   --surface-2: #1b1b1e; /* nested panels / hover */
   --ink: #ededec; /* primary text */
   --ink-muted: #87878c; /* secondary text, labels, captions */
-  --ember: #c4552e; /* the single accent ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â muted rust */
+  --ember: #c4552e; /* the single accent — muted rust */
   --ember-soft: rgba(196, 85, 46, 0.16);
   --ember-line: rgba(196, 85, 46, 0.5);
 
-  /* Hairline dividers ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â muted ink at low opacity, never a separate gray */
+  /* Hairline dividers — muted ink at low opacity, never a separate gray */
   --hairline: rgba(135, 135, 140, 0.22);
   --hairline-strong: rgba(135, 135, 140, 0.34);
 
@@ -120,7 +120,7 @@ a {
   padding: 0 28px;
 }
 
-/* full-bleed hairline between sections ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â the "engineering diagram" cue */
+/* full-bleed hairline between sections — the "engineering diagram" cue */
 .lp-rule {
   border: 0;
   border-top: 1px solid var(--hairline);
@@ -159,7 +159,28 @@ a {
   color: var(--ink);
 }
 
-/* single CTA ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ember outline only, never filled */
+/* GitHub — the one solid button on the page, so it reads as a hard link out */
+.gh {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 0.85rem;
+  letter-spacing: 0.02em;
+  color: var(--bg);
+  background: var(--ink);
+  border-radius: 2px;
+  padding: 9px 15px;
+  transition: transform 0.18s, opacity 0.18s;
+}
+.gh:hover {
+  color: var(--bg);
+  transform: translateY(-1px);
+  opacity: 0.88;
+}
+
+/* single CTA — ember outline only, never filled */
 .cta {
   display: inline-flex;
   align-items: center;
@@ -979,7 +1000,7 @@ label.check input {
   color: var(--ink-muted);
 }
 
-/* Badges ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â monochrome with ember for source of record */
+/* Badges — monochrome with ember for source of record */
 .badge {
   display: inline-block;
   font-family: var(--mono);

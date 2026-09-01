@@ -41,7 +41,7 @@ const STEPS = [
     n: "02",
     icon: <IconIndex />,
     title: "Index",
-    desc: "Every document is tokenized and folded into an in-memory inverted index ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â term ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢ postings ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â with corpus statistics for BM25.",
+    desc: "Every document is tokenized and folded into an in-memory inverted index — term → postings — with corpus statistics for BM25.",
   },
   {
     n: "03",
@@ -64,8 +64,19 @@ export default function Landing() {
           <a href="#benchmark" className="hide-sm">benchmark</a>
           <Link href="/engineering" className="hide-sm">engineering</Link>
           <ThemeToggle />
+          <a
+            className="gh"
+            href="https://github.com/whynotramaa/shardly"
+            target="_blank"
+            rel="noreferrer"
+          >
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden>
+              <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.4 7.4 0 0 1 2-.27c.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z" />
+            </svg>
+            GitHub
+          </a>
           <Link href="/app" className="cta">
-            Try it <span className="arrow">ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢</span>
+            Try it <span className="arrow">→</span>
           </Link>
         </div>
       </nav>
@@ -81,13 +92,13 @@ export default function Landing() {
         <p className="hero-sub">
           Upload your own documents or a GitHub repository. Shardly stores them
           in a hand-rolled, crash-safe engine and gives you ranked full-text
-          search back in milliseconds ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â no database, no search library.
+          search back in milliseconds — no database, no search library.
         </p>
         <div className="hero-cta-row">
           <Link href="/app" className="cta">
-            Try it <span className="arrow">ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢</span>
+            Try it <span className="arrow">→</span>
           </Link>
-          <span className="hero-cta-note">no signup Ãƒâ€šÃ‚Â· runs locally</span>
+          <span className="hero-cta-note">no signup · runs locally</span>
         </div>
 
         <IndexAnimation />
@@ -116,10 +127,10 @@ export default function Landing() {
 
       <hr className="lp-rule" />
 
-      {/* Benchmark ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â real measured numbers */}
+      {/* Benchmark — real measured numbers */}
       <section className="section" id="benchmark">
         <div className="section-label">
-          Benchmark Ãƒâ€šÃ‚Â· query ÃƒÂ¢Ã¢â€šÂ¬Ã…â€œvectorÃƒÂ¢Ã¢â€šÂ¬Ã‚Â Ãƒâ€šÃ‚Â· 50,000 documents Ãƒâ€šÃ‚Â· 5-run average
+          Benchmark · query “vector” · 50,000 documents · 5-run average
         </div>
         <div className="bench-grid">
           <div className="bench-cell">
@@ -138,7 +149,7 @@ export default function Landing() {
           </div>
           <div className="bench-cell">
             <div className="bench-cell-label">Speedup</div>
-            <div className="bench-num">125ÃƒÆ’Ã¢â‚¬â€</div>
+            <div className="bench-num">125×</div>
             <div className="bench-cell-sub">identical BM25 top hit</div>
           </div>
         </div>
@@ -150,10 +161,10 @@ export default function Landing() {
 
       <hr className="lp-rule" />
 
-      {/* Architecture ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â the signal path a query actually follows */}
+      {/* Architecture — the signal path a query actually follows */}
       <section className="section" id="architecture">
         <div className="section-label">
-          How it actually works Ãƒâ€šÃ‚Â· the signal path
+          How it actually works · the signal path
         </div>
         <SignalPath />
         <p className="bench-foot">
@@ -167,26 +178,21 @@ export default function Landing() {
 
       <hr className="lp-rule" />
 
-      {/* Try it ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â live search */}
+      {/* Try it — live search */}
       <section className="section" id="tryit">
-        <div className="section-label">Try it ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â search the live index</div>
+        <div className="section-label">Try it — search the live index</div>
         <TryItSearch />
       </section>
 
       <hr className="lp-rule" />
 
       <footer className="lp-footer">
-        <span className="prompt">shardly ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â append-only storage Ãƒâ€šÃ‚Â· WAL recovery Ãƒâ€šÃ‚Â· BM25</span>
+        <span className="prompt">shardly — append-only storage · WAL recovery · BM25</span>
         <span style={{ display: "flex", gap: 20 }}>
-          <Link href="/engineering">engineering deep-dive ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢</Link>
-          <Link href="/app">open the workspace ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢</Link>
+          <Link href="/engineering">engineering deep-dive →</Link>
+          <Link href="/app">open the workspace →</Link>
         </span>
       </footer>
     </div>
   );
 }
-
-
-
-
-

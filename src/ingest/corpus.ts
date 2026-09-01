@@ -2,8 +2,6 @@ import { createReadStream, existsSync } from "node:fs";
 import { createInterface } from "node:readline";
 import type { Document } from "../types.js";
 
-
-
 export const WIKI_CORPUS_PATH =
   process.env.WIKI_CORPUS ?? "./corpus/wikipedia.ndjson";
 
@@ -22,7 +20,6 @@ export async function countCorpus(path = WIKI_CORPUS_PATH): Promise<number> {
   for await (const line of rl) if (line.trim()) n++;
   return n;
 }
-
 
 export async function streamCorpus(
   onBatch: (docs: Document[]) => void,
@@ -50,10 +47,3 @@ export async function streamCorpus(
   }
   if (batch.length > 0) onBatch(batch);
 }
-
-
-
-
-
-
-

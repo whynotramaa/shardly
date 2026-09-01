@@ -138,7 +138,6 @@ export async function wikipediaStatus(): Promise<WikipediaStatus> {
   return json(await fetch(`${API_BASE}/corpus/wikipedia/status`));
 }
 
-
 export async function indexWikipedia(
   onProgress: (p: { indexed: number; total: number }) => void,
 ): Promise<{ indexed: number; documents: number }> {
@@ -223,10 +222,3 @@ export async function stats(): Promise<{ documents: number }> {
 export async function resetStore(): Promise<{ ok: boolean; documents: number }> {
   return json(await fetch(`${API_BASE}/reset`, { method: "POST" }));
 }
-
-
-
-
-
-
-

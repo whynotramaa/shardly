@@ -4,6 +4,9 @@ Shardly is a small, self-contained document store with full-text search. It is i
 
 The project is designed to be understandable and defensible in an engineering interview. It demonstrates durable append-only storage, crash recovery, O(1) document reads, relevance ranking, ingestion pipelines, and a measured indexed-vs-linear-search comparison.
 
+For the reasoning behind each decision, the alternatives rejected, and the
+known limits, read [ENGINEERING.md](ENGINEERING.md).
+
 ## What the system does
 
 - Stores arbitrary JSON documents durably on disk.
@@ -13,7 +16,7 @@ The project is designed to be understandable and defensible in an engineering in
 - Ranks matches with BM25, including IDF, term-frequency saturation, and document-length normalization.
 - Returns a per-term score breakdown so the UI can explain each result.
 - Accepts JSON, bulk JSON, text/code files, JSON/NDJSON, PDFs, GitHub targets, and a bundled Wikipedia corpus.
-- Compares indexed search with a naive scan over the same data.
+- Compares indexed search with an unindexed scan over the same data.
 - Provides a Next.js workspace for ingesting, browsing, searching, benchmarking, and inspecting documents.
 
 The scope is deliberately single-process and single-machine. There is no clustering, replication, authentication, multi-tenancy, SQL layer, compaction implementation, or external database.
@@ -71,7 +74,16 @@ Search does not scan segment files to find candidates. It tokenizes the query, u
 
 Documents are serialized as one NDJSON record per line under `data/segments/segment-0000.log`, with new segment files created after the 64 MiB limit. Each offset entry stores the segment name, byte offset, byte length, and deletion flag. Reads use `fs.readSync` at that exact offset; they do not scan the log.
 
-This layout keeps writes simple and creates a future boundary for compaction. Deleted or updated records remain in place and are hidden by the offset index until compaction is added.
+This layout keeps writes simple. Deleted and superseded records stay in place,
+hidden by the offset index, until `POST /compact` reclaims them.
+
+### Compaction
+
+`Storage.compact()` rewrites the live records into fresh segments numbered past
+the current one, so the existing files stay readable until `snapshot()` durably
+commits the new offsets. That snapshot is the commit point: a crash before it
+leaves the old state intact, and a crash after it leaves only the old files to
+unlink. Neither window loses data.
 
 ### Write-ahead log
 
@@ -136,6 +148,7 @@ The Fastify API is intentionally thin; validation and response shaping stay at t
 | `DELETE` | `/documents/:id` | Tombstone and de-index a document |
 | `GET` | `/search?q=...&limit=...` | Ranked hits with snippets and BM25 breakdowns |
 | `GET` | `/benchmark?q=...` | Indexed and naive timings plus top-hit agreement |
+| `POST` | `/compact` | Rewrite segments, dropping tombstoned records |
 | `POST` | `/reset` | Clear the store and index |
 
 ## Ingestion decisions
@@ -205,7 +218,7 @@ The test suite covers:
 - Text, structured JSON, arrays, NDJSON, binary rejection, empty files, and real PDF extraction.
 - GitHub target parsing.
 
-The TypeScript production build passes with `npm run build`. In this restricted Windows execution environment, the default Vitest process-spawn path is blocked with `spawn EPERM`, so the test runner could not execute here; this is an environment limitation rather than a reported assertion failure.
+Run them with `npm test`. The TypeScript production build passes with `npm run build`.
 
 The repository's recorded 50,000-document benchmark uses five-run averages and reports:
 
@@ -216,6 +229,15 @@ The repository's recorded 50,000-document benchmark uses five-run averages and r
 | `crash recovery latency` | 20.61 ms | 840.8 ms | 41x | agrees |
 | `checksum integrity corruption` | 15.47 ms | 797.5 ms | 52x | agrees |
 
-These figures are local measurements recorded in the engineering UI, not a universal performance guarantee. Run `npm run seed` and `npx tsx scripts/bench.ts` on the target machine for fresh numbers. The crash harness is intended to prove that acknowledged writes survive repeated SIGKILLs with no missing or corrupted records.
+Read the naive column for what it is. `naiveSearch` re-reads and re-tokenizes
+every document from disk on each call, so the comparison is "no index at all"
+against "index already built", not "linear scan of pre-tokenized data" against
+"index". The index build cost is paid once at ingest and does not appear here.
+A pre-tokenized linear scan would land somewhere between the two columns.
+
+These are local measurements, not a performance guarantee. Run `npm run seed`
+and `npm run bench` on the target machine for fresh numbers. The crash harness
+proves that acknowledged writes survive repeated SIGKILLs with no missing or
+corrupted records.
 
 

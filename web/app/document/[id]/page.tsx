@@ -37,16 +37,16 @@ function DocumentInner() {
   return (
     <div className="container">
       <Link href="/app" className="back-link">
-        ÃƒÂ¢Ã¢â‚¬Â Ã‚Â Back to workspace
+        ← Back to workspace
       </Link>
 
       {terms.length > 0 && (
         <div className="match-count">
-          highlighting: {terms.join(" Ãƒâ€šÃ‚Â· ")}
+          highlighting: {terms.join(" · ")}
         </div>
       )}
 
-      {busy && <p className="meta">Loading documentÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¦</p>}
+      {busy && <p className="meta">Loading document…</p>}
       {err && <div className="notice err">{err}</div>}
       {rec && <DocumentBody doc={rec.doc} id={rec.id} terms={terms} />}
     </div>
@@ -138,10 +138,10 @@ function RepoBody({ doc, terms }: { doc: Doc; terms: string[] }) {
       )}
       <div className="stat-pills">
         {typeof doc.stars === "number" && (
-          <span className="pill">ÃƒÂ¢Ã‹Å“Ã¢â‚¬Â¦ <b>{doc.stars}</b> stars</span>
+          <span className="pill">★ <b>{doc.stars}</b> stars</span>
         )}
         {typeof doc.forks === "number" && (
-          <span className="pill">ÃƒÂ¢Ã¢â‚¬ËœÃ†â€™ <b>{doc.forks}</b> forks</span>
+          <span className="pill">⑃ <b>{doc.forks}</b> forks</span>
         )}
         {topics.map((t) => (
           <span key={t} className="term-chip">
@@ -166,7 +166,7 @@ function PdfBody({ doc, terms }: { doc: Doc; terms: string[] }) {
   return (
     <div className="pdf-text">
       <p className="meta" style={{ marginTop: 0 }}>
-        Extracted text{typeof doc.pages === "number" ? ` Ãƒâ€šÃ‚Â· ${doc.pages} page(s)` : ""}
+        Extracted text{typeof doc.pages === "number" ? ` · ${doc.pages} page(s)` : ""}
       </p>
       {paragraphs.length > 0 ? (
         paragraphs.map((p, i) => (
@@ -178,8 +178,3 @@ function PdfBody({ doc, terms }: { doc: Doc; terms: string[] }) {
     </div>
   );
 }
-
-
-
-
-

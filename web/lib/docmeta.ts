@@ -54,7 +54,7 @@ export function primaryText(doc: Doc): string {
 export function snippet(doc: Doc, max = 220): string {
   const raw = primaryText(doc) || JSON.stringify(doc);
   const s = raw.replace(/\s+/g, " ").trim();
-  return s.length > max ? s.slice(0, max).trimEnd() + "ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â¦" : s;
+  return s.length > max ? s.slice(0, max).trimEnd() + "…" : s;
 }
 
 export type RenderMode = "repo" | "code" | "markdown" | "pdf" | "json" | "text";
@@ -74,14 +74,7 @@ export function renderMode(doc: Doc): { mode: RenderMode; language?: string } {
   if (ext === "json") return { mode: "json" };
   if (CODE_EXTENSIONS.has(ext)) return { mode: "code", language: ext };
 
-  // No filename hint: structured object ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ JSON; a text blob ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ text.
+  // No filename hint: structured object → JSON; a text blob → text.
   if (typeof doc.content === "string") return { mode: "text" };
   return { mode: "json" };
 }
-
-
-
-
-
-
-

@@ -44,7 +44,6 @@ export function CodeBlock({
   );
 }
 
-
 export function MarkdownBlock({
   markdown,
   highlight = [],
@@ -72,10 +71,3 @@ export function MarkdownBlock({
 
   return <div className="markdown" ref={ref} />;
 }
-
-
-
-
-
-
-

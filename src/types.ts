@@ -3,7 +3,6 @@
 /** An arbitrary JSON document supplied by the caller. Stored verbatim. */
 export type Document = Record<string, unknown>;
 
-
 export interface StoredDocument {
   id: string;
   doc: Document;
@@ -17,17 +16,15 @@ export interface OffsetEntry {
   byteOffset: number;
   /** Exact byte length of the record (excluding the trailing newline). */
   length: number;
-  /** Tombstone flag ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â deleted docs stay in the segment until compaction. */
+  /** Tombstone flag — deleted docs stay in the segment until compaction. */
   deleted: boolean;
 }
 
 /** docId -> physical location. Lives fully in memory for fast lookups. */
 export type OffsetIndex = Map<string, OffsetEntry>;
 
-/** One document's contribution to a term's posting list. */
 export interface Posting {
   docId: string;
-  /** How many times the term appears in this document. */
   termFrequency: number;
 }
 
@@ -36,9 +33,7 @@ export type PostingList = Posting[];
 /** term -> which docs contain it, and how often. */
 export type InvertedIndex = Map<string, PostingList>;
 
-/** WAL record states. */
 export type WalStatus = "pending" | "committed";
-
 
 export type WalOp = "write" | "delete";
 
@@ -50,7 +45,6 @@ export interface WalRecord {
   length: number;
   status: WalStatus;
 }
-
 
 export interface TermScore {
   term: string;
@@ -65,10 +59,3 @@ export interface SearchHit {
   doc: Document;
   breakdown: TermScore[];
 }
-
-
-
-
-
-
-

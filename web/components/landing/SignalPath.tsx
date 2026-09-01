@@ -2,8 +2,6 @@
 
 import { useEffect, useRef, useState } from "react";
 
-
-
 function Arrow() {
   return (
     <div className="sp-link">
@@ -44,7 +42,7 @@ export default function SignalPath() {
   return (
     <div className={`signal${inView ? " in" : ""}`} ref={ref}>
       <div className="signal-track">
-        {/* 01 ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â raw */}
+        {/* 01 — raw */}
         <div className="sp-stage">
           <div className="sp-head">
             <span className="sp-num">01</span>
@@ -61,13 +59,13 @@ export default function SignalPath() {
 
         <Arrow />
 
-        {/* 02 ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â tokens */}
+        {/* 02 — tokens */}
         <div className="sp-stage">
           <div className="sp-head">
             <span className="sp-num">02</span>
             <span className="sp-label">Tokens</span>
           </div>
-          <div className="sp-sub">lowercased ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â· stemmed</div>
+          <div className="sp-sub">lowercased · stemmed</div>
           <div className="sp-body">
             <div className="sp-chips">
               {["storage", "index", "crash", "recoveri", "segment"].map((t) => (
@@ -79,13 +77,13 @@ export default function SignalPath() {
 
         <Arrow />
 
-        {/* 03 ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â postings */}
+        {/* 03 — postings */}
         <div className="sp-stage">
           <div className="sp-head">
             <span className="sp-num">03</span>
             <span className="sp-label">Postings</span>
           </div>
-          <div className="sp-sub">term ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ documents</div>
+          <div className="sp-sub">term → documents</div>
           <div className="sp-body">
             <div className="sp-postings">
               {POSTINGS.map((on, i) => (
@@ -97,7 +95,7 @@ export default function SignalPath() {
 
         <Arrow />
 
-        {/* 04 ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ranked */}
+        {/* 04 — ranked */}
         <div className="sp-stage">
           <div className="sp-head">
             <span className="sp-num">04</span>
@@ -121,10 +119,3 @@ export default function SignalPath() {
     </div>
   );
 }
-
-
-
-
-
-
-

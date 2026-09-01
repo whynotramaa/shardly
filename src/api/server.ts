@@ -4,7 +4,6 @@ import multipart from "@fastify/multipart";
 import { Engine } from "../engine.js";
 import { registerRoutes } from "./routes.js";
 
-
 export async function buildServer(dataDir?: string) {
   const app = Fastify({ logger: false, bodyLimit: 64 * 1024 * 1024 });
   await app.register(cors, { origin: true });
@@ -38,7 +37,6 @@ async function main() {
   process.on("SIGTERM", shutdown);
 
   await app.listen({ port, host });
-  // eslint-disable-next-line no-console
   console.log(
     `Shardly API listening on http://${host}:${port}  (${engine.documentCount()} docs indexed)`,
   );
@@ -48,15 +46,7 @@ async function main() {
 const isMain = process.argv[1]?.endsWith("server.ts") || process.argv[1]?.endsWith("server.js");
 if (isMain) {
   main().catch((err) => {
-    // eslint-disable-next-line no-console
     console.error(err);
     process.exit(1);
   });
 }
-
-
-
-
-
-
-

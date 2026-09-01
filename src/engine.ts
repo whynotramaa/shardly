@@ -24,7 +24,6 @@ export interface BenchmarkResponse {
   topHitsMatch: boolean;
 }
 
-
 export class Engine {
   private readonly storage: Storage;
   private readonly index = new InvertedIndexStore();
@@ -37,14 +36,12 @@ export class Engine {
     this.hydrateIndex();
   }
 
-
   addDocument(doc: Document): string {
     const docId = this.storage.write(doc);
     this.index.addDocument(docId, tokenizeDocument(doc));
     this.maybeSnapshot();
     return docId;
   }
-
 
   addDocuments(docs: Document[]): string[] {
     const ids = this.storage.writeBatch(docs);
@@ -86,7 +83,6 @@ export class Engine {
     return { total: ids.length, items };
   }
 
-
   collectBySource(source: string): Array<{ id: string; pageid?: number }> {
     const out: Array<{ id: string; pageid?: number }> = [];
     for (const id of this.storage.liveDocIds()) {
@@ -101,7 +97,7 @@ export class Engine {
     return out;
   }
 
-  /** Clear every document and index ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â a clean slate for the user's own uploads. */
+  /** Clear every document and index — a clean slate for the user's own uploads. */
   reset(): void {
     this.storage.reset();
     this.index.clear();
@@ -109,8 +105,6 @@ export class Engine {
     this.writesSinceSnapshot = 0;
   }
 
-
-  /** Ranked full-text search via the inverted index. */
   search(query: string, limit = 10): SearchResponse {
     const terms = tokenize(query);
     const start = performance.now();
@@ -124,7 +118,6 @@ export class Engine {
     const tookMs = performance.now() - start;
     return { query, terms, tookMs, total, hits };
   }
-
 
   naiveSearch(query: string, limit = 10): SearchResponse {
     const terms = [...new Set(tokenize(query))];
@@ -182,7 +175,7 @@ export class Engine {
     return { query, terms, tookMs, total: scored.length, hits };
   }
 
-  /** Run the same query both ways and compare timings ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â the interview demo. */
+  /** Run the same query both ways and compare timings — the interview demo. */
   benchmark(query: string, limit = 10): BenchmarkResponse {
     const indexed = this.search(query, limit);
     const naive = this.naiveSearch(query, limit);
@@ -208,11 +201,15 @@ export class Engine {
     };
   }
 
+  compact(): { reclaimedBytes: number; removedDocuments: number } {
+    const result = this.storage.compact();
+    this.snapshot();
+    return result;
+  }
 
-  /** Persist both index snapshots and truncate the WAL. */
   snapshot(): void {
     this.storage.snapshot();
-    this.index.snapshot(this.paths.invertedSnapshot);
+    this.index.snapshot(this.paths.invertedSnapshot, this.storage.stateVersion());
     this.writesSinceSnapshot = 0;
   }
 
@@ -225,25 +222,15 @@ export class Engine {
     if (++this.writesSinceSnapshot >= SNAPSHOT_EVERY_N_WRITES) this.snapshot();
   }
 
-
   private hydrateIndex(): void {
-    const loaded = this.index.load(this.paths.invertedSnapshot);
-    if (loaded && this.index.documentCount() === this.storage.size()) return;
-
-    this.rebuildIndexFromStorage();
-  }
-
-  private rebuildIndexFromStorage(): void {
+    if (this.index.load(this.paths.invertedSnapshot) === this.storage.stateVersion()) {
+      return;
+    }
+    // Snapshot is missing or predates a write, so rebuild from the segments.
+    this.index.clear();
     for (const id of this.storage.liveDocIds()) {
       const doc = this.storage.read(id);
       if (doc !== null) this.index.addDocument(id, tokenizeDocument(doc));
     }
   }
 }
-
-
-
-
-
-
-

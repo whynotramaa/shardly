@@ -1,12 +1,10 @@
 import { extractText, getDocumentProxy } from "unpdf";
 import type { Document } from "../types.js";
 
-
-
 export interface ExtractResult {
   filename: string;
   status: "indexed" | "skipped";
-  /** Present when skipped ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â why we couldn't index it. */
+  /** Present when skipped — why we couldn't index it. */
   reason?: string;
   /** The documents to index (empty when skipped). */
   docs: Document[];
@@ -30,19 +28,17 @@ export function extensionOf(filename: string): string {
   return base.slice(dot + 1);
 }
 
-
 function isProbablyBinary(buffer: Buffer): boolean {
   const sample = buffer.subarray(0, Math.min(buffer.length, 8192));
   if (sample.length === 0) return false;
   let suspicious = 0;
   for (const byte of sample) {
-    if (byte === 0) return true; // NUL ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â definitively binary
+    if (byte === 0) return true; // NUL — definitively binary
     // Allow tab(9), LF(10), CR(13); flag other C0 control chars.
     if (byte < 9 || (byte > 13 && byte < 32)) suspicious++;
   }
   return suspicious / sample.length > 0.3;
 }
-
 
 function withSource(value: unknown, filename: string): Document {
   if (value && typeof value === "object" && !Array.isArray(value)) {
@@ -94,7 +90,6 @@ function extractNdjson(filename: string, text: string): Document[] {
   return docs;
 }
 
-
 export async function extractDocuments(
   filename: string,
   buffer: Buffer,
@@ -119,7 +114,7 @@ export async function extractDocuments(
     if (ext === "json") {
       const docs = extractJson(filename, text);
       if (docs) return { filename, status: "indexed", docs };
-      // Not valid JSON ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â fall back to storing the raw text.
+      // Not valid JSON — fall back to storing the raw text.
     }
 
     if (ext === "ndjson" || ext === "jsonl") {
@@ -145,10 +140,3 @@ export async function extractDocuments(
     };
   }
 }
-
-
-
-
-
-
-

@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "A hand-rolled document store with full-text search and BM25 ranking (mini Elasticsearch)",
   "type": "module",
+  "engines": { "node": ">=20" },
   "scripts": {
     "dev": "tsx watch src/api/server.ts",
     "start": "tsx src/api/server.ts",
@@ -10,7 +11,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "seed": "tsx scripts/seed.ts",
-    "crash-test": "tsx scripts/crash-test.ts"
+    "crash-test": "tsx scripts/crash-test.ts",
+    "bench": "tsx scripts/bench.ts"
   },
   "dependencies": {
     "@fastify/cors": "^10.0.1",

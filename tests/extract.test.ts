@@ -1,7 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { extractDocuments } from "../src/ingest/extract.js";
 
-
 function buildMinimalPdf(text: string): Buffer {
   const header = "%PDF-1.4\n";
   const stream = `BT /F1 24 Tf 72 700 Td (${text}) Tj ET`;
@@ -86,10 +85,3 @@ describe("extractDocuments", () => {
     expect(r.docs[0]!.type).toBe("pdf");
   });
 });
-
-
-
-
-
-
-

@@ -61,23 +61,16 @@ async function main() {
         `missing=${missing}  corrupt=${corrupt}`,
     );
     if (missing > 0 || corrupt > 0) {
-      console.error("ÃƒÆ’Ã‚Â¢Ãƒâ€¦Ã¢â‚¬Å“ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â DURABILITY BUG: acknowledged write not recoverable");
+      console.error("✗ DURABILITY BUG: acknowledged write not recoverable");
       fs.rmSync(dataDir, { recursive: true, force: true });
       process.exit(1);
     }
   }
 
   console.log(
-    `\nÃƒÆ’Ã‚Â¢Ãƒâ€¦Ã¢â‚¬Å“ÃƒÂ¢Ã¢â€šÂ¬Ã…â€œ ${allAcked.length} acknowledged writes survived ${ROUNDS} SIGKILLs with zero loss or corruption`,
+    `\n✓ ${allAcked.length} acknowledged writes survived ${ROUNDS} SIGKILLs with zero loss or corruption`,
   );
   fs.rmSync(dataDir, { recursive: true, force: true });
 }
 
 main();
-
-
-
-
-
-
-

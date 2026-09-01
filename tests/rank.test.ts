@@ -90,8 +90,3 @@ describe("BM25 ranking", () => {
     );
   });
 });
-
-
-
-
-

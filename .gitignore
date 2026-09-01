@@ -4,6 +4,10 @@ data/
 web/.next/
 web/node_modules/
 web/out/
+website/.next/
+website/out/
+website/next-env.d.ts
+*.tsbuildinfo
 *.log
 !src/**/*.ts
 .DS_Store

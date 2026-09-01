@@ -12,7 +12,7 @@ async function main() {
   const start = Date.now();
   let written = 0;
 
-  console.log(`Fetching ${count} Wikipedia articles ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ ${outFile}`);
+  console.log(`Fetching ${count} Wikipedia articles → ${outFile}`);
   await fetchWikipediaDocuments({
     count,
     concurrency: 5, // gentle: avoid tripping the rate limiter
@@ -36,10 +36,3 @@ main().catch((e) => {
   console.error(e);
   process.exit(1);
 });
-
-
-
-
-
-
-

@@ -24,7 +24,7 @@ const mono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Shardly ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â A document store that searches itself",
+  title: "Shardly — A document store that searches itself",
   description:
     "A hand-rolled document store with append-only storage, a WAL for crash recovery, an in-memory inverted index, and BM25 full-text search in milliseconds.",
 };
@@ -47,8 +47,3 @@ export default function RootLayout({
     </html>
   );
 }
-
-
-
-
-
