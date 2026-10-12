@@ -34,7 +34,7 @@ export default function LabTokenizer() {
           marginBottom: 18,
         }}
       >
-        <p className="label label-ac">Lab 03 / the tokenizer, ported verbatim</p>
+        <p className="label label-ac">Lab 03 / word analysis</p>
         <p className="label">Type anything</p>
       </div>
 
@@ -65,7 +65,7 @@ export default function LabTokenizer() {
             <tr>
               <th>Input word</th>
               <th>Lowercased</th>
-              <th>After the ASCII split</th>
+              <th>Unicode words</th>
               <th>Rule that fired</th>
               <th>Token emitted</th>
             </tr>

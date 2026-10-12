@@ -1,0 +1,299 @@
+{
+  "corpus": "deterministic synthetic topics",
+  "count": 10000,
+  "runs": 20,
+  "nodeVersion": "v26.7.0",
+  "platform": "linux/x64",
+  "cpus": "12th Gen Intel(R) Core(TM) i5-12450H",
+  "ingestMs": 490.780644,
+  "heapGrowthBytes": 87415152,
+  "memoryAtIngest": {
+    "rss": 251817984,
+    "heapTotal": 157765632,
+    "heapUsed": 99199192,
+    "external": 7230279,
+    "arrayBuffers": 4665295
+  },
+  "rssBytes": 381607936,
+  "restartMs": 365.5740699999999,
+  "baseline": [
+    {
+      "query": "checksum integrity",
+      "total": 2000,
+      "p50Ms": 1.6900889999999436,
+      "p95Ms": 3.193190999999956,
+      "ids": [
+        "002d4666-00f5-4aad-81b5-802995281ca3",
+        "0035ecb8-40da-4062-94d9-29d771051f8d",
+        "0057b79e-6a39-4988-a793-246bd5735856",
+        "00ba7cc9-cd68-4b00-a4e3-c025c2126b2f",
+        "00e75870-e6bb-4295-b503-1366e60020c9",
+        "0156fdba-54df-4403-9b89-90b8b4ec2e35",
+        "01d58c91-35b6-483f-8311-e594e8096637",
+        "0281587f-5cbd-4a7a-acdc-5799f9af957b",
+        "0313691d-3bb0-44da-a228-6b9a3d764192",
+        "03bbe00a-9c9f-4291-941e-f747fe0ba938"
+      ]
+    },
+    {
+      "query": "recovery latency",
+      "total": 2000,
+      "p50Ms": 1.0597219999999652,
+      "p95Ms": 2.268297999999959,
+      "ids": [
+        "00190c85-d70d-44d1-bfad-9a34419476cc",
+        "0036434e-900e-429d-bced-340b0ae88a54",
+        "00365718-5d54-4ba3-9b3e-985ee161aaf2",
+        "0093eb74-f8f3-4bae-8b1d-3482a58ca614",
+        "009e87df-dd86-42b1-97d6-64d615e1096d",
+        "00a94e19-fcf5-42e1-a548-57a7c2998c31",
+        "00d45bc1-f994-4e9a-b7bf-e9ad8319939b",
+        "01402854-dad2-401d-8399-b347b2d5e2d9",
+        "0263b5ab-ff70-42e2-bc8e-2f48d667de35",
+        "029c624e-ca1f-4314-a032-56756826465e"
+      ]
+    },
+    {
+      "query": "vector",
+      "total": 2000,
+      "p50Ms": 0.6568250000000262,
+      "p95Ms": 1.1558069999999816,
+      "ids": [
+        "004b0e1d-1454-4861-be1b-546228b89191",
+        "006b309c-ffd9-49d3-a7bc-92d04c06e7df",
+        "00d3bbca-e4e3-486f-b32a-9573185875f9",
+        "00daef86-d926-4a41-9205-4fd857d780f7",
+        "012c550b-72eb-4ddc-8270-41ac0c87cb93",
+        "027fc58e-c03f-4ba5-9835-1f6e087ade52",
+        "03851a0f-1905-4c74-b76f-d96dd49e6be1",
+        "04244380-9eaa-4e28-bdc3-f848b81d8059",
+        "0433446d-c0a3-445e-8a8a-7263a550c601",
+        "04514444-3561-4ebb-9629-941d5d3e91d6"
+      ]
+    },
+    {
+      "query": "storage",
+      "total": 2000,
+      "p50Ms": 0.6844820000000027,
+      "p95Ms": 1.274919000000068,
+      "ids": [
+        "001fc7fa-687f-407e-859d-0492c2ee3e2c",
+        "0021db52-510f-4799-b261-b96dd206dac3",
+        "0043eb5e-dbad-4849-aa80-3e023f04a36c",
+        "004529c0-67af-4a96-a6cc-5dfb2f2f3f2c",
+        "0055d4e4-b9cb-48b0-b32c-3fe23fbe8fc6",
+        "005a2356-1ccb-40bd-8a1e-469e751b8e4b",
+        "005f15b2-ef71-4e11-9ed4-a436ffad5779",
+        "005f5e15-9016-42ea-bf70-bd1981e054e8",
+        "007042a0-eb45-4bf0-a9cc-7c25d95d8676",
+        "00ab2c00-0dab-4f66-9664-a5b0d8fd745d"
+      ]
+    },
+    {
+      "query": "unfindable",
+      "total": 0,
+      "p50Ms": 0.005916999999953987,
+      "p95Ms": 0.023606999999969958,
+      "ids": []
+    }
+  ],
+  "tuned": [
+    {
+      "query": "checksum integrity",
+      "total": 2000,
+      "p50Ms": 3.9277550000000474,
+      "p95Ms": 4.336406000000011,
+      "ids": [
+        "002d4666-00f5-4aad-81b5-802995281ca3",
+        "0035ecb8-40da-4062-94d9-29d771051f8d",
+        "0057b79e-6a39-4988-a793-246bd5735856",
+        "00ba7cc9-cd68-4b00-a4e3-c025c2126b2f",
+        "00e75870-e6bb-4295-b503-1366e60020c9",
+        "0156fdba-54df-4403-9b89-90b8b4ec2e35",
+        "01d58c91-35b6-483f-8311-e594e8096637",
+        "0281587f-5cbd-4a7a-acdc-5799f9af957b",
+        "0313691d-3bb0-44da-a228-6b9a3d764192",
+        "03bbe00a-9c9f-4291-941e-f747fe0ba938"
+      ]
+    },
+    {
+      "query": "recovery latency",
+      "total": 2000,
+      "p50Ms": 3.867475000000013,
+      "p95Ms": 5.129812000000015,
+      "ids": [
+        "00190c85-d70d-44d1-bfad-9a34419476cc",
+        "0036434e-900e-429d-bced-340b0ae88a54",
+        "00365718-5d54-4ba3-9b3e-985ee161aaf2",
+        "0093eb74-f8f3-4bae-8b1d-3482a58ca614",
+        "009e87df-dd86-42b1-97d6-64d615e1096d",
+        "00a94e19-fcf5-42e1-a548-57a7c2998c31",
+        "00d45bc1-f994-4e9a-b7bf-e9ad8319939b",
+        "01402854-dad2-401d-8399-b347b2d5e2d9",
+        "0263b5ab-ff70-42e2-bc8e-2f48d667de35",
+        "029c624e-ca1f-4314-a032-56756826465e"
+      ]
+    },
+    {
+      "query": "vector",
+      "total": 2000,
+      "p50Ms": 3.2541270000000395,
+      "p95Ms": 4.18750799999998,
+      "ids": [
+        "004b0e1d-1454-4861-be1b-546228b89191",
+        "006b309c-ffd9-49d3-a7bc-92d04c06e7df",
+        "00d3bbca-e4e3-486f-b32a-9573185875f9",
+        "00daef86-d926-4a41-9205-4fd857d780f7",
+        "012c550b-72eb-4ddc-8270-41ac0c87cb93",
+        "027fc58e-c03f-4ba5-9835-1f6e087ade52",
+        "03851a0f-1905-4c74-b76f-d96dd49e6be1",
+        "04244380-9eaa-4e28-bdc3-f848b81d8059",
+        "0433446d-c0a3-445e-8a8a-7263a550c601",
+        "04514444-3561-4ebb-9629-941d5d3e91d6"
+      ]
+    },
+    {
+      "query": "storage",
+      "total": 2000,
+      "p50Ms": 3.9559999999999036,
+      "p95Ms": 7.533760999999913,
+      "ids": [
+        "001fc7fa-687f-407e-859d-0492c2ee3e2c",
+        "0021db52-510f-4799-b261-b96dd206dac3",
+        "0043eb5e-dbad-4849-aa80-3e023f04a36c",
+        "004529c0-67af-4a96-a6cc-5dfb2f2f3f2c",
+        "0055d4e4-b9cb-48b0-b32c-3fe23fbe8fc6",
+        "005a2356-1ccb-40bd-8a1e-469e751b8e4b",
+        "005f15b2-ef71-4e11-9ed4-a436ffad5779",
+        "005f5e15-9016-42ea-bf70-bd1981e054e8",
+        "007042a0-eb45-4bf0-a9cc-7c25d95d8676",
+        "00ab2c00-0dab-4f66-9664-a5b0d8fd745d"
+      ]
+    },
+    {
+      "query": "unfindable",
+      "total": 0,
+      "p50Ms": 0.004384000000072774,
+      "p95Ms": 0.005478000000039174,
+      "ids": []
+    }
+  ],
+  "pretokenizedScan": [
+    {
+      "query": "checksum integrity",
+      "total": 2000,
+      "p50Ms": 0.8565249999999196,
+      "p95Ms": 2.3364670000000842,
+      "topTenMatch": true
+    },
+    {
+      "query": "recovery latency",
+      "total": 2000,
+      "p50Ms": 0.823748999999907,
+      "p95Ms": 1.4942619999999351,
+      "topTenMatch": true
+    },
+    {
+      "query": "vector",
+      "total": 2000,
+      "p50Ms": 0.6026489999999285,
+      "p95Ms": 1.2209569999999985,
+      "topTenMatch": true
+    },
+    {
+      "query": "storage",
+      "total": 2000,
+      "p50Ms": 0.3615469999999732,
+      "p95Ms": 0.3699699999999666,
+      "topTenMatch": true
+    },
+    {
+      "query": "unfindable",
+      "total": 0,
+      "p50Ms": 0.3028500000000349,
+      "p95Ms": 0.44663299999979245,
+      "topTenMatch": true
+    }
+  ],
+  "sqlite": {
+    "sqliteVersion": "3.53.4",
+    "ingestMs": 19.26012200419791,
+    "results": [
+      {
+        "query": "checksum integrity",
+        "p50Ms": 1.4590779901482165,
+        "p95Ms": 1.491881994297728,
+        "ids": [
+          "002d4666-00f5-4aad-81b5-802995281ca3",
+          "0035ecb8-40da-4062-94d9-29d771051f8d",
+          "0057b79e-6a39-4988-a793-246bd5735856",
+          "00ba7cc9-cd68-4b00-a4e3-c025c2126b2f",
+          "00e75870-e6bb-4295-b503-1366e60020c9",
+          "0156fdba-54df-4403-9b89-90b8b4ec2e35",
+          "01d58c91-35b6-483f-8311-e594e8096637",
+          "0281587f-5cbd-4a7a-acdc-5799f9af957b",
+          "0313691d-3bb0-44da-a228-6b9a3d764192",
+          "03bbe00a-9c9f-4291-941e-f747fe0ba938"
+        ]
+      },
+      {
+        "query": "recovery latency",
+        "p50Ms": 1.4818909985478967,
+        "p95Ms": 1.5261660009855404,
+        "ids": [
+          "00190c85-d70d-44d1-bfad-9a34419476cc",
+          "0036434e-900e-429d-bced-340b0ae88a54",
+          "00365718-5d54-4ba3-9b3e-985ee161aaf2",
+          "0093eb74-f8f3-4bae-8b1d-3482a58ca614",
+          "009e87df-dd86-42b1-97d6-64d615e1096d",
+          "00a94e19-fcf5-42e1-a548-57a7c2998c31",
+          "00d45bc1-f994-4e9a-b7bf-e9ad8319939b",
+          "01402854-dad2-401d-8399-b347b2d5e2d9",
+          "0263b5ab-ff70-42e2-bc8e-2f48d667de35",
+          "029c624e-ca1f-4314-a032-56756826465e"
+        ]
+      },
+      {
+        "query": "vector",
+        "p50Ms": 1.3356580020627007,
+        "p95Ms": 1.367496995953843,
+        "ids": [
+          "004b0e1d-1454-4861-be1b-546228b89191",
+          "006b309c-ffd9-49d3-a7bc-92d04c06e7df",
+          "00d3bbca-e4e3-486f-b32a-9573185875f9",
+          "00daef86-d926-4a41-9205-4fd857d780f7",
+          "012c550b-72eb-4ddc-8270-41ac0c87cb93",
+          "027fc58e-c03f-4ba5-9835-1f6e087ade52",
+          "03851a0f-1905-4c74-b76f-d96dd49e6be1",
+          "04244380-9eaa-4e28-bdc3-f848b81d8059",
+          "0433446d-c0a3-445e-8a8a-7263a550c601",
+          "04514444-3561-4ebb-9629-941d5d3e91d6"
+        ]
+      },
+      {
+        "query": "storage",
+        "p50Ms": 1.3431079860311002,
+        "p95Ms": 1.415535996784456,
+        "ids": [
+          "001fc7fa-687f-407e-859d-0492c2ee3e2c",
+          "0021db52-510f-4799-b261-b96dd206dac3",
+          "0043eb5e-dbad-4849-aa80-3e023f04a36c",
+          "004529c0-67af-4a96-a6cc-5dfb2f2f3f2c",
+          "0055d4e4-b9cb-48b0-b32c-3fe23fbe8fc6",
+          "005a2356-1ccb-40bd-8a1e-469e751b8e4b",
+          "005f15b2-ef71-4e11-9ed4-a436ffad5779",
+          "005f5e15-9016-42ea-bf70-bd1981e054e8",
+          "007042a0-eb45-4bf0-a9cc-7c25d95d8676",
+          "00ab2c00-0dab-4f66-9664-a5b0d8fd745d"
+        ]
+      },
+      {
+        "query": "unfindable",
+        "p50Ms": 0.0035720004234462976,
+        "p95Ms": 0.006004003807902336,
+        "ids": []
+      }
+    ]
+  },
+  "methodology": "Warm single-process queries, 3 warmups + 20 samples. Pre-tokenized linear scan uses identical baseline BM25 and asserts top-ten agreement. SQLite receives identical pre-tokenized text in an in-memory FTS5 table. Shardly returns documents, snippets and explanations; SQLite returns IDs only. SQLite BM25 constants, IDF floor, tie ordering and field/passage behavior differ; this is not a quality equivalence or universal speed claim. Ingest timings exclude external token preparation for SQLite; heap growth is GC-sensitive. memoryAtIngest includes typed-array allocations in external/arrayBuffers; final RSS covers the Node process only, including scan preparation and reopened engine."
+}

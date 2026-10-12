@@ -1,0 +1,1345 @@
+{
+  "label": "synthetic-authored-regression",
+  "description": "Authored local document/code regression corpus. Grades 3=direct answer, 2=useful, 1=incidental. Each query/options combination is unique. This is not a real-world quality benchmark.",
+  "documents": [
+    {
+      "id": "guide-0",
+      "doc": {
+        "title": "quartz crystal",
+        "path": "docs/quartz.md",
+        "repo": "mineral",
+        "source": "local",
+        "type": "md",
+        "language": "en",
+        "content": "quartz crystal explains implementation tradeoffs. context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context "
+      }
+    },
+    {
+      "id": "note-0",
+      "doc": {
+        "title": "Daily journal",
+        "repo": "journal",
+        "source": "github",
+        "type": "txt",
+        "language": "en",
+        "content": "quartz crystal quartz crystal"
+      }
+    },
+    {
+      "id": "guide-1",
+      "doc": {
+        "title": "transaction isolation",
+        "path": "docs/transaction.md",
+        "repo": "database",
+        "source": "local",
+        "type": "md",
+        "language": "en",
+        "content": "transaction isolation explains implementation tradeoffs. context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context "
+      }
+    },
+    {
+      "id": "note-1",
+      "doc": {
+        "title": "Daily journal",
+        "repo": "journal",
+        "source": "github",
+        "type": "txt",
+        "language": "en",
+        "content": "transaction isolation transaction isolation"
+      }
+    },
+    {
+      "id": "guide-2",
+      "doc": {
+        "title": "socket timeout",
+        "path": "docs/socket.md",
+        "repo": "network",
+        "source": "local",
+        "type": "md",
+        "language": "en",
+        "content": "socket timeout explains implementation tradeoffs. context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context "
+      }
+    },
+    {
+      "id": "note-2",
+      "doc": {
+        "title": "Daily journal",
+        "repo": "journal",
+        "source": "github",
+        "type": "txt",
+        "language": "en",
+        "content": "socket timeout socket timeout"
+      }
+    },
+    {
+      "id": "guide-3",
+      "doc": {
+        "title": "compiler syntax",
+        "path": "docs/compiler.md",
+        "repo": "language",
+        "source": "local",
+        "type": "md",
+        "language": "en",
+        "content": "compiler syntax explains implementation tradeoffs. context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context "
+      }
+    },
+    {
+      "id": "note-3",
+      "doc": {
+        "title": "Daily journal",
+        "repo": "journal",
+        "source": "github",
+        "type": "txt",
+        "language": "en",
+        "content": "compiler syntax compiler syntax"
+      }
+    },
+    {
+      "id": "guide-4",
+      "doc": {
+        "title": "backup restore",
+        "path": "docs/backup.md",
+        "repo": "storage",
+        "source": "local",
+        "type": "md",
+        "language": "en",
+        "content": "backup restore explains implementation tradeoffs. context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context "
+      }
+    },
+    {
+      "id": "note-4",
+      "doc": {
+        "title": "Daily journal",
+        "repo": "journal",
+        "source": "github",
+        "type": "txt",
+        "language": "en",
+        "content": "backup restore backup restore"
+      }
+    },
+    {
+      "id": "guide-5",
+      "doc": {
+        "title": "tokenizer unicode",
+        "path": "docs/tokenizer.md",
+        "repo": "search",
+        "source": "local",
+        "type": "md",
+        "language": "en",
+        "content": "tokenizer unicode explains implementation tradeoffs. context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context "
+      }
+    },
+    {
+      "id": "note-5",
+      "doc": {
+        "title": "Daily journal",
+        "repo": "journal",
+        "source": "github",
+        "type": "txt",
+        "language": "en",
+        "content": "tokenizer unicode tokenizer unicode"
+      }
+    },
+    {
+      "id": "guide-6",
+      "doc": {
+        "title": "pagination cursor",
+        "path": "docs/pagination.md",
+        "repo": "frontend",
+        "source": "local",
+        "type": "md",
+        "language": "en",
+        "content": "pagination cursor explains implementation tradeoffs. context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context "
+      }
+    },
+    {
+      "id": "note-6",
+      "doc": {
+        "title": "Daily journal",
+        "repo": "journal",
+        "source": "github",
+        "type": "txt",
+        "language": "en",
+        "content": "pagination cursor pagination cursor"
+      }
+    },
+    {
+      "id": "guide-7",
+      "doc": {
+        "title": "mutex deadlock",
+        "path": "docs/mutex.md",
+        "repo": "runtime",
+        "source": "local",
+        "type": "md",
+        "language": "en",
+        "content": "mutex deadlock explains implementation tradeoffs. context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context "
+      }
+    },
+    {
+      "id": "note-7",
+      "doc": {
+        "title": "Daily journal",
+        "repo": "journal",
+        "source": "github",
+        "type": "txt",
+        "language": "en",
+        "content": "mutex deadlock mutex deadlock"
+      }
+    },
+    {
+      "id": "guide-8",
+      "doc": {
+        "title": "snapshot recovery",
+        "path": "docs/snapshot.md",
+        "repo": "storage",
+        "source": "local",
+        "type": "md",
+        "language": "en",
+        "content": "snapshot recovery explains implementation tradeoffs. context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context "
+      }
+    },
+    {
+      "id": "note-8",
+      "doc": {
+        "title": "Daily journal",
+        "repo": "journal",
+        "source": "github",
+        "type": "txt",
+        "language": "en",
+        "content": "snapshot recovery snapshot recovery"
+      }
+    },
+    {
+      "id": "guide-9",
+      "doc": {
+        "title": "postings frequency",
+        "path": "docs/postings.md",
+        "repo": "search",
+        "source": "local",
+        "type": "md",
+        "language": "en",
+        "content": "postings frequency explains implementation tradeoffs. context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context "
+      }
+    },
+    {
+      "id": "note-9",
+      "doc": {
+        "title": "Daily journal",
+        "repo": "journal",
+        "source": "github",
+        "type": "txt",
+        "language": "en",
+        "content": "postings frequency postings frequency"
+      }
+    },
+    {
+      "id": "guide-10",
+      "doc": {
+        "title": "parser grammar",
+        "path": "docs/parser.md",
+        "repo": "language",
+        "source": "local",
+        "type": "md",
+        "language": "en",
+        "content": "parser grammar explains implementation tradeoffs. context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context "
+      }
+    },
+    {
+      "id": "note-10",
+      "doc": {
+        "title": "Daily journal",
+        "repo": "journal",
+        "source": "github",
+        "type": "txt",
+        "language": "en",
+        "content": "parser grammar parser grammar"
+      }
+    },
+    {
+      "id": "guide-11",
+      "doc": {
+        "title": "checksum integrity",
+        "path": "docs/checksum.md",
+        "repo": "storage",
+        "source": "local",
+        "type": "md",
+        "language": "en",
+        "content": "checksum integrity explains implementation tradeoffs. context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context "
+      }
+    },
+    {
+      "id": "note-11",
+      "doc": {
+        "title": "Daily journal",
+        "repo": "journal",
+        "source": "github",
+        "type": "txt",
+        "language": "en",
+        "content": "checksum integrity checksum integrity"
+      }
+    },
+    {
+      "id": "guide-12",
+      "doc": {
+        "title": "stylesheet contrast",
+        "path": "docs/stylesheet.md",
+        "repo": "frontend",
+        "source": "local",
+        "type": "md",
+        "language": "en",
+        "content": "stylesheet contrast explains implementation tradeoffs. context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context "
+      }
+    },
+    {
+      "id": "note-12",
+      "doc": {
+        "title": "Daily journal",
+        "repo": "journal",
+        "source": "github",
+        "type": "txt",
+        "language": "en",
+        "content": "stylesheet contrast stylesheet contrast"
+      }
+    },
+    {
+      "id": "guide-13",
+      "doc": {
+        "title": "scheduler priority",
+        "path": "docs/scheduler.md",
+        "repo": "runtime",
+        "source": "local",
+        "type": "md",
+        "language": "en",
+        "content": "scheduler priority explains implementation tradeoffs. context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context "
+      }
+    },
+    {
+      "id": "note-13",
+      "doc": {
+        "title": "Daily journal",
+        "repo": "journal",
+        "source": "github",
+        "type": "txt",
+        "language": "en",
+        "content": "scheduler priority scheduler priority"
+      }
+    },
+    {
+      "id": "guide-14",
+      "doc": {
+        "title": "certificate renewal",
+        "path": "docs/certificate.md",
+        "repo": "network",
+        "source": "local",
+        "type": "md",
+        "language": "en",
+        "content": "certificate renewal explains implementation tradeoffs. context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context context "
+      }
+    },
+    {
+      "id": "note-14",
+      "doc": {
+        "title": "Daily journal",
+        "repo": "journal",
+        "source": "github",
+        "type": "txt",
+        "language": "en",
+        "content": "certificate renewal certificate renewal"
+      }
+    },
+    {
+      "id": "unicode",
+      "doc": {
+        "title": "Unicode notes",
+        "content": "猫 the café हिन्दी naïve café",
+        "source": "local",
+        "repo": "unicode",
+        "type": "md",
+        "language": "hi"
+      }
+    },
+    {
+      "id": "gaps",
+      "doc": {
+        "content": "猫 café and red and fox",
+        "source": "github",
+        "repo": "unicode",
+        "type": "txt"
+      }
+    },
+    {
+      "id": "identifier",
+      "doc": {
+        "title": "Storage implementation",
+        "path": "src/storage/writeWithId.ts",
+        "content": "writeWithId source_id fsync atomic rename",
+        "repo": "storage",
+        "source": "github",
+        "type": "ts",
+        "language": "typescript"
+      }
+    },
+    {
+      "id": "prefix",
+      "doc": {
+        "title": "Architecture",
+        "content": "architectural diagrams explain search systems",
+        "source": "local"
+      }
+    },
+    {
+      "id": "exact",
+      "doc": {
+        "content": "zircon"
+      }
+    },
+    {
+      "id": "near",
+      "doc": {
+        "content": "zirconx"
+      }
+    },
+    {
+      "id": "phrase",
+      "doc": {
+        "content": "the and of red the fox"
+      }
+    },
+    {
+      "id": "long",
+      "doc": {
+        "title": "Operational history",
+        "content": "padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding socket timeout socket timeout padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding ",
+        "repo": "network",
+        "source": "local",
+        "type": "md"
+      }
+    }
+  ],
+  "cases": [
+    {
+      "query": "quartz",
+      "relevant": [
+        "guide-0"
+      ],
+      "graded": {
+        "guide-0": 3,
+        "note-0": 1
+      }
+    },
+    {
+      "query": "quartz crystal",
+      "options": {
+        "mode": "all"
+      },
+      "relevant": [
+        "guide-0"
+      ],
+      "graded": {
+        "guide-0": 3,
+        "note-0": 1
+      }
+    },
+    {
+      "query": "\"quartz crystal\"",
+      "relevant": [
+        "guide-0"
+      ],
+      "graded": {
+        "guide-0": 3,
+        "note-0": 1
+      }
+    },
+    {
+      "query": "quartz",
+      "options": {
+        "repo": "mineral"
+      },
+      "relevant": [
+        "guide-0"
+      ],
+      "graded": {
+        "guide-0": 3
+      }
+    },
+    {
+      "query": "transaction",
+      "relevant": [
+        "guide-1"
+      ],
+      "graded": {
+        "guide-1": 3,
+        "note-1": 1
+      }
+    },
+    {
+      "query": "transaction isolation",
+      "options": {
+        "mode": "all"
+      },
+      "relevant": [
+        "guide-1"
+      ],
+      "graded": {
+        "guide-1": 3,
+        "note-1": 1
+      }
+    },
+    {
+      "query": "\"transaction isolation\"",
+      "relevant": [
+        "guide-1"
+      ],
+      "graded": {
+        "guide-1": 3,
+        "note-1": 1
+      }
+    },
+    {
+      "query": "transaction",
+      "options": {
+        "repo": "database"
+      },
+      "relevant": [
+        "guide-1"
+      ],
+      "graded": {
+        "guide-1": 3
+      }
+    },
+    {
+      "query": "socket",
+      "relevant": [
+        "guide-2",
+        "long"
+      ],
+      "graded": {
+        "guide-2": 3,
+        "note-2": 1,
+        "long": 3
+      }
+    },
+    {
+      "query": "socket timeout",
+      "options": {
+        "mode": "all"
+      },
+      "relevant": [
+        "guide-2",
+        "long"
+      ],
+      "graded": {
+        "guide-2": 3,
+        "note-2": 1,
+        "long": 3
+      }
+    },
+    {
+      "query": "\"socket timeout\"",
+      "relevant": [
+        "guide-2",
+        "long"
+      ],
+      "graded": {
+        "guide-2": 3,
+        "note-2": 1,
+        "long": 3
+      }
+    },
+    {
+      "query": "socket",
+      "options": {
+        "repo": "network"
+      },
+      "relevant": [
+        "guide-2",
+        "long"
+      ],
+      "graded": {
+        "guide-2": 3,
+        "long": 3
+      }
+    },
+    {
+      "query": "compiler",
+      "relevant": [
+        "guide-3"
+      ],
+      "graded": {
+        "guide-3": 3,
+        "note-3": 1
+      }
+    },
+    {
+      "query": "compiler syntax",
+      "options": {
+        "mode": "all"
+      },
+      "relevant": [
+        "guide-3"
+      ],
+      "graded": {
+        "guide-3": 3,
+        "note-3": 1
+      }
+    },
+    {
+      "query": "\"compiler syntax\"",
+      "relevant": [
+        "guide-3"
+      ],
+      "graded": {
+        "guide-3": 3,
+        "note-3": 1
+      }
+    },
+    {
+      "query": "compiler",
+      "options": {
+        "repo": "language"
+      },
+      "relevant": [
+        "guide-3"
+      ],
+      "graded": {
+        "guide-3": 3
+      }
+    },
+    {
+      "query": "backup",
+      "relevant": [
+        "guide-4"
+      ],
+      "graded": {
+        "guide-4": 3,
+        "note-4": 1
+      }
+    },
+    {
+      "query": "backup restore",
+      "options": {
+        "mode": "all"
+      },
+      "relevant": [
+        "guide-4"
+      ],
+      "graded": {
+        "guide-4": 3,
+        "note-4": 1
+      }
+    },
+    {
+      "query": "\"backup restore\"",
+      "relevant": [
+        "guide-4"
+      ],
+      "graded": {
+        "guide-4": 3,
+        "note-4": 1
+      }
+    },
+    {
+      "query": "backup",
+      "options": {
+        "repo": "storage"
+      },
+      "relevant": [
+        "guide-4"
+      ],
+      "graded": {
+        "guide-4": 3
+      }
+    },
+    {
+      "query": "tokenizer",
+      "relevant": [
+        "guide-5"
+      ],
+      "graded": {
+        "guide-5": 3,
+        "note-5": 1
+      }
+    },
+    {
+      "query": "tokenizer unicode",
+      "options": {
+        "mode": "all"
+      },
+      "relevant": [
+        "guide-5"
+      ],
+      "graded": {
+        "guide-5": 3,
+        "note-5": 1
+      }
+    },
+    {
+      "query": "\"tokenizer unicode\"",
+      "relevant": [
+        "guide-5"
+      ],
+      "graded": {
+        "guide-5": 3,
+        "note-5": 1
+      }
+    },
+    {
+      "query": "tokenizer",
+      "options": {
+        "repo": "search"
+      },
+      "relevant": [
+        "guide-5"
+      ],
+      "graded": {
+        "guide-5": 3
+      }
+    },
+    {
+      "query": "pagination",
+      "relevant": [
+        "guide-6"
+      ],
+      "graded": {
+        "guide-6": 3,
+        "note-6": 1
+      }
+    },
+    {
+      "query": "pagination cursor",
+      "options": {
+        "mode": "all"
+      },
+      "relevant": [
+        "guide-6"
+      ],
+      "graded": {
+        "guide-6": 3,
+        "note-6": 1
+      }
+    },
+    {
+      "query": "\"pagination cursor\"",
+      "relevant": [
+        "guide-6"
+      ],
+      "graded": {
+        "guide-6": 3,
+        "note-6": 1
+      }
+    },
+    {
+      "query": "pagination",
+      "options": {
+        "repo": "frontend"
+      },
+      "relevant": [
+        "guide-6"
+      ],
+      "graded": {
+        "guide-6": 3
+      }
+    },
+    {
+      "query": "mutex",
+      "relevant": [
+        "guide-7"
+      ],
+      "graded": {
+        "guide-7": 3,
+        "note-7": 1
+      }
+    },
+    {
+      "query": "mutex deadlock",
+      "options": {
+        "mode": "all"
+      },
+      "relevant": [
+        "guide-7"
+      ],
+      "graded": {
+        "guide-7": 3,
+        "note-7": 1
+      }
+    },
+    {
+      "query": "\"mutex deadlock\"",
+      "relevant": [
+        "guide-7"
+      ],
+      "graded": {
+        "guide-7": 3,
+        "note-7": 1
+      }
+    },
+    {
+      "query": "mutex",
+      "options": {
+        "repo": "runtime"
+      },
+      "relevant": [
+        "guide-7"
+      ],
+      "graded": {
+        "guide-7": 3
+      }
+    },
+    {
+      "query": "snapshot",
+      "relevant": [
+        "guide-8"
+      ],
+      "graded": {
+        "guide-8": 3,
+        "note-8": 1
+      }
+    },
+    {
+      "query": "snapshot recovery",
+      "options": {
+        "mode": "all"
+      },
+      "relevant": [
+        "guide-8"
+      ],
+      "graded": {
+        "guide-8": 3,
+        "note-8": 1
+      }
+    },
+    {
+      "query": "\"snapshot recovery\"",
+      "relevant": [
+        "guide-8"
+      ],
+      "graded": {
+        "guide-8": 3,
+        "note-8": 1
+      }
+    },
+    {
+      "query": "snapshot",
+      "options": {
+        "repo": "storage"
+      },
+      "relevant": [
+        "guide-8"
+      ],
+      "graded": {
+        "guide-8": 3
+      }
+    },
+    {
+      "query": "postings",
+      "relevant": [
+        "guide-9"
+      ],
+      "graded": {
+        "guide-9": 3,
+        "note-9": 1
+      }
+    },
+    {
+      "query": "postings frequency",
+      "options": {
+        "mode": "all"
+      },
+      "relevant": [
+        "guide-9"
+      ],
+      "graded": {
+        "guide-9": 3,
+        "note-9": 1
+      }
+    },
+    {
+      "query": "\"postings frequency\"",
+      "relevant": [
+        "guide-9"
+      ],
+      "graded": {
+        "guide-9": 3,
+        "note-9": 1
+      }
+    },
+    {
+      "query": "postings",
+      "options": {
+        "repo": "search"
+      },
+      "relevant": [
+        "guide-9"
+      ],
+      "graded": {
+        "guide-9": 3
+      }
+    },
+    {
+      "query": "parser",
+      "relevant": [
+        "guide-10"
+      ],
+      "graded": {
+        "guide-10": 3,
+        "note-10": 1
+      }
+    },
+    {
+      "query": "parser grammar",
+      "options": {
+        "mode": "all"
+      },
+      "relevant": [
+        "guide-10"
+      ],
+      "graded": {
+        "guide-10": 3,
+        "note-10": 1
+      }
+    },
+    {
+      "query": "\"parser grammar\"",
+      "relevant": [
+        "guide-10"
+      ],
+      "graded": {
+        "guide-10": 3,
+        "note-10": 1
+      }
+    },
+    {
+      "query": "parser",
+      "options": {
+        "repo": "language"
+      },
+      "relevant": [
+        "guide-10"
+      ],
+      "graded": {
+        "guide-10": 3
+      }
+    },
+    {
+      "query": "checksum",
+      "relevant": [
+        "guide-11"
+      ],
+      "graded": {
+        "guide-11": 3,
+        "note-11": 1
+      }
+    },
+    {
+      "query": "checksum integrity",
+      "options": {
+        "mode": "all"
+      },
+      "relevant": [
+        "guide-11"
+      ],
+      "graded": {
+        "guide-11": 3,
+        "note-11": 1
+      }
+    },
+    {
+      "query": "\"checksum integrity\"",
+      "relevant": [
+        "guide-11"
+      ],
+      "graded": {
+        "guide-11": 3,
+        "note-11": 1
+      }
+    },
+    {
+      "query": "checksum",
+      "options": {
+        "repo": "storage"
+      },
+      "relevant": [
+        "guide-11"
+      ],
+      "graded": {
+        "guide-11": 3
+      }
+    },
+    {
+      "query": "stylesheet",
+      "relevant": [
+        "guide-12"
+      ],
+      "graded": {
+        "guide-12": 3,
+        "note-12": 1
+      }
+    },
+    {
+      "query": "stylesheet contrast",
+      "options": {
+        "mode": "all"
+      },
+      "relevant": [
+        "guide-12"
+      ],
+      "graded": {
+        "guide-12": 3,
+        "note-12": 1
+      }
+    },
+    {
+      "query": "\"stylesheet contrast\"",
+      "relevant": [
+        "guide-12"
+      ],
+      "graded": {
+        "guide-12": 3,
+        "note-12": 1
+      }
+    },
+    {
+      "query": "stylesheet",
+      "options": {
+        "repo": "frontend"
+      },
+      "relevant": [
+        "guide-12"
+      ],
+      "graded": {
+        "guide-12": 3
+      }
+    },
+    {
+      "query": "scheduler",
+      "relevant": [
+        "guide-13"
+      ],
+      "graded": {
+        "guide-13": 3,
+        "note-13": 1
+      }
+    },
+    {
+      "query": "scheduler priority",
+      "options": {
+        "mode": "all"
+      },
+      "relevant": [
+        "guide-13"
+      ],
+      "graded": {
+        "guide-13": 3,
+        "note-13": 1
+      }
+    },
+    {
+      "query": "\"scheduler priority\"",
+      "relevant": [
+        "guide-13"
+      ],
+      "graded": {
+        "guide-13": 3,
+        "note-13": 1
+      }
+    },
+    {
+      "query": "scheduler",
+      "options": {
+        "repo": "runtime"
+      },
+      "relevant": [
+        "guide-13"
+      ],
+      "graded": {
+        "guide-13": 3
+      }
+    },
+    {
+      "query": "certificate",
+      "relevant": [
+        "guide-14"
+      ],
+      "graded": {
+        "guide-14": 3,
+        "note-14": 1
+      }
+    },
+    {
+      "query": "certificate renewal",
+      "options": {
+        "mode": "all"
+      },
+      "relevant": [
+        "guide-14"
+      ],
+      "graded": {
+        "guide-14": 3,
+        "note-14": 1
+      }
+    },
+    {
+      "query": "\"certificate renewal\"",
+      "relevant": [
+        "guide-14"
+      ],
+      "graded": {
+        "guide-14": 3,
+        "note-14": 1
+      }
+    },
+    {
+      "query": "certificate",
+      "options": {
+        "repo": "network"
+      },
+      "relevant": [
+        "guide-14"
+      ],
+      "graded": {
+        "guide-14": 3
+      }
+    },
+    {
+      "query": "café",
+      "options": {},
+      "relevant": [
+        "unicode",
+        "gaps"
+      ],
+      "graded": {
+        "unicode": 3,
+        "gaps": 2
+      }
+    },
+    {
+      "query": "café",
+      "options": {},
+      "relevant": [
+        "unicode",
+        "gaps"
+      ],
+      "graded": {
+        "unicode": 3,
+        "gaps": 2
+      }
+    },
+    {
+      "query": "हिन्दी",
+      "options": {},
+      "relevant": [
+        "unicode"
+      ],
+      "graded": {
+        "unicode": 3
+      }
+    },
+    {
+      "query": "\"猫 the café\"",
+      "options": {},
+      "relevant": [
+        "unicode"
+      ],
+      "graded": {
+        "unicode": 3
+      }
+    },
+    {
+      "query": "\"猫 café\"",
+      "options": {},
+      "relevant": [
+        "gaps"
+      ],
+      "graded": {
+        "gaps": 3
+      }
+    },
+    {
+      "query": "\"red the fox\"",
+      "options": {},
+      "relevant": [
+        "phrase"
+      ],
+      "graded": {
+        "phrase": 3
+      }
+    },
+    {
+      "query": "\"the and of\"",
+      "options": {},
+      "relevant": [
+        "phrase"
+      ],
+      "graded": {
+        "phrase": 3
+      }
+    },
+    {
+      "query": "writeWithId",
+      "options": {},
+      "relevant": [
+        "identifier"
+      ],
+      "graded": {
+        "identifier": 3
+      }
+    },
+    {
+      "query": "source_id",
+      "options": {},
+      "relevant": [
+        "identifier"
+      ],
+      "graded": {
+        "identifier": 3
+      }
+    },
+    {
+      "query": "architec",
+      "options": {
+        "prefix": true
+      },
+      "relevant": [
+        "prefix"
+      ],
+      "graded": {
+        "prefix": 3
+      }
+    },
+    {
+      "query": "zircn",
+      "options": {
+        "typos": true
+      },
+      "relevant": [
+        "exact"
+      ],
+      "graded": {
+        "exact": 3,
+        "near": 1
+      }
+    },
+    {
+      "query": "zircon",
+      "options": {
+        "typos": true
+      },
+      "relevant": [
+        "exact"
+      ],
+      "graded": {
+        "exact": 3,
+        "near": 1
+      }
+    },
+    {
+      "query": "gemstone",
+      "options": {
+        "synonyms": {
+          "gemstone": [
+            "quartz"
+          ]
+        }
+      },
+      "relevant": [
+        "guide-0"
+      ],
+      "graded": {
+        "guide-0": 3,
+        "note-0": 1
+      }
+    },
+    {
+      "query": "socket -timeout",
+      "options": {
+        "mode": "any",
+        "synonyms": {
+          "socket": [
+            "fsync"
+          ]
+        }
+      },
+      "relevant": [
+        "identifier"
+      ],
+      "graded": {
+        "identifier": 3
+      }
+    },
+    {
+      "query": "source:github fsync",
+      "options": {},
+      "relevant": [
+        "identifier"
+      ],
+      "graded": {
+        "identifier": 3
+      }
+    },
+    {
+      "query": "source:local",
+      "options": {
+        "repo": "unicode"
+      },
+      "relevant": [
+        "unicode"
+      ],
+      "graded": {
+        "unicode": 3
+      }
+    },
+    {
+      "query": "atomic rename",
+      "options": {
+        "mode": "all",
+        "language": "typescript"
+      },
+      "relevant": [
+        "identifier"
+      ],
+      "graded": {
+        "identifier": 3
+      }
+    },
+    {
+      "query": "crystal",
+      "options": {
+        "docIds": [
+          "guide-0"
+        ]
+      },
+      "relevant": [
+        "guide-0"
+      ],
+      "graded": {
+        "guide-0": 3
+      }
+    },
+    {
+      "query": "quartz",
+      "options": {
+        "groupBy": "source"
+      },
+      "relevant": [
+        "guide-0"
+      ],
+      "graded": {
+        "guide-0": 3,
+        "note-0": 1
+      }
+    },
+    {
+      "query": "quartz",
+      "options": {
+        "groupBy": "repo"
+      },
+      "relevant": [
+        "guide-0"
+      ],
+      "graded": {
+        "guide-0": 3,
+        "note-0": 1
+      }
+    }
+  ]
+}

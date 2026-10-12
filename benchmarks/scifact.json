@@ -1,0 +1,4231 @@
+{
+  "dataset": "BEIR SciFact",
+  "corpusDocuments": 5183,
+  "judgedQueries": 300,
+  "judgments": "External expert-authored annotations distributed by BEIR; no Shardly-authored labels or per-query tuning",
+  "mode": "any",
+  "cutoff": 10,
+  "source": "https://github.com/beir-cellar/beir/wiki/Datasets-available",
+  "originalSource": "https://github.com/allenai/scifact",
+  "licenses": "SciFact claims/annotations CC BY 4.0; abstracts ODC-By 1.0",
+  "domainLimit": "Scientific abstracts and claims, not code navigation or personal document relevance",
+  "ingestMs": 1729.238565,
+  "baseline": {
+    "MRR10": 0.6405291005291005,
+    "nDCG10": 0.6750995722753245,
+    "recall10": 0.8112777777777779,
+    "p50Ms": 1.5306390000000647,
+    "p95Ms": 3.2441580000001977,
+    "cases": [
+      {
+        "queryId": "1",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 6.4990530000000035
+      },
+      {
+        "queryId": "3",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 5.2282880000000205
+      },
+      {
+        "queryId": "5",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 2.274255000000039
+      },
+      {
+        "queryId": "13",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 2.2177130000000034
+      },
+      {
+        "queryId": "36",
+        "mrr": 0.16666666666666666,
+        "ndcg": 0.21840743681816419,
+        "recall": 0.5,
+        "tookMs": 2.64731699999993
+      },
+      {
+        "queryId": "42",
+        "mrr": 0.5,
+        "ndcg": 0.6309297535714575,
+        "recall": 1,
+        "tookMs": 2.2074639999998453
+      },
+      {
+        "queryId": "48",
+        "mrr": 0.5,
+        "ndcg": 0.6309297535714575,
+        "recall": 1,
+        "tookMs": 3.861417999999958
+      },
+      {
+        "queryId": "49",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 1.6990249999998923
+      },
+      {
+        "queryId": "50",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 1.5049160000000938
+      },
+      {
+        "queryId": "51",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 2.822567000000163
+      },
+      {
+        "queryId": "53",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 2.4719970000001013
+      },
+      {
+        "queryId": "54",
+        "mrr": 0.2,
+        "ndcg": 0.38685280723454163,
+        "recall": 1,
+        "tookMs": 3.2441580000001977
+      },
+      {
+        "queryId": "56",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 3.756787000000031
+      },
+      {
+        "queryId": "57",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 2.4452459999999974
+      },
+      {
+        "queryId": "70",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 1.855878999999959
+      },
+      {
+        "queryId": "72",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 1.3915580000000318
+      },
+      {
+        "queryId": "75",
+        "mrr": 0.3333333333333333,
+        "ndcg": 0.5,
+        "recall": 1,
+        "tookMs": 2.0034159999997883
+      },
+      {
+        "queryId": "94",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 1.0977629999999863
+      },
+      {
+        "queryId": "99",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 1.5046720000000278
+      },
+      {
+        "queryId": "100",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 2.705466000000115
+      },
+      {
+        "queryId": "113",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 3.275871000000052
+      },
+      {
+        "queryId": "115",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 1.2527849999999034
+      },
+      {
+        "queryId": "118",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 1.2815170000001217
+      },
+      {
+        "queryId": "124",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 1.3936260000000402
+      },
+      {
+        "queryId": "127",
+        "mrr": 0.5,
+        "ndcg": 0.6309297535714575,
+        "recall": 1,
+        "tookMs": 0.9340459999998529
+      },
+      {
+        "queryId": "128",
+        "mrr": 0.3333333333333333,
+        "ndcg": 0.5,
+        "recall": 1,
+        "tookMs": 0.48821300000008705
+      },
+      {
+        "queryId": "129",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 1.0627819999999701
+      },
+      {
+        "queryId": "130",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 1.1943069999999807
+      },
+      {
+        "queryId": "132",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 0.8326640000000225
+      },
+      {
+        "queryId": "133",
+        "mrr": 1,
+        "ndcg": 0.4371994911049732,
+        "recall": 0.4,
+        "tookMs": 2.354239000000007
+      },
+      {
+        "queryId": "137",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 1.216525000000047
+      },
+      {
+        "queryId": "141",
+        "mrr": 1,
+        "ndcg": 0.9197207891481876,
+        "recall": 1,
+        "tookMs": 0.9476870000000872
+      },
+      {
+        "queryId": "142",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 3.359421999999995
+      },
+      {
+        "queryId": "143",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 2.804286999999931
+      },
+      {
+        "queryId": "146",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 3.371575000000121
+      },
+      {
+        "queryId": "148",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 0.6115810000001147
+      },
+      {
+        "queryId": "163",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 0.9708230000001095
+      },
+      {
+        "queryId": "171",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 1.607240000000047
+      },
+      {
+        "queryId": "179",
+        "mrr": 1,
+        "ndcg": 0.5855700749881525,
+        "recall": 0.5,
+        "tookMs": 1.5544330000000173
+      },
+      {
+        "queryId": "180",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 3.4928769999999076
+      },
+      {
+        "queryId": "183",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 1.6876600000000508
+      },
+      {
+        "queryId": "185",
+        "mrr": 0.14285714285714285,
+        "ndcg": 0.3333333333333333,
+        "recall": 1,
+        "tookMs": 1.8639120000000275
+      },
+      {
+        "queryId": "198",
+        "mrr": 0.2,
+        "ndcg": 0.38685280723454163,
+        "recall": 1,
+        "tookMs": 0.887997999999925
+      },
+      {
+        "queryId": "208",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 1.2660520000001725
+      },
+      {
+        "queryId": "212",
+        "mrr": 0.2,
+        "ndcg": 0.38685280723454163,
+        "recall": 1,
+        "tookMs": 1.3373410000001513
+      },
+      {
+        "queryId": "213",
+        "mrr": 0.16666666666666666,
+        "ndcg": 0.3562071871080222,
+        "recall": 1,
+        "tookMs": 1.7569570000000567
+      },
+      {
+        "queryId": "216",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 1.767567999999983
+      },
+      {
+        "queryId": "217",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 1.6035830000000715
+      },
+      {
+        "queryId": "218",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 1.5043660000001182
+      },
+      {
+        "queryId": "219",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 1.42192
+      },
+      {
+        "queryId": "230",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 1.3111049999999977
+      },
+      {
+        "queryId": "232",
+        "mrr": 0.5,
+        "ndcg": 0.6309297535714575,
+        "recall": 1,
+        "tookMs": 0.8170810000001438
+      },
+      {
+        "queryId": "233",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 2.1681009999999787
+      },
+      {
+        "queryId": "236",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 1.5881460000000516
+      },
+      {
+        "queryId": "237",
+        "mrr": 0.3333333333333333,
+        "ndcg": 0.5,
+        "recall": 1,
+        "tookMs": 1.9392179999999826
+      },
+      {
+        "queryId": "238",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 2.1575800000000527
+      },
+      {
+        "queryId": "239",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 1.0189840000000459
+      },
+      {
+        "queryId": "248",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 2.2490099999999984
+      },
+      {
+        "queryId": "249",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 1.3598930000000564
+      },
+      {
+        "queryId": "261",
+        "mrr": 0.25,
+        "ndcg": 0.2640681225725909,
+        "recall": 0.5,
+        "tookMs": 2.049212000000125
+      },
+      {
+        "queryId": "268",
+        "mrr": 0.5,
+        "ndcg": 0.6309297535714575,
+        "recall": 1,
+        "tookMs": 1.1703999999999724
+      },
+      {
+        "queryId": "269",
+        "mrr": 0.5,
+        "ndcg": 0.6309297535714575,
+        "recall": 1,
+        "tookMs": 0.9348630000001776
+      },
+      {
+        "queryId": "274",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 2.201679000000013
+      },
+      {
+        "queryId": "275",
+        "mrr": 1,
+        "ndcg": 0.46927872602275644,
+        "recall": 0.3333333333333333,
+        "tookMs": 2.916633999999931
+      },
+      {
+        "queryId": "279",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 0.8138920000001235
+      },
+      {
+        "queryId": "294",
+        "mrr": 0.5,
+        "ndcg": 0.6309297535714575,
+        "recall": 1,
+        "tookMs": 1.2842440000001716
+      },
+      {
+        "queryId": "295",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 2.151745000000119
+      },
+      {
+        "queryId": "298",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 1.1738619999998718
+      },
+      {
+        "queryId": "300",
+        "mrr": 0.125,
+        "ndcg": 0.31546487678572877,
+        "recall": 1,
+        "tookMs": 1.6740790000001198
+      },
+      {
+        "queryId": "303",
+        "mrr": 0.3333333333333333,
+        "ndcg": 0.5,
+        "recall": 1,
+        "tookMs": 1.9838310000000092
+      },
+      {
+        "queryId": "312",
+        "mrr": 0.1,
+        "ndcg": 0.2890648263178879,
+        "recall": 1,
+        "tookMs": 1.678871000000072
+      },
+      {
+        "queryId": "314",
+        "mrr": 0.3333333333333333,
+        "ndcg": 0.5,
+        "recall": 1,
+        "tookMs": 1.8946039999998447
+      },
+      {
+        "queryId": "324",
+        "mrr": 0.2,
+        "ndcg": 0.38685280723454163,
+        "recall": 1,
+        "tookMs": 1.1083459999999832
+      },
+      {
+        "queryId": "327",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 1.6291490000000977
+      },
+      {
+        "queryId": "338",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 0.9254889999999705
+      },
+      {
+        "queryId": "343",
+        "mrr": 0.5,
+        "ndcg": 0.6509209298071326,
+        "recall": 1,
+        "tookMs": 2.677124000000049
+      },
+      {
+        "queryId": "350",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 1.7090120000000297
+      },
+      {
+        "queryId": "354",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 1.4626279999999952
+      },
+      {
+        "queryId": "362",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 2.5831359999999677
+      },
+      {
+        "queryId": "380",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 1.4807989999999336
+      },
+      {
+        "queryId": "384",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 2.1143610000001445
+      },
+      {
+        "queryId": "385",
+        "mrr": 0.3333333333333333,
+        "ndcg": 0.5437713091520254,
+        "recall": 1,
+        "tookMs": 1.7432410000001255
+      },
+      {
+        "queryId": "386",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 1.854904999999917
+      },
+      {
+        "queryId": "388",
+        "mrr": 0.3333333333333333,
+        "ndcg": 0.5,
+        "recall": 1,
+        "tookMs": 1.0979919999999765
+      },
+      {
+        "queryId": "399",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 0.7619010000000799
+      },
+      {
+        "queryId": "410",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 0.9255999999998039
+      },
+      {
+        "queryId": "411",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 0.7480310000000827
+      },
+      {
+        "queryId": "415",
+        "mrr": 0.16666666666666666,
+        "ndcg": 0.3562071871080222,
+        "recall": 1,
+        "tookMs": 1.3172349999999824
+      },
+      {
+        "queryId": "421",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 0.8053379999998924
+      },
+      {
+        "queryId": "431",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 1.4340760000000046
+      },
+      {
+        "queryId": "436",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 1.2267289999999775
+      },
+      {
+        "queryId": "437",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 1.4148700000000645
+      },
+      {
+        "queryId": "439",
+        "mrr": 0.5,
+        "ndcg": 0.6309297535714575,
+        "recall": 1,
+        "tookMs": 1.7145160000000033
+      },
+      {
+        "queryId": "440",
+        "mrr": 0.5,
+        "ndcg": 0.6309297535714575,
+        "recall": 1,
+        "tookMs": 1.6335509999998976
+      },
+      {
+        "queryId": "443",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 2.6356680000001234
+      },
+      {
+        "queryId": "452",
+        "mrr": 0.5,
+        "ndcg": 0.38685280723454163,
+        "recall": 0.5,
+        "tookMs": 1.7319159999999556
+      },
+      {
+        "queryId": "475",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 1.6095980000000054
+      },
+      {
+        "queryId": "478",
+        "mrr": 0.5,
+        "ndcg": 0.6309297535714575,
+        "recall": 1,
+        "tookMs": 3.318711000000121
+      },
+      {
+        "queryId": "491",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 1.7724490000000515
+      },
+      {
+        "queryId": "501",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 0.5808019999999487
+      },
+      {
+        "queryId": "502",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 0.8369139999999788
+      },
+      {
+        "queryId": "507",
+        "mrr": 0.5,
+        "ndcg": 0.6309297535714575,
+        "recall": 1,
+        "tookMs": 1.6150540000001001
+      },
+      {
+        "queryId": "508",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 1.6459669999999278
+      },
+      {
+        "queryId": "513",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 1.3907980000001317
+      },
+      {
+        "queryId": "514",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 2.5128080000001773
+      },
+      {
+        "queryId": "516",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 2.024727999999868
+      },
+      {
+        "queryId": "517",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 1.4699929999999313
+      },
+      {
+        "queryId": "521",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 2.447361000000001
+      },
+      {
+        "queryId": "525",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 2.1421040000000175
+      },
+      {
+        "queryId": "527",
+        "mrr": 0.5,
+        "ndcg": 0.6309297535714575,
+        "recall": 1,
+        "tookMs": 2.12920999999983
+      },
+      {
+        "queryId": "528",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 2.8260709999999563
+      },
+      {
+        "queryId": "532",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 0.826530000000048
+      },
+      {
+        "queryId": "533",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 1.0097710000000006
+      },
+      {
+        "queryId": "535",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 1.9743490000000747
+      },
+      {
+        "queryId": "536",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 1.2041589999998905
+      },
+      {
+        "queryId": "539",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 1.1496200000001409
+      },
+      {
+        "queryId": "540",
+        "mrr": 0.16666666666666666,
+        "ndcg": 0.21840743681816419,
+        "recall": 0.5,
+        "tookMs": 0.5475369999999202
+      },
+      {
+        "queryId": "544",
+        "mrr": 0.125,
+        "ndcg": 0.31546487678572877,
+        "recall": 1,
+        "tookMs": 0.8822519999998804
+      },
+      {
+        "queryId": "549",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 0.9000340000000051
+      },
+      {
+        "queryId": "551",
+        "mrr": 0.25,
+        "ndcg": 0.43067655807339306,
+        "recall": 1,
+        "tookMs": 2.0623410000000604
+      },
+      {
+        "queryId": "552",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 2.2534670000000006
+      },
+      {
+        "queryId": "554",
+        "mrr": 0.14285714285714285,
+        "ndcg": 0.3333333333333333,
+        "recall": 1,
+        "tookMs": 2.8516839999999775
+      },
+      {
+        "queryId": "560",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 2.533521999999948
+      },
+      {
+        "queryId": "569",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 1.873846000000185
+      },
+      {
+        "queryId": "575",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 0.839572999999973
+      },
+      {
+        "queryId": "577",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 2.830054999999902
+      },
+      {
+        "queryId": "578",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 1.5365939999996954
+      },
+      {
+        "queryId": "587",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 2.5499400000003334
+      },
+      {
+        "queryId": "589",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 1.73709800000006
+      },
+      {
+        "queryId": "593",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 1.2583270000000084
+      },
+      {
+        "queryId": "597",
+        "mrr": 1,
+        "ndcg": 0.9134015924715543,
+        "recall": 1,
+        "tookMs": 1.1901910000001408
+      },
+      {
+        "queryId": "598",
+        "mrr": 0.14285714285714285,
+        "ndcg": 0.3333333333333333,
+        "recall": 1,
+        "tookMs": 2.552966999999626
+      },
+      {
+        "queryId": "613",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 1.59355800000003
+      },
+      {
+        "queryId": "619",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 1.602233999999953
+      },
+      {
+        "queryId": "623",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 1.8963599999997314
+      },
+      {
+        "queryId": "628",
+        "mrr": 0.5,
+        "ndcg": 0.6309297535714575,
+        "recall": 1,
+        "tookMs": 3.786409000000276
+      },
+      {
+        "queryId": "636",
+        "mrr": 0.3333333333333333,
+        "ndcg": 0.5,
+        "recall": 1,
+        "tookMs": 2.177153999999973
+      },
+      {
+        "queryId": "637",
+        "mrr": 0.1111111111111111,
+        "ndcg": 0.3010299956639812,
+        "recall": 1,
+        "tookMs": 1.0482970000002751
+      },
+      {
+        "queryId": "641",
+        "mrr": 1,
+        "ndcg": 0.6131471927654584,
+        "recall": 0.5,
+        "tookMs": 1.2989019999999982
+      },
+      {
+        "queryId": "644",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 1.318847999999889
+      },
+      {
+        "queryId": "649",
+        "mrr": 0.25,
+        "ndcg": 0.43067655807339306,
+        "recall": 1,
+        "tookMs": 1.1374989999999343
+      },
+      {
+        "queryId": "659",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 0.7812669999998434
+      },
+      {
+        "queryId": "660",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 1.5165320000000975
+      },
+      {
+        "queryId": "674",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 1.2585959999996703
+      },
+      {
+        "queryId": "684",
+        "mrr": 0.3333333333333333,
+        "ndcg": 0.5,
+        "recall": 1,
+        "tookMs": 1.8196609999999964
+      },
+      {
+        "queryId": "690",
+        "mrr": 0.3333333333333333,
+        "ndcg": 0.5,
+        "recall": 1,
+        "tookMs": 1.6115689999996903
+      },
+      {
+        "queryId": "691",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 1.8712949999999182
+      },
+      {
+        "queryId": "692",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 1.899022000000059
+      },
+      {
+        "queryId": "693",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 2.1848519999998643
+      },
+      {
+        "queryId": "700",
+        "mrr": 0.5,
+        "ndcg": 0.6309297535714575,
+        "recall": 1,
+        "tookMs": 0.5565790000000561
+      },
+      {
+        "queryId": "702",
+        "mrr": 0.3333333333333333,
+        "ndcg": 0.5,
+        "recall": 1,
+        "tookMs": 0.42007699999976467
+      },
+      {
+        "queryId": "715",
+        "mrr": 0.1,
+        "ndcg": 0.2890648263178879,
+        "recall": 1,
+        "tookMs": 1.9821179999999003
+      },
+      {
+        "queryId": "716",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 1.423841000000266
+      },
+      {
+        "queryId": "718",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 1.1116170000000238
+      },
+      {
+        "queryId": "721",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 1.3820129999999153
+      },
+      {
+        "queryId": "723",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 1.9518599999996695
+      },
+      {
+        "queryId": "727",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 1.5413389999998799
+      },
+      {
+        "queryId": "728",
+        "mrr": 1,
+        "ndcg": 0.8315546295836225,
+        "recall": 1,
+        "tookMs": 0.827958999999737
+      },
+      {
+        "queryId": "729",
+        "mrr": 0.5,
+        "ndcg": 0.6309297535714575,
+        "recall": 1,
+        "tookMs": 1.550876999999673
+      },
+      {
+        "queryId": "742",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 0.973261999999977
+      },
+      {
+        "queryId": "743",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 0.5635959999999614
+      },
+      {
+        "queryId": "744",
+        "mrr": 0.5,
+        "ndcg": 0.6309297535714575,
+        "recall": 1,
+        "tookMs": 2.562163000000055
+      },
+      {
+        "queryId": "756",
+        "mrr": 0.16666666666666666,
+        "ndcg": 0.3562071871080222,
+        "recall": 1,
+        "tookMs": 2.3484090000001743
+      },
+      {
+        "queryId": "759",
+        "mrr": 0.5,
+        "ndcg": 0.6309297535714575,
+        "recall": 1,
+        "tookMs": 2.1395110000003115
+      },
+      {
+        "queryId": "768",
+        "mrr": 0.25,
+        "ndcg": 0.43067655807339306,
+        "recall": 1,
+        "tookMs": 0.6785650000001624
+      },
+      {
+        "queryId": "770",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 3.762359999999717
+      },
+      {
+        "queryId": "775",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 1.7540730000000622
+      },
+      {
+        "queryId": "781",
+        "mrr": 0.5,
+        "ndcg": 0.6309297535714575,
+        "recall": 1,
+        "tookMs": 1.5306390000000647
+      },
+      {
+        "queryId": "783",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 1.4274159999999938
+      },
+      {
+        "queryId": "784",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 2.034084999999777
+      },
+      {
+        "queryId": "785",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 1.2676409999999123
+      },
+      {
+        "queryId": "793",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 1.2083119999997507
+      },
+      {
+        "queryId": "800",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 2.0681369999997514
+      },
+      {
+        "queryId": "805",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 1.1856410000000324
+      },
+      {
+        "queryId": "808",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 1.2772569999997359
+      },
+      {
+        "queryId": "811",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 2.12026700000024
+      },
+      {
+        "queryId": "814",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 3.8760300000003554
+      },
+      {
+        "queryId": "820",
+        "mrr": 0.25,
+        "ndcg": 0.43067655807339306,
+        "recall": 1,
+        "tookMs": 1.5482389999997395
+      },
+      {
+        "queryId": "821",
+        "mrr": 0.2,
+        "ndcg": 0.38685280723454163,
+        "recall": 1,
+        "tookMs": 1.2144079999998212
+      },
+      {
+        "queryId": "823",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 0.8661290000000008
+      },
+      {
+        "queryId": "830",
+        "mrr": 0.14285714285714285,
+        "ndcg": 0.3333333333333333,
+        "recall": 1,
+        "tookMs": 1.4773260000001756
+      },
+      {
+        "queryId": "831",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 0.6742910000002666
+      },
+      {
+        "queryId": "832",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 1.1914189999997689
+      },
+      {
+        "queryId": "834",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 1.2615340000002107
+      },
+      {
+        "queryId": "837",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 1.792351999999937
+      },
+      {
+        "queryId": "839",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 2.5250410000003285
+      },
+      {
+        "queryId": "845",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 0.6896209999999883
+      },
+      {
+        "queryId": "847",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 1.342747000000145
+      },
+      {
+        "queryId": "852",
+        "mrr": 0.5,
+        "ndcg": 0.6309297535714575,
+        "recall": 1,
+        "tookMs": 1.7439179999996668
+      },
+      {
+        "queryId": "859",
+        "mrr": 0.5,
+        "ndcg": 0.6309297535714575,
+        "recall": 1,
+        "tookMs": 1.605054999999993
+      },
+      {
+        "queryId": "870",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 1.2001399999999194
+      },
+      {
+        "queryId": "873",
+        "mrr": 0.2,
+        "ndcg": 0.23330247263525344,
+        "recall": 0.4,
+        "tookMs": 1.0284320000000662
+      },
+      {
+        "queryId": "879",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 0.7089559999999437
+      },
+      {
+        "queryId": "880",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 1.0990120000001298
+      },
+      {
+        "queryId": "882",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 0.8296519999998964
+      },
+      {
+        "queryId": "887",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 2.2643370000000687
+      },
+      {
+        "queryId": "903",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 1.629816000000119
+      },
+      {
+        "queryId": "904",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 2.6482599999999366
+      },
+      {
+        "queryId": "907",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 1.9875110000002678
+      },
+      {
+        "queryId": "911",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 1.5455080000001544
+      },
+      {
+        "queryId": "913",
+        "mrr": 0.125,
+        "ndcg": 0.31546487678572877,
+        "recall": 1,
+        "tookMs": 0.6405020000001969
+      },
+      {
+        "queryId": "914",
+        "mrr": 0.125,
+        "ndcg": 0.31546487678572877,
+        "recall": 1,
+        "tookMs": 0.8868320000001404
+      },
+      {
+        "queryId": "921",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 1.4156699999998636
+      },
+      {
+        "queryId": "922",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 1.3633209999998144
+      },
+      {
+        "queryId": "936",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 0.6459500000000844
+      },
+      {
+        "queryId": "956",
+        "mrr": 0.3333333333333333,
+        "ndcg": 0.5,
+        "recall": 1,
+        "tookMs": 1.731785999999829
+      },
+      {
+        "queryId": "957",
+        "mrr": 0.5,
+        "ndcg": 0.6309297535714575,
+        "recall": 1,
+        "tookMs": 0.5157749999998487
+      },
+      {
+        "queryId": "960",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 0.7545789999999215
+      },
+      {
+        "queryId": "967",
+        "mrr": 1,
+        "ndcg": 0.9197207891481876,
+        "recall": 1,
+        "tookMs": 1.148417000000336
+      },
+      {
+        "queryId": "971",
+        "mrr": 0.5,
+        "ndcg": 0.7315682114753617,
+        "recall": 1,
+        "tookMs": 2.0416119999999864
+      },
+      {
+        "queryId": "975",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 0.9044899999998961
+      },
+      {
+        "queryId": "982",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 2.5005639999999403
+      },
+      {
+        "queryId": "985",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 1.5846329999999398
+      },
+      {
+        "queryId": "993",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 0.6957720000000336
+      },
+      {
+        "queryId": "1012",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 1.117685000000165
+      },
+      {
+        "queryId": "1014",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 0.6917589999998199
+      },
+      {
+        "queryId": "1019",
+        "mrr": 0.5,
+        "ndcg": 0.6309297535714575,
+        "recall": 1,
+        "tookMs": 1.1943599999999606
+      },
+      {
+        "queryId": "1020",
+        "mrr": 0.5,
+        "ndcg": 0.6309297535714575,
+        "recall": 1,
+        "tookMs": 3.363096999999925
+      },
+      {
+        "queryId": "1021",
+        "mrr": 0.5,
+        "ndcg": 0.6309297535714575,
+        "recall": 1,
+        "tookMs": 2.3970899999999347
+      },
+      {
+        "queryId": "1024",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 0.9942640000003848
+      },
+      {
+        "queryId": "1029",
+        "mrr": 1,
+        "ndcg": 0.9066276098484507,
+        "recall": 1,
+        "tookMs": 3.3984870000003866
+      },
+      {
+        "queryId": "1041",
+        "mrr": 0.2,
+        "ndcg": 0.41443699955334395,
+        "recall": 1,
+        "tookMs": 2.4683570000001964
+      },
+      {
+        "queryId": "1049",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 1.6793789999996989
+      },
+      {
+        "queryId": "1062",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 0.6820819999998093
+      },
+      {
+        "queryId": "1086",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 2.0739779999998973
+      },
+      {
+        "queryId": "1088",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 0.9258060000001933
+      },
+      {
+        "queryId": "1089",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 1.1103210000001127
+      },
+      {
+        "queryId": "1099",
+        "mrr": 0.3333333333333333,
+        "ndcg": 0.5,
+        "recall": 1,
+        "tookMs": 0.6467659999998432
+      },
+      {
+        "queryId": "1100",
+        "mrr": 0.5,
+        "ndcg": 0.6309297535714575,
+        "recall": 1,
+        "tookMs": 1.0308199999999488
+      },
+      {
+        "queryId": "1104",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 1.7475509999999304
+      },
+      {
+        "queryId": "1107",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 1.1226950000000215
+      },
+      {
+        "queryId": "1110",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 0.8173009999995884
+      },
+      {
+        "queryId": "1121",
+        "mrr": 0.5,
+        "ndcg": 0.6309297535714575,
+        "recall": 1,
+        "tookMs": 1.4655029999998987
+      },
+      {
+        "queryId": "1130",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 2.201872000000094
+      },
+      {
+        "queryId": "1132",
+        "mrr": 0.25,
+        "ndcg": 0.2640681225725909,
+        "recall": 0.5,
+        "tookMs": 2.169170000000122
+      },
+      {
+        "queryId": "1137",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 0.5857100000002902
+      },
+      {
+        "queryId": "1140",
+        "mrr": 0.3333333333333333,
+        "ndcg": 0.5,
+        "recall": 1,
+        "tookMs": 1.0070839999998498
+      },
+      {
+        "queryId": "1144",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 1.442004999999881
+      },
+      {
+        "queryId": "1146",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 1.0140650000003006
+      },
+      {
+        "queryId": "1150",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 1.4652620000001662
+      },
+      {
+        "queryId": "1163",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 1.043945999999778
+      },
+      {
+        "queryId": "1175",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 0.9718619999998737
+      },
+      {
+        "queryId": "1179",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 1.4759509999998954
+      },
+      {
+        "queryId": "1180",
+        "mrr": 0.2,
+        "ndcg": 0.38685280723454163,
+        "recall": 1,
+        "tookMs": 0.77952600000026
+      },
+      {
+        "queryId": "1185",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 2.021390999999767
+      },
+      {
+        "queryId": "1187",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 2.482020999999804
+      },
+      {
+        "queryId": "1191",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 1.5344089999998687
+      },
+      {
+        "queryId": "1194",
+        "mrr": 0.5,
+        "ndcg": 0.6309297535714575,
+        "recall": 1,
+        "tookMs": 2.1373979999998483
+      },
+      {
+        "queryId": "1196",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 1.189057000000048
+      },
+      {
+        "queryId": "1197",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 1.0478420000004007
+      },
+      {
+        "queryId": "1199",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 1.6007519999998294
+      },
+      {
+        "queryId": "1200",
+        "mrr": 0.25,
+        "ndcg": 0.43067655807339306,
+        "recall": 1,
+        "tookMs": 0.9404239999998936
+      },
+      {
+        "queryId": "1202",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 1.783574999999928
+      },
+      {
+        "queryId": "1204",
+        "mrr": 0.3333333333333333,
+        "ndcg": 0.5,
+        "recall": 1,
+        "tookMs": 1.997534000000087
+      },
+      {
+        "queryId": "1207",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 1.4312709999999242
+      },
+      {
+        "queryId": "1213",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 1.2212349999999788
+      },
+      {
+        "queryId": "1216",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 1.626893999999993
+      },
+      {
+        "queryId": "1221",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 1.2700629999999364
+      },
+      {
+        "queryId": "1225",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 0.8864750000002459
+      },
+      {
+        "queryId": "1226",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 2.613300999999865
+      },
+      {
+        "queryId": "1232",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 1.603509000000031
+      },
+      {
+        "queryId": "1241",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 0.8124619999998686
+      },
+      {
+        "queryId": "1245",
+        "mrr": 0.2,
+        "ndcg": 0.38685280723454163,
+        "recall": 1,
+        "tookMs": 1.247298000000228
+      },
+      {
+        "queryId": "1259",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 2.603707999999642
+      },
+      {
+        "queryId": "1262",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 2.020684000000074
+      },
+      {
+        "queryId": "1266",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 1.8221389999998792
+      },
+      {
+        "queryId": "1270",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 0.9506940000001123
+      },
+      {
+        "queryId": "1271",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 1.090490999999929
+      },
+      {
+        "queryId": "1272",
+        "mrr": 0.14285714285714285,
+        "ndcg": 0.3333333333333333,
+        "recall": 1,
+        "tookMs": 1.5880220000003646
+      },
+      {
+        "queryId": "1273",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 1.4109760000001188
+      },
+      {
+        "queryId": "1274",
+        "mrr": 1,
+        "ndcg": 0.8710785440003369,
+        "recall": 1,
+        "tookMs": 2.1714499999998225
+      },
+      {
+        "queryId": "1278",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 1.607774000000063
+      },
+      {
+        "queryId": "1279",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 1.4077099999999518
+      },
+      {
+        "queryId": "1280",
+        "mrr": 0.16666666666666666,
+        "ndcg": 0.3562071871080222,
+        "recall": 1,
+        "tookMs": 1.6905639999999948
+      },
+      {
+        "queryId": "1281",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 1.1216560000002573
+      },
+      {
+        "queryId": "1282",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 1.9037379999999757
+      },
+      {
+        "queryId": "1290",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 1.268123999999716
+      },
+      {
+        "queryId": "1292",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 1.4023360000001048
+      },
+      {
+        "queryId": "1298",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 1.4045999999998457
+      },
+      {
+        "queryId": "1303",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 0.794742000000042
+      },
+      {
+        "queryId": "1316",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 1.4506089999999858
+      },
+      {
+        "queryId": "1319",
+        "mrr": 0.5,
+        "ndcg": 0.6309297535714575,
+        "recall": 1,
+        "tookMs": 2.5900619999997616
+      },
+      {
+        "queryId": "1320",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 1.8845179999998436
+      },
+      {
+        "queryId": "1332",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 2.2564979999997377
+      },
+      {
+        "queryId": "1335",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 1.8470970000003035
+      },
+      {
+        "queryId": "1336",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 2.061449000000266
+      },
+      {
+        "queryId": "1337",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 0.6437399999999798
+      },
+      {
+        "queryId": "1339",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 1.0611100000000988
+      },
+      {
+        "queryId": "1344",
+        "mrr": 0.5,
+        "ndcg": 0.6309297535714575,
+        "recall": 1,
+        "tookMs": 3.205327000000125
+      },
+      {
+        "queryId": "1352",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 1.5882649999998648
+      },
+      {
+        "queryId": "1359",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 2.5476430000003347
+      },
+      {
+        "queryId": "1362",
+        "mrr": 0.3333333333333333,
+        "ndcg": 0.5,
+        "recall": 1,
+        "tookMs": 0.4422239999998965
+      },
+      {
+        "queryId": "1363",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 0.6371249999997417
+      },
+      {
+        "queryId": "1368",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 1.14574599999969
+      },
+      {
+        "queryId": "1370",
+        "mrr": 0.25,
+        "ndcg": 0.43067655807339306,
+        "recall": 1,
+        "tookMs": 0.6734000000001288
+      },
+      {
+        "queryId": "1379",
+        "mrr": 0.3333333333333333,
+        "ndcg": 0.45905478457279136,
+        "recall": 0.75,
+        "tookMs": 1.7159339999998338
+      },
+      {
+        "queryId": "1382",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 0.8571630000001278
+      },
+      {
+        "queryId": "1385",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 0.8983880000000681
+      },
+      {
+        "queryId": "1389",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 1.5108140000002095
+      },
+      {
+        "queryId": "1395",
+        "mrr": 0.16666666666666666,
+        "ndcg": 0.3562071871080222,
+        "recall": 1,
+        "tookMs": 1.9208960000000843
+      }
+    ]
+  },
+  "tuned": {
+    "MRR10": 0.5641071428571428,
+    "nDCG10": 0.5950704412446497,
+    "recall10": 0.7233888888888889,
+    "p50Ms": 9.318368000000191,
+    "p95Ms": 22.750774000000092,
+    "cases": [
+      {
+        "queryId": "1",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 13.920492000000195
+      },
+      {
+        "queryId": "3",
+        "mrr": 0.3333333333333333,
+        "ndcg": 0.5,
+        "recall": 1,
+        "tookMs": 25.736085999999887
+      },
+      {
+        "queryId": "5",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 7.426939000000402
+      },
+      {
+        "queryId": "13",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 6.6310490000000755
+      },
+      {
+        "queryId": "36",
+        "mrr": 0.25,
+        "ndcg": 0.2640681225725909,
+        "recall": 0.5,
+        "tookMs": 8.975937000000158
+      },
+      {
+        "queryId": "42",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 8.312206999999944
+      },
+      {
+        "queryId": "48",
+        "mrr": 0.5,
+        "ndcg": 0.6309297535714575,
+        "recall": 1,
+        "tookMs": 11.527881999999863
+      },
+      {
+        "queryId": "49",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 5.763566000000083
+      },
+      {
+        "queryId": "50",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 5.205431000000317
+      },
+      {
+        "queryId": "51",
+        "mrr": 0.5,
+        "ndcg": 0.6309297535714575,
+        "recall": 1,
+        "tookMs": 11.28801999999996
+      },
+      {
+        "queryId": "53",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 10.870686000000205
+      },
+      {
+        "queryId": "54",
+        "mrr": 0.25,
+        "ndcg": 0.43067655807339306,
+        "recall": 1,
+        "tookMs": 17.366316000000097
+      },
+      {
+        "queryId": "56",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 18.046319999999923
+      },
+      {
+        "queryId": "57",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 17.05810799999972
+      },
+      {
+        "queryId": "70",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 6.628689999999551
+      },
+      {
+        "queryId": "72",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 3.3863510000001042
+      },
+      {
+        "queryId": "75",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 11.367745999999897
+      },
+      {
+        "queryId": "94",
+        "mrr": 0.3333333333333333,
+        "ndcg": 0.5,
+        "recall": 1,
+        "tookMs": 3.4207209999999577
+      },
+      {
+        "queryId": "99",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 6.145180999999866
+      },
+      {
+        "queryId": "100",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 12.826485999999932
+      },
+      {
+        "queryId": "113",
+        "mrr": 0.5,
+        "ndcg": 0.6309297535714575,
+        "recall": 1,
+        "tookMs": 12.906649000000016
+      },
+      {
+        "queryId": "115",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 6.131636999999955
+      },
+      {
+        "queryId": "118",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 6.789686999999958
+      },
+      {
+        "queryId": "124",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 8.494592999999895
+      },
+      {
+        "queryId": "127",
+        "mrr": 0.3333333333333333,
+        "ndcg": 0.5,
+        "recall": 1,
+        "tookMs": 4.085342999999739
+      },
+      {
+        "queryId": "128",
+        "mrr": 0.3333333333333333,
+        "ndcg": 0.5,
+        "recall": 1,
+        "tookMs": 1.1101619999999457
+      },
+      {
+        "queryId": "129",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 4.361252999999579
+      },
+      {
+        "queryId": "130",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 6.284893999999895
+      },
+      {
+        "queryId": "132",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 2.4116359999998167
+      },
+      {
+        "queryId": "133",
+        "mrr": 0.2,
+        "ndcg": 0.13120507751234178,
+        "recall": 0.2,
+        "tookMs": 13.127446999999847
+      },
+      {
+        "queryId": "137",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 6.916451000000052
+      },
+      {
+        "queryId": "141",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 4.414060000000063
+      },
+      {
+        "queryId": "142",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 25.080787000000328
+      },
+      {
+        "queryId": "143",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 23.31617600000027
+      },
+      {
+        "queryId": "146",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 21.782525000000078
+      },
+      {
+        "queryId": "148",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 1.631134000000202
+      },
+      {
+        "queryId": "163",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 3.916960999999901
+      },
+      {
+        "queryId": "171",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 9.175010999999813
+      },
+      {
+        "queryId": "179",
+        "mrr": 1,
+        "ndcg": 0.5205067333228022,
+        "recall": 0.5,
+        "tookMs": 6.665650999999798
+      },
+      {
+        "queryId": "180",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 22.67501399999992
+      },
+      {
+        "queryId": "183",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 9.037824
+      },
+      {
+        "queryId": "185",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 9.794636000000082
+      },
+      {
+        "queryId": "198",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 3.4498309999999037
+      },
+      {
+        "queryId": "208",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 5.118832999999995
+      },
+      {
+        "queryId": "212",
+        "mrr": 0.5,
+        "ndcg": 0.6309297535714575,
+        "recall": 1,
+        "tookMs": 6.231919000000289
+      },
+      {
+        "queryId": "213",
+        "mrr": 0.3333333333333333,
+        "ndcg": 0.5,
+        "recall": 1,
+        "tookMs": 5.349842000000081
+      },
+      {
+        "queryId": "216",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 9.36000600000034
+      },
+      {
+        "queryId": "217",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 9.404743000000053
+      },
+      {
+        "queryId": "218",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 8.600558000000092
+      },
+      {
+        "queryId": "219",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 8.265911999999844
+      },
+      {
+        "queryId": "230",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 6.120300000000043
+      },
+      {
+        "queryId": "232",
+        "mrr": 0.5,
+        "ndcg": 0.6309297535714575,
+        "recall": 1,
+        "tookMs": 3.291986000000179
+      },
+      {
+        "queryId": "233",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 8.643746000000192
+      },
+      {
+        "queryId": "236",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 8.383892000000287
+      },
+      {
+        "queryId": "237",
+        "mrr": 0.3333333333333333,
+        "ndcg": 0.5,
+        "recall": 1,
+        "tookMs": 11.436584000000039
+      },
+      {
+        "queryId": "238",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 11.902140000000145
+      },
+      {
+        "queryId": "239",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 3.828251999999793
+      },
+      {
+        "queryId": "248",
+        "mrr": 0.3333333333333333,
+        "ndcg": 0.5,
+        "recall": 1,
+        "tookMs": 8.610509999999977
+      },
+      {
+        "queryId": "249",
+        "mrr": 0.3333333333333333,
+        "ndcg": 0.5,
+        "recall": 1,
+        "tookMs": 7.228708999999981
+      },
+      {
+        "queryId": "261",
+        "mrr": 0.5,
+        "ndcg": 0.38685280723454163,
+        "recall": 0.5,
+        "tookMs": 11.172518999999738
+      },
+      {
+        "queryId": "268",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 4.610580999999911
+      },
+      {
+        "queryId": "269",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 3.332488999999896
+      },
+      {
+        "queryId": "274",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 15.39106000000038
+      },
+      {
+        "queryId": "275",
+        "mrr": 1,
+        "ndcg": 0.46927872602275644,
+        "recall": 0.3333333333333333,
+        "tookMs": 17.916067999999996
+      },
+      {
+        "queryId": "279",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 3.4986820000003718
+      },
+      {
+        "queryId": "294",
+        "mrr": 0.2,
+        "ndcg": 0.38685280723454163,
+        "recall": 1,
+        "tookMs": 8.237188999999944
+      },
+      {
+        "queryId": "295",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 17.544327000000067
+      },
+      {
+        "queryId": "298",
+        "mrr": 0.125,
+        "ndcg": 0.31546487678572877,
+        "recall": 1,
+        "tookMs": 7.5945990000000165
+      },
+      {
+        "queryId": "300",
+        "mrr": 0.14285714285714285,
+        "ndcg": 0.3333333333333333,
+        "recall": 1,
+        "tookMs": 12.095580000000155
+      },
+      {
+        "queryId": "303",
+        "mrr": 0.25,
+        "ndcg": 0.43067655807339306,
+        "recall": 1,
+        "tookMs": 7.523756999999932
+      },
+      {
+        "queryId": "312",
+        "mrr": 0.1111111111111111,
+        "ndcg": 0.3010299956639812,
+        "recall": 1,
+        "tookMs": 9.879832999999962
+      },
+      {
+        "queryId": "314",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 14.697074000000157
+      },
+      {
+        "queryId": "324",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 6.801253000000088
+      },
+      {
+        "queryId": "327",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 8.45915100000002
+      },
+      {
+        "queryId": "338",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 4.0695700000001125
+      },
+      {
+        "queryId": "343",
+        "mrr": 0.5,
+        "ndcg": 0.38685280723454163,
+        "recall": 0.5,
+        "tookMs": 15.946795999999722
+      },
+      {
+        "queryId": "350",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 14.225910000000113
+      },
+      {
+        "queryId": "354",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 9.774347999999918
+      },
+      {
+        "queryId": "362",
+        "mrr": 0.5,
+        "ndcg": 0.6309297535714575,
+        "recall": 1,
+        "tookMs": 25.045129999999972
+      },
+      {
+        "queryId": "380",
+        "mrr": 0.1,
+        "ndcg": 0.2890648263178879,
+        "recall": 1,
+        "tookMs": 10.143354999999701
+      },
+      {
+        "queryId": "384",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 10.390672999999879
+      },
+      {
+        "queryId": "385",
+        "mrr": 0.3333333333333333,
+        "ndcg": 0.5249810332008933,
+        "recall": 1,
+        "tookMs": 12.49641500000007
+      },
+      {
+        "queryId": "386",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 14.910895999999866
+      },
+      {
+        "queryId": "388",
+        "mrr": 0.5,
+        "ndcg": 0.6309297535714575,
+        "recall": 1,
+        "tookMs": 5.73562899999979
+      },
+      {
+        "queryId": "399",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 2.1066569999998137
+      },
+      {
+        "queryId": "410",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 4.61712899999975
+      },
+      {
+        "queryId": "411",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 3.3292969999997695
+      },
+      {
+        "queryId": "415",
+        "mrr": 0.25,
+        "ndcg": 0.43067655807339306,
+        "recall": 1,
+        "tookMs": 7.9027900000000955
+      },
+      {
+        "queryId": "421",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 4.38750200000004
+      },
+      {
+        "queryId": "431",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 8.199142999999822
+      },
+      {
+        "queryId": "436",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 9.03360900000007
+      },
+      {
+        "queryId": "437",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 12.437181999999666
+      },
+      {
+        "queryId": "439",
+        "mrr": 0.25,
+        "ndcg": 0.43067655807339306,
+        "recall": 1,
+        "tookMs": 14.489482999999836
+      },
+      {
+        "queryId": "440",
+        "mrr": 0.25,
+        "ndcg": 0.43067655807339306,
+        "recall": 1,
+        "tookMs": 14.840156000000206
+      },
+      {
+        "queryId": "443",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 14.407814999999573
+      },
+      {
+        "queryId": "452",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 12.265655000000152
+      },
+      {
+        "queryId": "475",
+        "mrr": 0.5,
+        "ndcg": 0.6309297535714575,
+        "recall": 1,
+        "tookMs": 10.28574400000025
+      },
+      {
+        "queryId": "478",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 26.660358000000087
+      },
+      {
+        "queryId": "491",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 14.277775999999903
+      },
+      {
+        "queryId": "501",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 1.7046770000001743
+      },
+      {
+        "queryId": "502",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 5.55045199999995
+      },
+      {
+        "queryId": "507",
+        "mrr": 0.5,
+        "ndcg": 0.6309297535714575,
+        "recall": 1,
+        "tookMs": 13.83384500000011
+      },
+      {
+        "queryId": "508",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 12.624589999999898
+      },
+      {
+        "queryId": "513",
+        "mrr": 0.5,
+        "ndcg": 0.6309297535714575,
+        "recall": 1,
+        "tookMs": 8.444026000000122
+      },
+      {
+        "queryId": "514",
+        "mrr": 0.2,
+        "ndcg": 0.38685280723454163,
+        "recall": 1,
+        "tookMs": 15.736308999999892
+      },
+      {
+        "queryId": "516",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 13.412960999999996
+      },
+      {
+        "queryId": "517",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 7.51095099999975
+      },
+      {
+        "queryId": "521",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 24.25956700000006
+      },
+      {
+        "queryId": "525",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 11.656960999999683
+      },
+      {
+        "queryId": "527",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 16.43648600000006
+      },
+      {
+        "queryId": "528",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 31.792959999999766
+      },
+      {
+        "queryId": "532",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 3.0425940000000082
+      },
+      {
+        "queryId": "533",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 4.66208800000004
+      },
+      {
+        "queryId": "535",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 10.869825999999648
+      },
+      {
+        "queryId": "536",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 3.6574999999998
+      },
+      {
+        "queryId": "539",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 4.816917999999987
+      },
+      {
+        "queryId": "540",
+        "mrr": 0.3333333333333333,
+        "ndcg": 0.3065735963827292,
+        "recall": 0.5,
+        "tookMs": 1.675282000000152
+      },
+      {
+        "queryId": "544",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 3.9824069999999665
+      },
+      {
+        "queryId": "549",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 4.407907999999679
+      },
+      {
+        "queryId": "551",
+        "mrr": 0.1,
+        "ndcg": 0.2890648263178879,
+        "recall": 1,
+        "tookMs": 15.86220800000001
+      },
+      {
+        "queryId": "552",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 21.070889999999963
+      },
+      {
+        "queryId": "554",
+        "mrr": 0.2,
+        "ndcg": 0.38685280723454163,
+        "recall": 1,
+        "tookMs": 15.516847999999754
+      },
+      {
+        "queryId": "560",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 16.93242999999984
+      },
+      {
+        "queryId": "569",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 10.887372000000141
+      },
+      {
+        "queryId": "575",
+        "mrr": 0.3333333333333333,
+        "ndcg": 0.5,
+        "recall": 1,
+        "tookMs": 4.786079999999856
+      },
+      {
+        "queryId": "577",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 16.721228000000337
+      },
+      {
+        "queryId": "578",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 9.92366600000014
+      },
+      {
+        "queryId": "587",
+        "mrr": 0.3333333333333333,
+        "ndcg": 0.5,
+        "recall": 1,
+        "tookMs": 22.750774000000092
+      },
+      {
+        "queryId": "589",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 13.41791000000012
+      },
+      {
+        "queryId": "593",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 6.83676400000013
+      },
+      {
+        "queryId": "597",
+        "mrr": 1,
+        "ndcg": 0.6105456988825855,
+        "recall": 0.6666666666666666,
+        "tookMs": 5.300417999999809
+      },
+      {
+        "queryId": "598",
+        "mrr": 0.2,
+        "ndcg": 0.38685280723454163,
+        "recall": 1,
+        "tookMs": 16.803828000000067
+      },
+      {
+        "queryId": "613",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 11.776460999999927
+      },
+      {
+        "queryId": "619",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 10.587404000000333
+      },
+      {
+        "queryId": "623",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 12.263275999999678
+      },
+      {
+        "queryId": "628",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 21.633491999999933
+      },
+      {
+        "queryId": "636",
+        "mrr": 0.5,
+        "ndcg": 0.6309297535714575,
+        "recall": 1,
+        "tookMs": 15.510768999999982
+      },
+      {
+        "queryId": "637",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 5.393521999999848
+      },
+      {
+        "queryId": "641",
+        "mrr": 1,
+        "ndcg": 0.6131471927654584,
+        "recall": 0.5,
+        "tookMs": 6.9098469999999
+      },
+      {
+        "queryId": "644",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 6.948358999999982
+      },
+      {
+        "queryId": "649",
+        "mrr": 0.5,
+        "ndcg": 0.6309297535714575,
+        "recall": 1,
+        "tookMs": 6.432227000000239
+      },
+      {
+        "queryId": "659",
+        "mrr": 0.3333333333333333,
+        "ndcg": 0.5,
+        "recall": 1,
+        "tookMs": 3.687170000000151
+      },
+      {
+        "queryId": "660",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 3.08395500000006
+      },
+      {
+        "queryId": "674",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 5.785374999999931
+      },
+      {
+        "queryId": "684",
+        "mrr": 0.3333333333333333,
+        "ndcg": 0.5,
+        "recall": 1,
+        "tookMs": 12.80599200000006
+      },
+      {
+        "queryId": "690",
+        "mrr": 0.3333333333333333,
+        "ndcg": 0.5,
+        "recall": 1,
+        "tookMs": 9.922887000000173
+      },
+      {
+        "queryId": "691",
+        "mrr": 0.25,
+        "ndcg": 0.43067655807339306,
+        "recall": 1,
+        "tookMs": 14.85805100000016
+      },
+      {
+        "queryId": "692",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 11.939515000000029
+      },
+      {
+        "queryId": "693",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 10.04226400000016
+      },
+      {
+        "queryId": "700",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 1.5359220000000278
+      },
+      {
+        "queryId": "702",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 1.0423569999998108
+      },
+      {
+        "queryId": "715",
+        "mrr": 0.3333333333333333,
+        "ndcg": 0.5,
+        "recall": 1,
+        "tookMs": 13.018129000000044
+      },
+      {
+        "queryId": "716",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 9.015157000000272
+      },
+      {
+        "queryId": "718",
+        "mrr": 0.5,
+        "ndcg": 0.6309297535714575,
+        "recall": 1,
+        "tookMs": 7.560523000000103
+      },
+      {
+        "queryId": "721",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 10.904193999999734
+      },
+      {
+        "queryId": "723",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 13.908493999999791
+      },
+      {
+        "queryId": "727",
+        "mrr": 0.5,
+        "ndcg": 0.6309297535714575,
+        "recall": 1,
+        "tookMs": 14.027747999999974
+      },
+      {
+        "queryId": "728",
+        "mrr": 0.5,
+        "ndcg": 0.6934264036172708,
+        "recall": 1,
+        "tookMs": 6.898910999999771
+      },
+      {
+        "queryId": "729",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 12.143129999999928
+      },
+      {
+        "queryId": "742",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 5.141107999999804
+      },
+      {
+        "queryId": "743",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 2.0733279999999468
+      },
+      {
+        "queryId": "744",
+        "mrr": 0.16666666666666666,
+        "ndcg": 0.3562071871080222,
+        "recall": 1,
+        "tookMs": 15.30694399999993
+      },
+      {
+        "queryId": "756",
+        "mrr": 0.16666666666666666,
+        "ndcg": 0.3562071871080222,
+        "recall": 1,
+        "tookMs": 18.305245000000014
+      },
+      {
+        "queryId": "759",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 19.630615999999918
+      },
+      {
+        "queryId": "768",
+        "mrr": 0.14285714285714285,
+        "ndcg": 0.3333333333333333,
+        "recall": 1,
+        "tookMs": 3.138966999999866
+      },
+      {
+        "queryId": "770",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 28.445666000000074
+      },
+      {
+        "queryId": "775",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 15.842697000000044
+      },
+      {
+        "queryId": "781",
+        "mrr": 0.5,
+        "ndcg": 0.6309297535714575,
+        "recall": 1,
+        "tookMs": 11.553412999999637
+      },
+      {
+        "queryId": "783",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 10.92196899999999
+      },
+      {
+        "queryId": "784",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 16.175685000000158
+      },
+      {
+        "queryId": "785",
+        "mrr": 0.5,
+        "ndcg": 0.6309297535714575,
+        "recall": 1,
+        "tookMs": 9.524927999999818
+      },
+      {
+        "queryId": "793",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 1.01184400000011
+      },
+      {
+        "queryId": "800",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 14.083962000000156
+      },
+      {
+        "queryId": "805",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 6.219054999999571
+      },
+      {
+        "queryId": "808",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 6.891555000000153
+      },
+      {
+        "queryId": "811",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 15.834006000000045
+      },
+      {
+        "queryId": "814",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 26.1793260000004
+      },
+      {
+        "queryId": "820",
+        "mrr": 0.1,
+        "ndcg": 0.2890648263178879,
+        "recall": 1,
+        "tookMs": 10.206091000000015
+      },
+      {
+        "queryId": "821",
+        "mrr": 0.1,
+        "ndcg": 0.2890648263178879,
+        "recall": 1,
+        "tookMs": 8.275668000000223
+      },
+      {
+        "queryId": "823",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 4.009003000000121
+      },
+      {
+        "queryId": "830",
+        "mrr": 0.14285714285714285,
+        "ndcg": 0.3333333333333333,
+        "recall": 1,
+        "tookMs": 10.674283000000287
+      },
+      {
+        "queryId": "831",
+        "mrr": 0.14285714285714285,
+        "ndcg": 0.3333333333333333,
+        "recall": 1,
+        "tookMs": 3.092584999999417
+      },
+      {
+        "queryId": "832",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 6.659374999999272
+      },
+      {
+        "queryId": "834",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 7.758185000000594
+      },
+      {
+        "queryId": "837",
+        "mrr": 0.14285714285714285,
+        "ndcg": 0.3333333333333333,
+        "recall": 1,
+        "tookMs": 4.918359000000237
+      },
+      {
+        "queryId": "839",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 17.643272000000252
+      },
+      {
+        "queryId": "845",
+        "mrr": 0.14285714285714285,
+        "ndcg": 0.3333333333333333,
+        "recall": 1,
+        "tookMs": 2.267583000000741
+      },
+      {
+        "queryId": "847",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 9.162357000000156
+      },
+      {
+        "queryId": "852",
+        "mrr": 0.5,
+        "ndcg": 0.6309297535714575,
+        "recall": 1,
+        "tookMs": 11.131617000000006
+      },
+      {
+        "queryId": "859",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 8.614160999999513
+      },
+      {
+        "queryId": "870",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 2.993706000000202
+      },
+      {
+        "queryId": "873",
+        "mrr": 0.5,
+        "ndcg": 0.32703966649239957,
+        "recall": 0.4,
+        "tookMs": 5.163650000000416
+      },
+      {
+        "queryId": "879",
+        "mrr": 0.2,
+        "ndcg": 0.38685280723454163,
+        "recall": 1,
+        "tookMs": 3.041172999999617
+      },
+      {
+        "queryId": "880",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 6.97631999999976
+      },
+      {
+        "queryId": "882",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 4.094441000000188
+      },
+      {
+        "queryId": "887",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 17.148622000000614
+      },
+      {
+        "queryId": "903",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 10.208714999999756
+      },
+      {
+        "queryId": "904",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 20.070937000000413
+      },
+      {
+        "queryId": "907",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 16.95145600000069
+      },
+      {
+        "queryId": "911",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 10.646002000000408
+      },
+      {
+        "queryId": "913",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 2.188379000000168
+      },
+      {
+        "queryId": "914",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 4.5605780000005325
+      },
+      {
+        "queryId": "921",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 8.989454999999907
+      },
+      {
+        "queryId": "922",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 5.49321400000008
+      },
+      {
+        "queryId": "936",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 2.816820000000007
+      },
+      {
+        "queryId": "956",
+        "mrr": 0.1111111111111111,
+        "ndcg": 0.3010299956639812,
+        "recall": 1,
+        "tookMs": 15.414700999999695
+      },
+      {
+        "queryId": "957",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 1.875224999999773
+      },
+      {
+        "queryId": "960",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 3.696703000000525
+      },
+      {
+        "queryId": "967",
+        "mrr": 1,
+        "ndcg": 0.9197207891481876,
+        "recall": 1,
+        "tookMs": 7.775676000000203
+      },
+      {
+        "queryId": "971",
+        "mrr": 0.3333333333333333,
+        "ndcg": 0.502373740777944,
+        "recall": 0.75,
+        "tookMs": 17.688216999999895
+      },
+      {
+        "queryId": "975",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 5.624917999999525
+      },
+      {
+        "queryId": "982",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 14.320802999999614
+      },
+      {
+        "queryId": "985",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 10.384974000000511
+      },
+      {
+        "queryId": "993",
+        "mrr": 0.3333333333333333,
+        "ndcg": 0.5,
+        "recall": 1,
+        "tookMs": 2.8335479999996096
+      },
+      {
+        "queryId": "1012",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 7.576477999999952
+      },
+      {
+        "queryId": "1014",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 2.78255099999933
+      },
+      {
+        "queryId": "1019",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 8.379687999999987
+      },
+      {
+        "queryId": "1020",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 26.962932999999794
+      },
+      {
+        "queryId": "1021",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 28.330525999999736
+      },
+      {
+        "queryId": "1024",
+        "mrr": 0.1111111111111111,
+        "ndcg": 0.3010299956639812,
+        "recall": 1,
+        "tookMs": 8.19588500000009
+      },
+      {
+        "queryId": "1029",
+        "mrr": 1,
+        "ndcg": 0.7039180890341347,
+        "recall": 0.6666666666666666,
+        "tookMs": 29.50257799999963
+      },
+      {
+        "queryId": "1041",
+        "mrr": 0.5,
+        "ndcg": 0.5640920940185894,
+        "recall": 1,
+        "tookMs": 16.661065000000235
+      },
+      {
+        "queryId": "1049",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 11.686921999999868
+      },
+      {
+        "queryId": "1062",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 3.3716790000007677
+      },
+      {
+        "queryId": "1086",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 17.34620199999972
+      },
+      {
+        "queryId": "1088",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 5.46693199999936
+      },
+      {
+        "queryId": "1089",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 9.464522999999645
+      },
+      {
+        "queryId": "1099",
+        "mrr": 0.3333333333333333,
+        "ndcg": 0.5,
+        "recall": 1,
+        "tookMs": 2.416670999999951
+      },
+      {
+        "queryId": "1100",
+        "mrr": 0.3333333333333333,
+        "ndcg": 0.5,
+        "recall": 1,
+        "tookMs": 2.887333000000581
+      },
+      {
+        "queryId": "1104",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 12.933619999999792
+      },
+      {
+        "queryId": "1107",
+        "mrr": 0.25,
+        "ndcg": 0.43067655807339306,
+        "recall": 1,
+        "tookMs": 8.220765000000029
+      },
+      {
+        "queryId": "1110",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 3.8933749999996508
+      },
+      {
+        "queryId": "1121",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 11.407137999999577
+      },
+      {
+        "queryId": "1130",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 19.93032200000016
+      },
+      {
+        "queryId": "1132",
+        "mrr": 0.3333333333333333,
+        "ndcg": 0.3065735963827292,
+        "recall": 0.5,
+        "tookMs": 11.952548999999635
+      },
+      {
+        "queryId": "1137",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 1.9353499999997439
+      },
+      {
+        "queryId": "1140",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 5.253399999999601
+      },
+      {
+        "queryId": "1144",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 9.835395000000062
+      },
+      {
+        "queryId": "1146",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 5.2349050000002535
+      },
+      {
+        "queryId": "1150",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 10.320788999999422
+      },
+      {
+        "queryId": "1163",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 6.093779000000723
+      },
+      {
+        "queryId": "1175",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 5.313463000000411
+      },
+      {
+        "queryId": "1179",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 6.8041769999999815
+      },
+      {
+        "queryId": "1180",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 3.6447210000005725
+      },
+      {
+        "queryId": "1185",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 23.145910000000185
+      },
+      {
+        "queryId": "1187",
+        "mrr": 0.5,
+        "ndcg": 0.6309297535714575,
+        "recall": 1,
+        "tookMs": 21.163125000000036
+      },
+      {
+        "queryId": "1191",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 10.388014000000112
+      },
+      {
+        "queryId": "1194",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 14.853661000000102
+      },
+      {
+        "queryId": "1196",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 8.183802999999898
+      },
+      {
+        "queryId": "1197",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 8.43245300000035
+      },
+      {
+        "queryId": "1199",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 13.178968999999597
+      },
+      {
+        "queryId": "1200",
+        "mrr": 0.5,
+        "ndcg": 0.6309297535714575,
+        "recall": 1,
+        "tookMs": 6.477896000000328
+      },
+      {
+        "queryId": "1202",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 11.11093400000027
+      },
+      {
+        "queryId": "1204",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 12.802381999999852
+      },
+      {
+        "queryId": "1207",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 12.449944000000869
+      },
+      {
+        "queryId": "1213",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 7.8502559999997175
+      },
+      {
+        "queryId": "1216",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 10.334530999999515
+      },
+      {
+        "queryId": "1221",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 7.979104000000007
+      },
+      {
+        "queryId": "1225",
+        "mrr": 0.2,
+        "ndcg": 0.38685280723454163,
+        "recall": 1,
+        "tookMs": 4.469777999999678
+      },
+      {
+        "queryId": "1226",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 16.036420000000362
+      },
+      {
+        "queryId": "1232",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 12.857715999999527
+      },
+      {
+        "queryId": "1241",
+        "mrr": 0.2,
+        "ndcg": 0.38685280723454163,
+        "recall": 1,
+        "tookMs": 4.077562000000398
+      },
+      {
+        "queryId": "1245",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 7.425596000000041
+      },
+      {
+        "queryId": "1259",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 22.209482999999636
+      },
+      {
+        "queryId": "1262",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 10.209265999999843
+      },
+      {
+        "queryId": "1266",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 14.358610999999655
+      },
+      {
+        "queryId": "1270",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 4.247645999999804
+      },
+      {
+        "queryId": "1271",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 8.157515000000785
+      },
+      {
+        "queryId": "1272",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 13.042374999999993
+      },
+      {
+        "queryId": "1273",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 10.582155000000057
+      },
+      {
+        "queryId": "1274",
+        "mrr": 0.5,
+        "ndcg": 0.6978817289434457,
+        "recall": 1,
+        "tookMs": 16.700678000000153
+      },
+      {
+        "queryId": "1278",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 12.482285000000047
+      },
+      {
+        "queryId": "1279",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 10.413989000000583
+      },
+      {
+        "queryId": "1280",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 15.60686699999951
+      },
+      {
+        "queryId": "1281",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 7.513810000000376
+      },
+      {
+        "queryId": "1282",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 9.18534499999987
+      },
+      {
+        "queryId": "1290",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 6.680742000000464
+      },
+      {
+        "queryId": "1292",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 9.318368000000191
+      },
+      {
+        "queryId": "1298",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 13.271201999999903
+      },
+      {
+        "queryId": "1303",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 3.8289400000003297
+      },
+      {
+        "queryId": "1316",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 10.759821999999986
+      },
+      {
+        "queryId": "1319",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 13.71111000000019
+      },
+      {
+        "queryId": "1320",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 16.136389000000236
+      },
+      {
+        "queryId": "1332",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 20.154739999999947
+      },
+      {
+        "queryId": "1335",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 13.492742999999791
+      },
+      {
+        "queryId": "1336",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 11.141703000000234
+      },
+      {
+        "queryId": "1337",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 3.3593300000002273
+      },
+      {
+        "queryId": "1339",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 8.3636690000003
+      },
+      {
+        "queryId": "1344",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 31.048541000000114
+      },
+      {
+        "queryId": "1352",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 11.512032999999974
+      },
+      {
+        "queryId": "1359",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 15.799083999999311
+      },
+      {
+        "queryId": "1362",
+        "mrr": 0.3333333333333333,
+        "ndcg": 0.5,
+        "recall": 1,
+        "tookMs": 1.1055599999999686
+      },
+      {
+        "queryId": "1363",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 3.5009879999997793
+      },
+      {
+        "queryId": "1368",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 5.970843000000059
+      },
+      {
+        "queryId": "1370",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 3.2804449999994176
+      },
+      {
+        "queryId": "1379",
+        "mrr": 0.5,
+        "ndcg": 0.3638184934971571,
+        "recall": 0.5,
+        "tookMs": 12.05481299999974
+      },
+      {
+        "queryId": "1382",
+        "mrr": 0,
+        "ndcg": 0,
+        "recall": 0,
+        "tookMs": 4.786183999999594
+      },
+      {
+        "queryId": "1385",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 5.981604999999945
+      },
+      {
+        "queryId": "1389",
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1,
+        "tookMs": 11.58324900000025
+      },
+      {
+        "queryId": "1395",
+        "mrr": 0.25,
+        "ndcg": 0.43067655807339306,
+        "recall": 1,
+        "tookMs": 14.19079899999997
+      }
+    ]
+  }
+}

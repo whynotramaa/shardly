@@ -1,11 +1,11 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { uploadFiles, resetStore, type UploadResult } from "@/lib/api";
-import WikipediaLoader from "@/components/WikipediaLoader";
+import { uploadFiles, type UploadResult } from "@/lib/api";
+import { Icon, Progress } from "@/components/ui";
 
 export default function IngestView({ onIngested }: { onIngested: () => void }) {
-  const [busy, setBusy] = useState(false);
+  const [busy, setBusy] = useState<number>(0);
   const [dragging, setDragging] = useState(false);
   const [result, setResult] = useState<UploadResult | null>(null);
   const [err, setErr] = useState<string | null>(null);
@@ -13,7 +13,7 @@ export default function IngestView({ onIngested }: { onIngested: () => void }) {
 
   async function handleFiles(fileList: FileList | null) {
     if (!fileList || fileList.length === 0) return;
-    setBusy(true);
+    setBusy(fileList.length);
     setErr(null);
     setResult(null);
     try {
@@ -22,106 +22,45 @@ export default function IngestView({ onIngested }: { onIngested: () => void }) {
     } catch (e) {
       setErr(e instanceof Error ? e.message : "Upload failed");
     } finally {
-      setBusy(false);
+      setBusy(0);
       if (inputRef.current) inputRef.current.value = "";
     }
   }
 
-  async function clearAll() {
-    if (!confirm("Delete ALL documents and start empty? This cannot be undone."))
-      return;
-    setBusy(true);
-    setErr(null);
-    try {
-      await resetStore();
-      setResult(null);
-      onIngested();
-    } catch (e) {
-      setErr(e instanceof Error ? e.message : "Reset failed");
-    } finally {
-      setBusy(false);
-    }
-  }
-
   const skipped = result?.results.filter((r) => r.status === "skipped") ?? [];
+  const sum = (key: "added" | "updated" | "duplicates") => result?.results.reduce((n, item) => n + (item[key] ?? 0), 0) ?? 0;
 
   return (
-    <>
-    <div className="panel">
+    <section className="upload">
       <div
-        className={`dropzone${dragging ? " dragging" : ""}`}
-        onDragOver={(e) => {
-          e.preventDefault();
-          setDragging(true);
-        }}
+        className={`dropzone${dragging ? " dragging" : ""}${busy ? " busy" : ""}`}
+        role="button"
+        tabIndex={busy ? -1 : 0}
+        aria-label="Choose files to upload"
+        aria-disabled={!!busy}
+        onKeyDown={(e) => { if (!busy && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); inputRef.current?.click(); } }}
+        onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
         onDragLeave={() => setDragging(false)}
-        onDrop={(e) => {
-          e.preventDefault();
-          setDragging(false);
-          handleFiles(e.dataTransfer.files);
-        }}
-        onClick={() => inputRef.current?.click()}
+        onDrop={(e) => { e.preventDefault(); setDragging(false); if (!busy) void handleFiles(e.dataTransfer.files); }}
+        onClick={() => !busy && inputRef.current?.click()}
       >
-        <input
-          ref={inputRef}
-          type="file"
-          multiple
-          hidden
-          onChange={(e) => handleFiles(e.target.files)}
-        />
-        <div className="dz-icon">{busy ? "⏳" : "⬆"}</div>
-        <div className="dz-title">
-          {busy ? "Extracting & indexing…" : "Drop files here, or click to choose"}
-        </div>
-        <div className="dz-sub">
-          <code>.pdf</code> is extracted to text, then indexed.{" "}
-          <code>.txt .md .csv</code> and source code become one document each.{" "}
-          <code>.json</code> / <code>.ndjson</code> stay structured. Images and
-          other binaries are skipped automatically.
-        </div>
+        <input ref={inputRef} type="file" multiple hidden onChange={(e) => handleFiles(e.target.files)} />
+        <span className="dz-icon"><Icon name="upload" size={22} /></span>
+        <span className="dz-title">{busy ? `Indexing ${busy} ${busy === 1 ? "file" : "files"}…` : dragging ? "Release to add" : <>Drop files or <u>browse</u></>}</span>
+        <span className="dz-sub">PDF, text, Markdown, code, JSON</span>
+        {!!busy && <Progress label="Uploading" />}
       </div>
-
       {result && (
-        <>
-          <div className="notice ok">
-            Indexed <b>{result.indexed}</b> document
-            {result.indexed === 1 ? "" : "s"} from{" "}
-            <b>{result.results.length}</b> file
-            {result.results.length === 1 ? "" : "s"}. Head to the{" "}
-            <b>Search</b> tab.
-          </div>
+        <div className="upload-result" role="status">
+          <p><Icon name="check" size={15} />{sum("added")} added, {sum("updated")} updated, {sum("duplicates")} unchanged</p>
           {skipped.length > 0 && (
-            <div className="file-report">
-              {skipped.map((r) => (
-                <div key={r.filename} className="file-line skipped">
-                  <span className="badge skip">skipped</span>
-                  <span className="fname">{r.filename}</span>
-                  <span className="reason">{r.reason}</span>
-                </div>
-              ))}
-            </div>
+            <ul className="skipped">
+              {skipped.map((r) => <li key={r.filename}><span className="mono">{r.filename}</span><span>{r.reason}</span></li>)}
+            </ul>
           )}
-        </>
+        </div>
       )}
-      {err && <div className="notice err">{err}</div>}
-
-      <div className="row" style={{ justifyContent: "space-between", marginTop: 18 }}>
-        <span className="hint">
-          Every string and number field is tokenized and added to the inverted
-          index the moment it&apos;s written.
-        </span>
-        <button
-          className="danger"
-          onClick={clearAll}
-          disabled={busy}
-          title="Remove all indexed documents"
-        >
-          Clear all documents
-        </button>
-      </div>
-    </div>
-
-    <WikipediaLoader onIngested={onIngested} />
-    </>
+      {err && <p className="alert" role="alert">{err}</p>}
+    </section>
   );
 }

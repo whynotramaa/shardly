@@ -18,7 +18,7 @@ interface Row {
 const RUNS: Record<string, { docs: string; note: string; rows: Row[] }> = {
   "20k": {
     docs: "20,000 seeded documents",
-    note: "npm run bench -- /tmp/shardly-demo · warm-up discarded, five runs averaged",
+    note: "historical baseline · warm-up discarded, five runs averaged",
     rows: [
       { q: "vector", indexed: 2.2, naive: 372.3, ratio: 172 },
       { q: "checksum integrity corruption", indexed: 3.3, naive: 404.0, ratio: 121 },
@@ -29,7 +29,7 @@ const RUNS: Record<string, { docs: string; note: string; rows: Row[] }> = {
   },
   "50k": {
     docs: "50,000 seeded documents",
-    note: "the run recorded in README.md · five-run averages",
+    note: "historical baseline recorded in README.md · five-run averages",
     rows: [
       { q: "vector", indexed: 5.98, naive: 747.4, ratio: 125 },
       { q: "checksum integrity corruption", indexed: 15.47, naive: 797.5, ratio: 52 },

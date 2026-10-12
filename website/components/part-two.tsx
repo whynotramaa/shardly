@@ -42,7 +42,7 @@ const COSTS: Array<[string, string, string]> = [
   ["search(q, limit)", "O(Σ postings of query terms + n log k)", "How common the query words are"],
   ["naiveSearch(q)", "O(corpus bytes), re-tokenized every call", "CPU, then disk"],
   ["compact()", "O(live records)", "Disk bandwidth"],
-  ["startup, snapshot valid", "O(offset entries), JSON.parse", "Parsing JSON"],
+  ["startup, snapshot valid", "O(corpus bytes + postings)", "Cache validation and field analysis"],
   ["startup, snapshot stale", "O(corpus), full re-tokenize", "CPU"],
 ];
 
@@ -50,12 +50,12 @@ const LUCENE: Array<[string, string, string]> = [
   ["Posting storage", "Plain JS objects on the heap", "Delta and variable-byte encoded blocks on disk"],
   ["Skipping", "None. Walk the whole list.", "Skip lists over posting blocks"],
   ["Term dictionary", "A JavaScript Map", "A finite state transducer, prefix-compressed, memory-mapped"],
-  ["Positions", "Not stored", "Positions, offsets, and payloads per posting"],
-  ["Query language", "Bag of words", "Boolean, phrase, span, fuzzy, wildcard, function score"],
+  ["Positions", "Original offsets and word positions on the heap", "Positions, offsets, and payloads per posting"],
+  ["Query language", "Phrases, exclusions, filters, bounded prefix and typos", "Boolean, phrase, span, fuzzy, wildcard, function score"],
   ["Segments", "Append log plus manual compaction", "Immutable segments plus a tiered merge policy"],
   ["Deletes", "A flag in the offset map", "A deleted-docs bitset per segment"],
   ["Durability", "WAL, fsync per write or per batch", "Translog, with refresh and flush phases"],
-  ["Concurrency", "One process, synchronous I/O", "Lock-free readers over immutable segments"],
+  ["Concurrency", "Worker-backed API, bounded import batches", "Lock-free readers over immutable segments"],
   ["Scale-out", "None", "Shards, replicas, a coordinator, a cluster state"],
 ];
 
@@ -86,20 +86,17 @@ export default function PartTwo() {
         <div className="cols" style={{ marginTop: 44 }}>
           <div className="c-4">
             <div className="prose">
-              <h4>The character class is ASCII-only</h4>
+              <h4>Unicode words and code identifiers</h4>
               <p>
-                <code>/[^a-z0-9\s]+/g</code> runs after{" "}
-                <code>toLowerCase()</code>, so every character outside{" "}
-                <code>a-z0-9</code> becomes a separator.{" "}
-                <code>tokenize(&quot;Zürich café&quot;)</code> gives{" "}
-                <code>[&quot;z&quot;, &quot;rich&quot;, &quot;caf&quot;]</code>.{" "}
-                <code>tokenize(&quot;東京 検索&quot;)</code> gives an empty
-                array.
+                The analyzer preserves Unicode letters, combining marks,
+                numbers, and underscores. Code identifiers also emit their
+                camelCase and snake_case parts. Original offsets stay in the
+                source text so highlighting can point to the exact match.
               </p>
               <p>
-                Non-English text is not ranked poorly. It is unindexable. For
-                the bundled English corpus this never shows up, which is exactly
-                why it is worth writing down.
+                This is word matching, not language-specific segmentation.
+                Japanese text without separators and compound words still need
+                an analyzer designed for their language.
               </p>
             </div>
           </div>
@@ -443,8 +440,9 @@ export default function PartTwo() {
                 ordering as real and the exact multiplier as approximate.
               </p>
               <p>
-                These are local measurements on one machine, not a performance
-                guarantee. Run <code>npm run seed</code> and{" "}
+                These historical baseline measurements predate field and passage
+                ranking. Run <code>npm run evaluate</code>,{" "}
+                <code>npm run compare:fts</code>, and{" "}
                 <code>npm run bench</code> on your own hardware for numbers that
                 mean something to you.
               </p>
@@ -849,7 +847,7 @@ export default function PartTwo() {
               <em className="italic ac">before you find them</em>
             </>
           }
-          lede="Seven limits, and the order I would fix them in. Effort and payoff both matter, and they rarely point the same way."
+          lede="The shipped safeguards and the limits that remain."
         />
 
         <div className="cols">
@@ -857,21 +855,21 @@ export default function PartTwo() {
             {[
               [
                 "01",
-                "No checksums",
-                "Recovery validates structure, not content. A flipped bit inside a string value survives JSON.parse and the id check, and every one of the four recovery tests passes it. A CRC per record is the fix, it is contained to the record format, and it closes the only silent-corruption hole in the design.",
-                "Fix first. Small change, removes a whole failure class.",
+                "Checksums detect corruption",
+                "New WAL records and segment records carry SHA-256 checksums. Offset snapshots retain record checksums, so direct reads verify content after the WAL is checkpointed. Legacy records remain readable and have only structural validation until rewritten.",
+                "Detection is implemented. Redundant repair copies are not.",
               ],
               [
                 "02",
-                "All I/O is synchronous",
-                "fs.readSync and fs.writeSync block the Node event loop, so one slow read stalls every concurrent request. At a scale where the page cache holds the working set this is fine, and it keeps the storage code linear and readable. At a larger scale it is the first thing to change, and it is not a small change.",
-                "Second. Large diff, and the readability cost is real.",
+                "Storage I/O remains synchronous",
+                "Production moves the engine into a worker. The HTTP thread remains responsive, and imports yield between bounded batches so searches can run. A single large storage operation still blocks that worker. This is isolation and cooperative scheduling, not parallel lock-free search.",
+                "Measure concurrent requests alongside individual query latency.",
               ],
               [
                 "03",
-                "Search is a bag of words",
-                "No phrase queries, no boolean operators, no field weighting, no fuzzy matching. Position data has to go into the postings before any of that becomes possible, which means the posting format changes and the snapshot format changes with it.",
-                "Third. Biggest jump in what the product can do.",
+                "A bounded query language",
+                "Search supports exact phrases, exclusions, all/any matching, metadata filters, field-aware ranking, passage matching, prefix completion and one-edit typo expansion. Expansion budgets bound work. Nested boolean expressions and arbitrary wildcard expressions are outside this grammar.",
+                "Use the live inspector and missing-match explanation to inspect matching decisions.",
               ],
               [
                 "04",
@@ -882,20 +880,20 @@ export default function PartTwo() {
               [
                 "05",
                 "The inverted index is memory-resident",
-                "Postings are JavaScript objects, nothing spills to disk, and the corpus has to fit in the heap. Real engines use skip lists and delta-encoded posting blocks on disk. See the memory table above for where the wall is.",
+                "Packed numeric postings reduce object overhead and document retrieval uses a bounded cache. Field and passage analysis still consumes memory, and the index does not spill to disk. Measure the corpus rather than assuming every document has the same memory cost.",
                 "Only when the wall is actually hit.",
               ],
               [
                 "06",
                 "One writer, one process",
-                "Nothing coordinates two processes against one data directory. There is no lock file. Opening the same directory twice will corrupt it. A lock file is twenty lines and would at least turn corruption into an error message.",
-                "Twenty lines. Worth doing on principle.",
+                "A PID-backed directory lock rejects a second writer and permits recovery of a stale lock after a process exits. The engine remains single-process; the lock does not provide multi-writer transactions or distributed coordination.",
+                "Keep each data directory on one local host.",
               ],
               [
                 "07",
                 "No authentication",
-                "POST /reset destroys the store and DELETE /documents/:id removes a document, both unauthenticated, with CORS set to origin: true. Correct for a local demo, unacceptable the moment it is reachable from anywhere else.",
-                "Blocking, if this is ever deployed.",
+                "The API binds to loopback by default, restricts browser origins, and rejects cross-origin mutations. It has no user authentication. Changing HOST to expose it requires an authenticated reverse proxy and an explicit allowed frontend origin.",
+                "Local personal use is the supported deployment.",
               ],
             ].map(([n, t, body, verdict]) => (
               <div

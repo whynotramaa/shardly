@@ -12,3 +12,4 @@ website/next-env.d.ts
 !src/**/*.ts
 .DS_Store
 
+.cache/

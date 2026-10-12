@@ -1,10 +1,13 @@
 import { PassThrough } from "node:stream";
 import type { FastifyInstance } from "fastify";
-import type { Engine } from "../engine.js";
-import type { Document } from "../types.js";
-import { extractDocuments } from "../ingest/extract.js";
+import type { RuntimeEngine, Extraction } from "../runtime/engine.js";
+import type { DemoRuntime } from "../runtime/demo.js";
+import type { FolderSources } from "../ingest/folders.js";
+import type { Document, SearchOptions } from "../types.js";
 import { fetchGithubDocuments } from "../ingest/github.js";
-import { countCorpus, streamCorpus } from "../ingest/corpus.js";
+import { countCorpus } from "../ingest/corpus.js";
+import type { IngestJobs } from "../ingest/jobs.js";
+import { InputError, object, documents, text, queryText, optionalText, flag, integer, choice, synonyms } from "./validation.js";
 
 interface IdParam {
   id: string;
@@ -13,6 +16,7 @@ interface IdParam {
 interface SearchQuery {
   q?: string;
   limit?: string;
+  [key: string]: unknown;
 }
 
 interface ListQuery {
@@ -42,26 +46,23 @@ function previewDoc(doc: Document, maxLen = 280): Document {
   return out;
 }
 
-export function registerRoutes(app: FastifyInstance, engine: Engine): void {
-  app.get("/health", async () => ({ status: "ok" }));
+export function registerRoutes(app: FastifyInstance, engine: RuntimeEngine, jobs: IngestJobs, folders: FolderSources, extraction: Extraction, demo: DemoRuntime): void {
+  app.get("/health", async (req, reply) => {
+    void req;
+    return extraction.available() ? { status: "ok" } : reply.code(503).send({ status: "unavailable" });
+  });
 
-  app.get("/stats", async () => ({ documents: engine.documentCount() }));
+  app.get("/stats", async () => ({ documents: await engine.documentCount() }));
 
   app.post<{ Body: Document }>("/documents", async (req, reply) => {
-    const body = req.body;
-    if (body === null || typeof body !== "object" || Array.isArray(body)) {
-      return reply.code(400).send({ error: "body must be a JSON object" });
-    }
-    const id = engine.addDocument(body);
+    const body = documents([req.body])[0]!;
+    const id = await engine.addDocument(body);
     return reply.code(201).send({ id });
   });
 
   app.post<{ Body: Document[] }>("/documents/bulk", async (req, reply) => {
-    const body = req.body;
-    if (!Array.isArray(body)) {
-      return reply.code(400).send({ error: "body must be a JSON array" });
-    }
-    const ids = engine.addDocuments(body);
+    const body = documents(req.body);
+    const ids = await engine.addDocuments(body);
     return reply.code(201).send({ ids, count: ids.length });
   });
 
@@ -74,122 +75,109 @@ export function registerRoutes(app: FastifyInstance, engine: Engine): void {
       status: "indexed" | "skipped";
       reason?: string;
       documents: number;
+      added?: number;
+      updated?: number;
+      duplicates?: number;
     }> = [];
 
     for await (const part of req.parts()) {
       if (part.type !== "file") continue;
       const buffer = await part.toBuffer();
-      const extracted = await extractDocuments(part.filename, buffer);
-      if (extracted.docs.length > 0) engine.addDocuments(extracted.docs);
+      const extracted = await extraction.extract(part.filename, buffer);
+      const ingestion = extracted.docs.length > 0 ? await engine.ingestDocuments(
+        extracted.docs.map((doc, ordinal) => ({ ...doc, source: "upload", sourceId: `upload:${part.filename}:${ordinal}` })),
+      ) : undefined;
       results.push({
         filename: extracted.filename,
         status: extracted.status,
         reason: extracted.reason,
         documents: extracted.docs.length,
+        ...ingestion,
       });
     }
 
     const indexed = results.reduce((s, r) => s + r.documents, 0);
     return reply
       .code(201)
-      .send({ results, indexed, documents: engine.documentCount() });
+      .send({ results, indexed, documents: await engine.documentCount() });
   });
 
   app.post<{
     Body: { user?: string; token?: string; deep?: boolean };
   }>("/ingest/github", async (req, reply) => {
-    const { user, token, deep } = req.body ?? {};
-    if (!user || user.trim().length === 0) {
-      return reply.code(400).send({ error: "a GitHub username is required" });
-    }
+    const body = object(req.body);
+    const user = text(body.user, "GitHub target", 256);
+    const token = optionalText(body.token, "GitHub token", 512);
+    const deep = flag(body.deep, "deep") ?? false;
     try {
       const { docs, summary } = await fetchGithubDocuments({
         user: user.trim(),
         token: token?.trim() || undefined,
         deep: Boolean(deep),
       });
-      if (docs.length > 0) engine.addDocuments(docs);
+      const ingestion = await engine.ingestDocuments(docs);
       return reply
         .code(201)
-        .send({ ...summary, totalDocuments: engine.documentCount() });
+        .send({ ...summary, ingestion, totalDocuments: await engine.documentCount() });
     } catch (e) {
       return reply
         .code(400)
-        .send({ error: e instanceof Error ? e.message : "GitHub indexing failed" });
+        .send({ error: token ? (e instanceof Error ? e.message : "GitHub indexing failed").replaceAll(token, "[redacted]") : e instanceof Error ? e.message : "GitHub indexing failed" });
     }
   });
 
   app.get("/corpus/wikipedia/status", async () => ({
     available: await countCorpus(),
-    indexed: engine.collectBySource("wikipedia").length,
+    indexed: (await engine.collectBySource("wikipedia")).length,
   }));
 
   app.post("/corpus/wikipedia/index", async (reqIgnored, reply) => {
     void reqIgnored;
-    const total = await countCorpus();
+    const job = jobs.create({ kind: "wikipedia" });
     reply.header("content-type", "application/x-ndjson");
     reply.header("cache-control", "no-cache");
     const stream = new PassThrough();
-    const write = (o: unknown) => stream.write(JSON.stringify(o) + "\n");
-
-    void (async () => {
-      try {
-        const existing = new Set(
-          engine
-            .collectBySource("wikipedia")
-            .map((d) => d.pageid)
-            .filter((p): p is number => typeof p === "number"),
-        );
-        let indexed = 0;
-        await streamCorpus((docs) => {
-          const fresh = docs.filter(
-            (d) =>
-              typeof d.pageid !== "number" || !existing.has(d.pageid as number),
-          );
-          if (fresh.length > 0) {
-            engine.addDocuments(fresh);
-            indexed += fresh.length;
-          }
-          write({ type: "progress", indexed, total });
-        });
-        engine.snapshot();
-        write({ type: "done", indexed, documents: engine.documentCount() });
-      } catch (e) {
-        write({
-          type: "error",
-          error: e instanceof Error ? e.message : "Corpus indexing failed",
-        });
-      } finally {
-        stream.end();
+    const timer = setInterval(async () => {
+      const current = jobs.get(job.id)!;
+      stream.write(JSON.stringify({ type: "progress", indexed: current.progress.indexed, total: current.progress.total }) + "\n");
+      if (["completed", "failed", "cancelled", "interrupted"].includes(current.status)) {
+        clearInterval(timer);
+        stream.end(JSON.stringify(current.status === "completed"
+          ? { type: "done", indexed: current.progress.indexed, documents: await engine.documentCount() }
+          : { type: "error", error: current.error ?? "Import stopped" }) + "\n");
       }
-    })();
+    }, 100);
+    stream.on("close", () => { clearInterval(timer); jobs.cancel(job.id); });
 
     return reply.send(stream);
   });
 
   app.post("/corpus/wikipedia/deindex", async () => {
-    const targets = engine.collectBySource("wikipedia");
+    if (jobs.busy() || folders.busy()) throw new InputError("cancel active imports before removing the corpus");
+    const targets = await engine.collectBySource("wikipedia");
     let removed = 0;
-    for (const t of targets) if (engine.deleteDocument(t.id)) removed++;
-    engine.snapshot();
-    return { removed, documents: engine.documentCount() };
+    for (const t of targets) if (await engine.deleteDocument(t.id)) removed++;
+    await engine.snapshot();
+    return { removed, documents: await engine.documentCount() };
   });
 
-  // Clear the entire store — wipes seed data so uploads are the whole corpus.
   app.post("/compact", async () => ({
-    ...engine.compact(),
-    documents: engine.documentCount(),
+    ...await engine.compact(),
+    documents: await engine.documentCount(),
   }));
 
-  app.post("/reset", async () => {
-    engine.reset();
+  app.post("/reset", async (req, reply) => {
+    void req;
+    if (folders.list().some(source => !source.paused)) return reply.code(400).send({ error: "pause folder sources before resetting the store" });
+    if (jobs.busy() || folders.busy()) throw new InputError("cancel active imports before resetting the store");
+    await engine.reset();
     return { ok: true, documents: 0 };
   });
 
   app.get<{ Querystring: ListQuery }>("/documents", async (req) => {
-    const offset = Math.max(0, Number.parseInt(req.query.offset ?? "0", 10) || 0);
-    const limit = parseLimit(req.query.limit, 50, 200);
-    const { total, items } = engine.listDocuments(offset, limit);
+    const offset = integer(req.query.offset, "offset", 0, 0, 100_000);
+    const limit = integer(req.query.limit, "limit", 50, 1, 200);
+    const { total, items } = await engine.listDocuments(offset, limit);
     return {
       total,
       offset,
@@ -200,41 +188,152 @@ export function registerRoutes(app: FastifyInstance, engine: Engine): void {
 
   // O(1) lookup by id — returns the FULL document for the detail view.
   app.get<{ Params: IdParam }>("/documents/:id", async (req, reply) => {
-    const doc = engine.getDocument(req.params.id);
+    const doc = await engine.getDocument(req.params.id);
     if (doc === null) return reply.code(404).send({ error: "not found" });
     return { id: req.params.id, doc };
   });
 
   app.delete<{ Params: IdParam }>("/documents/:id", async (req, reply) => {
-    const ok = engine.deleteDocument(req.params.id);
+    const ok = await engine.deleteDocument(req.params.id);
     if (!ok) return reply.code(404).send({ error: "not found" });
     return reply.code(204).send();
   });
 
   app.get<{ Querystring: SearchQuery }>("/search", async (req, reply) => {
-    const q = req.query.q;
-    if (!q || q.trim().length === 0) {
-      return reply.code(400).send({ error: "query parameter 'q' is required" });
-    }
-    const result = engine.search(q, parseLimit(req.query.limit));
+    const q = queryText(req.query.q, "query parameter 'q'");
+    const result = await engine.search(q, searchOptions(req.query));
     return {
       ...result,
       hits: result.hits.map((h) => ({ ...h, doc: previewDoc(h.doc) })),
     };
   });
 
+  app.get<{ Querystring: SearchQuery }>("/suggest", async (req) => ({
+    suggestions: await engine.suggest(text(req.query.q, "query parameter 'q'", 80), integer(req.query.limit, "limit", 8, 1, 20)),
+  }));
+
+  app.get<{ Querystring: { term?: string } }>("/diagnostics", async (req) => await engine.diagnostics(optionalText(req.query.term, "term", 80)));
+
+  app.post("/search/compare", async (req) => {
+    const body = object(req.body);
+    const result = await engine.compare(queryText(body.query), searchOptions(body.options === undefined ? {} : object(body.options, "options")));
+    return {
+      ...result,
+      baseline: { ...result.baseline, hits: result.baseline.hits.map((hit) => ({ ...hit, doc: previewDoc(hit.doc) })) },
+      tuned: { ...result.tuned, hits: result.tuned.hits.map((hit) => ({ ...hit, doc: previewDoc(hit.doc) })) },
+    };
+  });
+
+  app.post("/search/explain-missing", async (req) => {
+    const body = object(req.body);
+    return engine.explainMissing(queryText(body.query), text(body.id, "document id", 128), searchOptions(body.options === undefined ? {} : object(body.options, "options")));
+  });
+  app.get("/maintenance/rebuild", async () => engine.rebuildStatus());
+  app.post("/maintenance/rebuild", async (req, reply) => {
+    void req;
+    const status = await engine.rebuildStatus();
+    if (status.state !== "running") void Promise.resolve(engine.rebuildIndex()).catch(error => app.log.error(error));
+    return reply.code(202).send(await engine.rebuildStatus());
+  });
+  app.delete("/maintenance/rebuild", async () => ({ cancelled: await engine.cancelRebuild() }));
+  app.post("/maintenance/rebuild/cancel", async () => ({ cancelled: await engine.cancelRebuild() }));
+
+  app.get("/backup", async (req, reply) => {
+    void req;
+    reply.header("content-disposition", 'attachment; filename="shardly-backup.json"');
+    reply.header("cache-control", "no-store");
+    return await engine.exportBackup();
+  });
+
+  app.post("/backup", async (req) => {
+    if (jobs.busy() || folders.busy()) throw new InputError("cancel active imports before restoring a backup");
+    const body = object(req.body);
+    const backup = object(body.backup, "backup");
+    if (backup.version !== 1 || !Array.isArray(backup.documents)) throw new InputError("unsupported backup format");
+    if (backup.documents.length > 100_000) throw new InputError("backup exceeds 100000 documents");
+    const ids = new Set<string>();
+    for (const entry of backup.documents) {
+      const record = object(entry, "backup entry");
+      const id = text(record.id, "backup document id", 128);
+      if (!/^[a-zA-Z0-9_-]+$/.test(id) || ids.has(id)) throw new InputError("backup contains an invalid or duplicate document id");
+      ids.add(id);
+      documents([record.doc]);
+    }
+    return await engine.restoreBackup(backup);
+  });
+
+  app.get("/jobs", async () => ({ jobs: jobs.list() }));
+  app.post("/jobs", async (req, reply) => reply.code(202).send(jobs.create(req.body)));
+  app.get<{ Params: IdParam }>("/jobs/:id", async (req, reply) => jobs.get(req.params.id) ?? reply.code(404).send({ error: "job not found" }));
+  app.post<{ Params: IdParam }>("/jobs/:id/cancel", async (req, reply) => jobs.cancel(req.params.id) ?? reply.code(404).send({ error: "job not found" }));
+  app.post<{ Params: IdParam }>("/jobs/:id/retry", async (req, reply) => {
+    const body = req.body === undefined ? {} : object(req.body);
+    const job = jobs.retry(req.params.id, optionalText(body.token, "GitHub token", 512));
+    return job ? reply.code(202).send(job) : reply.code(404).send({ error: "job not found" });
+  });
+
+  app.post("/demo/seed", async () => demo.seed());
+  app.post("/demo/import", async () => demo.import());
+  app.post("/demo/durability", async () => demo.durability());
+  app.get<{ Querystring: SearchQuery }>("/demo/search", async (req) => {
+    const selected = await demo.ready();
+    const result = await selected.search(queryText(req.query.q), { ...searchOptions(req.query), source: "demo" });
+    return { ...result, hits: result.hits.map(hit => ({ ...hit, doc: previewDoc(hit.doc) })) };
+  });
+  const compareDemo = async (input: unknown) => {
+    const body = object(input);
+    const selected = await demo.ready();
+    const result = await selected.compare(queryText(body.query), { ...searchOptions(body.options === undefined ? {} : object(body.options, "options")), source: "demo" });
+    return {
+      ...result,
+      baseline: { ...result.baseline, hits: result.baseline.hits.map(hit => ({ ...hit, doc: previewDoc(hit.doc) })) },
+      tuned: { ...result.tuned, hits: result.tuned.hits.map(hit => ({ ...hit, doc: previewDoc(hit.doc) })) },
+    };
+  };
+  app.post("/demo/compare", async (req) => compareDemo(req.body));
+  app.post("/demo/search/compare", async (req) => compareDemo(req.body));
+
+  app.get("/sources/folders", async () => ({ sources: folders.list() }));
+  app.post("/sources/folders", async (req, reply) => {
+    const body = object(req.body);
+    return reply.code(202).send(await folders.create(text(body.path, "folder path", 4096)));
+  });
+  app.get<{ Params: IdParam }>("/sources/folders/:id", async (req, reply) => folders.get(req.params.id) ?? reply.code(404).send({ error: "folder source not found" }));
+  for (const action of ["pause", "resume", "rescan"] as const) {
+    app.post<{ Params: IdParam }>(`/sources/folders/:id/${action}`, async (req, reply) => {
+      const source = await folders.action(req.params.id, action);
+      return source ? reply.code(action === "pause" ? 200 : 202).send(source) : reply.code(404).send({ error: "folder source not found" });
+    });
+  }
+  app.delete<{ Params: IdParam }>("/sources/folders/:id", async (req, reply) => {
+    const result = await folders.remove(req.params.id);
+    return result ?? reply.code(404).send({ error: "folder source not found" });
+  });
+
   // Indexed search vs naive linear scan, timed side by side.
   app.get<{ Querystring: SearchQuery }>("/benchmark", async (req, reply) => {
-    const q = req.query.q;
-    if (!q || q.trim().length === 0) {
-      return reply.code(400).send({ error: "query parameter 'q' is required" });
-    }
-    return engine.benchmark(q, parseLimit(req.query.limit));
+    const q = queryText(req.query.q, "query parameter 'q'");
+    return await engine.benchmark(q, integer(req.query.limit, "limit", 10, 1, 100));
   });
 }
 
-function parseLimit(raw: string | undefined, fallback = 10, max = 100): number {
-  const n = Number.parseInt(raw ?? String(fallback), 10);
-  if (Number.isNaN(n) || n <= 0) return fallback;
-  return Math.min(n, max);
+function searchOptions(input: Record<string, unknown>): SearchOptions {
+  let docIds: unknown = input.docIds;
+  if (typeof docIds === "string") docIds = docIds.length ? docIds.split(",") : [];
+  if (docIds !== undefined && (!Array.isArray(docIds) || docIds.length > 1000 || docIds.some((id) => typeof id !== "string" || id.length > 128))) {
+    throw new InputError("docIds must contain at most 1000 document ids");
+  }
+  return {
+    limit: integer(input.limit, "limit", 10, 1, 100),
+    offset: integer(input.offset, "offset", 0, 0, 100_000),
+    mode: choice(input.mode, "mode", ["all", "any"]),
+    groupBy: choice(input.groupBy, "groupBy", ["none", "repo", "source"]),
+    match: choice(input.match, "match", ["text", "literal", "substring"]),
+    profile: choice(input.profile, "profile", ["baseline", "tuned"]),
+    source: optionalText(input.source, "source"), repo: optionalText(input.repo, "repo"),
+    type: optionalText(input.type, "type"), language: optionalText(input.language, "language"),
+    docIds: docIds as string[] | undefined,
+    prefix: flag(input.prefix, "prefix"), typos: flag(input.typos, "typos"), inspect: flag(input.inspect, "inspect"),
+    synonyms: synonyms(input.synonyms),
+  };
 }

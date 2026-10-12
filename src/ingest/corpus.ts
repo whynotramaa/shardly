@@ -17,33 +17,47 @@ export async function countCorpus(path = WIKI_CORPUS_PATH): Promise<number> {
     input: createReadStream(path),
     crlfDelay: Infinity,
   });
-  for await (const line of rl) if (line.trim()) n++;
+  for await (const line of rl) if (parseLine(line)) n++;
   return n;
 }
 
 export async function streamCorpus(
-  onBatch: (docs: Document[]) => void,
+  onBatch: (docs: Document[]) => void | Promise<void>,
   batchSize = 500,
   path = WIKI_CORPUS_PATH,
 ): Promise<void> {
+  if (!Number.isSafeInteger(batchSize) || batchSize < 1) throw new Error("batch size must be a positive integer");
   if (!existsSync(path)) return;
+  const input = createReadStream(path);
   const rl = createInterface({
-    input: createReadStream(path),
+    input,
     crlfDelay: Infinity,
   });
   let batch: Document[] = [];
-  for await (const line of rl) {
-    const trimmed = line.trim();
-    if (!trimmed) continue;
-    try {
-      batch.push(JSON.parse(trimmed) as Document);
-    } catch {
-      continue;
+  try {
+    for await (const line of rl) {
+      const doc = parseLine(line);
+      if (!doc) continue;
+      batch.push(doc);
+      if (batch.length >= batchSize) {
+        await onBatch(batch);
+        batch = [];
+      }
     }
-    if (batch.length >= batchSize) {
-      onBatch(batch);
-      batch = [];
-    }
+    if (batch.length > 0) await onBatch(batch);
+  } finally {
+    rl.close();
+    input.destroy();
   }
-  if (batch.length > 0) onBatch(batch);
+}
+
+function parseLine(line: string): Document | undefined {
+  if (!line.trim()) return undefined;
+  try {
+    const doc = JSON.parse(line) as Document;
+    if (!doc || typeof doc !== "object" || Array.isArray(doc)) return undefined;
+    return doc.source === "wikipedia" && Number.isSafeInteger(doc.pageid)
+      ? { ...doc, sourceId: `wikipedia:${doc.pageid}` }
+      : doc;
+  } catch { return undefined; }
 }

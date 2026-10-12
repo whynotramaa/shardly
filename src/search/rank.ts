@@ -53,7 +53,7 @@ export function rankBM25(
 
   // Deduplicate query terms and precompute each term's IDF once.
   const uniqueTerms = [...new Set(queryTerms)].filter(
-    (t) => index.postings(t).length > 0,
+    (t) => index.documentFrequency(t) > 0,
   );
   const idfByTerm = new Map<string, number>();
   for (const term of uniqueTerms) {
@@ -64,7 +64,7 @@ export function rankBM25(
   const scores = new Map<string, number>();
   for (const term of uniqueTerms) {
     const termIdf = idfByTerm.get(term)!;
-    for (const { docId, termFrequency } of index.postings(term)) {
+    for (const { docId, termFrequency } of index.postingEntries(term)) {
       const c = contributionOf(
         termIdf,
         termFrequency,
@@ -85,7 +85,7 @@ export function rankBM25(
   const tfByDoc = new Map<string, Map<string, number>>();
   for (const id of winnerIds) tfByDoc.set(id, new Map());
   for (const term of uniqueTerms) {
-    for (const { docId, termFrequency } of index.postings(term)) {
+    for (const { docId, termFrequency } of index.postingEntries(term)) {
       tfByDoc.get(docId)?.set(term, termFrequency);
     }
   }

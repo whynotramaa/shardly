@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "description": "A hand-rolled document store with full-text search and BM25 ranking (mini Elasticsearch)",
   "type": "module",
-  "engines": { "node": ">=20" },
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "dev": "tsx watch src/api/server.ts",
     "start": "tsx src/api/server.ts",
@@ -12,7 +14,13 @@
     "test:watch": "vitest",
     "seed": "tsx scripts/seed.ts",
     "crash-test": "tsx scripts/crash-test.ts",
-    "bench": "tsx scripts/bench.ts"
+    "bench": "tsx scripts/bench.ts",
+    "demo": "tsx scripts/seed-demo.ts",
+    "evaluate": "tsx scripts/evaluate.ts",
+    "compare:fts": "tsx scripts/compare-fts.ts",
+    "evaluate:real": "tsx scripts/evaluate-real.ts",
+    "evaluate:fetch": "python3 scripts/fetch-scifact.py",
+    "bench:concurrent": "tsx scripts/bench-concurrent.ts"
   },
   "dependencies": {
     "@fastify/cors": "^10.0.1",

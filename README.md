@@ -19,7 +19,33 @@ known limits, read [ENGINEERING.md](ENGINEERING.md).
 - Compares indexed search with an unindexed scan over the same data.
 - Provides a Next.js workspace for ingesting, browsing, searching, benchmarking, and inspecting documents.
 
-The scope is deliberately single-process and single-machine. There is no clustering, replication, authentication, multi-tenancy, SQL layer, compaction implementation, or external database.
+The scope is deliberately single-process and single-machine. There is no clustering, replication, user authentication, multi-tenancy, SQL layer, or external database. A local directory lock enforces one writer; manual compaction reclaims dead records.
+
+## Search workspace
+
+The workspace opens on search. Queries support quoted phrases, `-excluded` words, all/any matching, and `source:`, `repo:`, `type:`, and `language:` filters. Use facets to narrow results, repository/source grouping to diversify them, and prefix or typo expansion when needed. Optional synonyms are scoped to the current query.
+
+Results include original-text passages with match offsets. The split preview loads the full document. Query URLs, saved searches, and named document collections preserve useful work; saved searches and collections live in this browser's local storage. They are not included in engine backup files.
+
+The workspace separates Search, Sources, Library, and Engine. Search keeps advanced matching and engineering detail expandable. Sources manages uploads, GitHub/Wikipedia imports, and local folders. Library manages documents and saved work. Engine provides rebuilds, diagnostics, backup/restore, and measurements.
+
+The inspector shows expansion, candidate counts, posting reads, real storage reads, cache hits, timings, and score contributions. Compare BM25 and field/passage ranking on the same corpus. Use the missing-match explanation to inspect a chosen document. Exact rank inspection stops at the first 1,000 matches and reports an unknown rank beyond that budget.
+
+Literal mode preserves case, punctuation, and symbols. Substring mode searches original text without stemming, ignoring case. These modes scan at most 2,000 scoped documents and 8 MiB of original text; narrow a repository, source, or collection for larger corpora. They retain original UTF-16 match offsets.
+
+Imports report added, updated, and duplicate records. Matching `sourceId` values update the same document id. Raw JSON CRUD intentionally creates distinct records. GitHub credentials stay in memory and must be entered again for a private retry after restart. Cancellation retains completed batches.
+
+Backups contain document ids and full JSON metadata. Restore validates the payload and all id conflicts before writing. Existing identical ids are skipped; conflicting ids are rejected. An I/O failure during restore can leave completed writes, so retry the same backup after fixing the disk error.
+
+See [FEATURES.md](FEATURES.md) for the implementation and verification checklist. OCR and AI chat are outside this version.
+
+## Local folders and rebuilds
+
+Add an absolute API-server folder path in Sources. Two-second metadata polling detects changes; only changed files are read and hashed. Nested `.gitignore` rules use Git, with a separate Git directory inside the store. Symlinks are skipped. If Git is unavailable, a folder with ignore rules fails safely rather than indexing ignored files. Pause, resume, force rescan, and remove are explicit actions. Malformed structured-file changes retain the last good records. Changed-file staging has a 256 MiB budget; use narrower folder scopes for larger batches. Removing a source deletes only its owned indexed documents and leaves the files untouched.
+
+Index rebuild creates a shadow index while searches use the live index. Cancellation, failure, or a changed storage version keeps the original index. The final version check and index switch are atomic within the worker. Rebuilding temporarily requires memory for both indexes.
+
+Open `/app?demo=true` for the guided interview walkthrough. Demo actions are explicit and scoped; the guide does not reset or kill your running store.
 
 ## Architecture
 
@@ -30,7 +56,7 @@ input document
 Fastify routes / ingestion adapters
     |
     v
-Engine
+Engine worker, bounded RPC queue
   |--------------------|
   v                    v
 Storage              Tokenizer
@@ -47,7 +73,7 @@ segments + WAL       InvertedIndexStore
       ranked response
 ```
 
-Search does not scan segment files to find candidates. It tokenizes the query, unions the relevant posting lists, scores only those candidates, and seeks into storage only for the returned documents.
+Lexical search does not scan segment files to find candidates. It tokenizes the query, unions the relevant posting lists, scores only those candidates, and seeks into storage only for the returned documents.
 
 ## Repository map
 
@@ -56,7 +82,9 @@ Search does not scan segment files to find candidates. It tokenizes the query, u
 | `src/storage/storage.ts` | Append-only segments, offset index, reads, tombstones, rotation, snapshots, and recovery |
 | `src/storage/wal.ts` | Durable pending/committed write records and delete records |
 | `src/search/tokenizer.ts` | Lowercasing, punctuation removal, stopword filtering, stemming, and recursive document tokenization |
-| `src/search/index.ts` | Term postings, term frequencies, document frequencies, document lengths, and index snapshots |
+| `src/search/index.ts` | Packed postings, field/passage analysis, corpus statistics, and index snapshots |
+| `src/runtime/` | Bounded worker RPC, import batching, and engine isolation |
+| `src/ingest/folders.ts` | Managed local sources, ignore rules, synchronization, and source-owned deletion |
 | `src/search/rank.ts` | BM25 scoring, score explanations, and bounded top-N selection |
 | `src/engine.ts` | Coordinates storage and search; exposes CRUD, ingest, search, benchmark, reset, and lifecycle operations |
 | `src/api/routes.ts` | Thin Fastify HTTP handlers |
@@ -72,7 +100,7 @@ Search does not scan segment files to find candidates. It tokenizes the query, u
 
 ### Append-only, size-capped segments
 
-Documents are serialized as one NDJSON record per line under `data/segments/segment-0000.log`, with new segment files created after the 64 MiB limit. Each offset entry stores the segment name, byte offset, byte length, and deletion flag. Reads use `fs.readSync` at that exact offset; they do not scan the log.
+Documents are serialized as one NDJSON record per line under `data/segments/segment-0000.log`, with new segment files created after the 64 MiB limit. Each offset entry stores the segment name, byte offset, byte length, deletion flag, and a SHA-256 record checksum for new writes. Reads use `fs.readSync` at that exact offset; they do not scan the log.
 
 This layout keeps writes simple. Deleted and superseded records stay in place,
 hidden by the offset index, until `POST /compact` reclaims them.
@@ -91,10 +119,10 @@ Each single-document write follows this order:
 
 1. Append a pending WAL record and `fsync` it.
 2. Append the document record to the segment and `fsync` the segment.
-3. Update the in-memory offset index.
-4. Append a committed WAL record and `fsync` it.
+3. Append a committed WAL record and `fsync` it.
+4. Update the in-memory offset index and return the id.
 
-On startup, the storage layer loads the offset snapshot and replays the WAL. Committed writes are applied directly. Pending writes are verified against the exact segment byte range: intact JSON with the expected id is recovered; missing or malformed bytes are discarded as a torn, unacknowledged write. Deletes are represented by a committed tombstone record.
+On startup, the storage layer loads the offset snapshot and replays the WAL. Committed writes are verified before they are applied; corrupted committed data stops recovery. Pending writes are verified against the exact segment byte range: intact JSON with the expected id is recovered; missing or malformed bytes are discarded as a torn, unacknowledged write. Deletes are represented by a committed tombstone record.
 
 Snapshots are written atomically through a temporary file, `fsync`, and rename. Once the offset snapshot is complete, the WAL can be checkpointed and truncated.
 
@@ -102,17 +130,19 @@ Snapshots are written atomically through a temporary file, `fsync`, and rename. 
 
 `writeBatch` records all intents, writes the batch to the segment, and finalizes the batch with shared fsyncs. This keeps the durability contract while avoiding three fsyncs per document. The seed script uses batches of 1,000 documents because fsync is the dominant cost of individual writes.
 
+[Completion checklist](FEATURES.md) · [Current verification and measurements](VERIFICATION.md)
+
 ## Search decisions
 
 ### Tokenization
 
-The tokenizer is intentionally hand-written. It lowercases, turns non-alphanumeric characters into separators, splits on whitespace, removes a compact English stopword list, and applies simple suffix rules. It preserves duplicate tokens because term frequency needs them. `tokenizeDocument` walks nested objects and arrays and converts primitive values to searchable text.
+The tokenizer is intentionally hand-written. It matches Unicode words, normalizes terms to NFC, expands camelCase and snake_case identifiers, removes a compact English stopword list, and applies simple suffix rules. Original text offsets and stopword positions remain available for phrases and highlighting. It preserves duplicate tokens because term frequency needs them. `tokenizeDocument` walks nested objects and arrays and converts primitive values to searchable text.
 
 ### Inverted index
 
-The index maps each term to postings of `{ docId, termFrequency }`. It also maintains document frequency, each document's token length, total document count, and the running sum needed for average document length. Re-adding an id removes its old postings first, so the update path cannot leave stale terms behind.
+The index stores numeric document IDs and frequencies in packed typed arrays; the public posting iterator resolves IDs to strings. Field token offsets and field/window frequencies are packed as well. It also maintains document frequency, each document's token length, total document count, and the running sum needed for average document length. Re-adding an id removes its old postings first, so the update path cannot leave stale terms behind.
 
-The complete index is snapshotted as JSON. The snapshot is a fast-start cache; storage remains the durable source of document data and can rebuild the index through the engine's startup path.
+Explicit snapshot and close write the complete index as checksummed JSON. Automatic ingest checkpoints update storage only, avoiding repeated full-index serialization. A validated snapshot reuses baseline postings. Startup still reads stored documents to rebuild field, passage, metadata, and document caches; storage remains the durable source and can rebuild invalid index caches.
 
 ### BM25
 
@@ -147,6 +177,20 @@ The Fastify API is intentionally thin; validation and response shaping stay at t
 | `GET` | `/documents/:id` | Full document lookup |
 | `DELETE` | `/documents/:id` | Tombstone and de-index a document |
 | `GET` | `/search?q=...&limit=...` | Ranked hits with snippets and BM25 breakdowns |
+| `GET` | `/suggest?q=...` | Bounded vocabulary prefix suggestions |
+| `POST` | `/search/compare` | Baseline and tuned ranked results |
+| `GET` | `/diagnostics` | Storage, vocabulary, postings, and memory estimates |
+| `GET` / `POST` | `/backup` | Export documents / validate and merge a backup |
+| `GET` / `POST` | `/sources/folders` | List/add managed local folder sources |
+| `POST` | `/sources/folders/:id/pause`, `/resume`, `/rescan` | Control source synchronization |
+| `DELETE` | `/sources/folders/:id` | Remove only this source's indexed documents |
+| `POST` | `/search/explain-missing` | Explain a chosen document's matching and pagination |
+| `GET` / `POST` / `DELETE` | `/maintenance/rebuild` | Inspect/start/cancel shadow index rebuild |
+| `POST` | `/demo/seed`, `/demo/import`, `/demo/durability` | Explicit isolated demonstration actions |
+| `GET` / `POST` | `/demo/search`, `/demo/search/compare` | Search/compare only the separate demo store |
+| `GET` / `POST` | `/jobs` | List / queue GitHub or offline Wikipedia imports |
+| `GET` | `/jobs/:id` | Import state and progress |
+| `POST` | `/jobs/:id/cancel` / `/jobs/:id/retry` | Cancel / queue a separate retry |
 | `GET` | `/benchmark?q=...` | Indexed and naive timings plus top-hit agreement |
 | `POST` | `/compact` | Rewrite segments, dropping tombstoned records |
 | `POST` | `/reset` | Clear the store and index |
@@ -179,17 +223,23 @@ The UI uses a restrained dark/light instrument-panel visual system, with a persi
 ### Engine and API
 
 ```bash
-npm install
+npm ci
+npm run demo                # optional small, repeatable showcase corpus
 npm run dev
 ```
 
-The API listens on `http://localhost:3001` by default. Persisted state goes to `./data`; set `SHARDLY_DATA_DIR` to choose another default, or pass a data directory to the engine in scripts/tests.
+The API listens on `http://127.0.0.1:3001` by default. The frontend is available at `http://localhost:3000/app`. Browser origins are restricted to loopback and an optional exact `SHARDLY_ALLOWED_ORIGIN`. The API has no user authentication; expose it only behind an authenticated reverse proxy. Persisted state goes to `./data`; set `SHARDLY_DATA_DIR` to choose another default, or pass a data directory to the engine in scripts/tests.
 
 Useful commands:
 
 ```bash
 npm run build
 npm test
+npm run evaluate            # synthetic authored relevance regression suite
+npm run compare:fts -- 10000 # requires Python 3 with SQLite FTS5
+npm run bench:concurrent    # isolated worker HTTP/import benchmark
+npm run evaluate:fetch      # cached public BEIR SciFact archive
+npm run evaluate:real       # all 300 externally judged queries
 npm run seed                 # 50,000 deterministic synthetic documents by default
 npm run crash-test           # repeated SIGKILL recovery test
 npx tsx scripts/bench.ts     # benchmark an existing data directory
@@ -200,7 +250,7 @@ The frontend is a separate application:
 
 ```bash
 cd web
-npm install
+npm ci
 npm run dev
 ```
 
@@ -220,7 +270,7 @@ The test suite covers:
 
 Run them with `npm test`. The TypeScript production build passes with `npm run build`.
 
-The repository's recorded 50,000-document benchmark uses five-run averages and reports:
+These historical 50,000-document measurements predate field and passage ranking. They are retained as the original baseline, not a claim about the current engine:
 
 | Query | Indexed | Naive | Speedup | Top hit |
 | --- | ---: | ---: | ---: | --- |
@@ -229,15 +279,13 @@ The repository's recorded 50,000-document benchmark uses five-run averages and r
 | `crash recovery latency` | 20.61 ms | 840.8 ms | 41x | agrees |
 | `checksum integrity corruption` | 15.47 ms | 797.5 ms | 52x | agrees |
 
-Read the naive column for what it is. `naiveSearch` re-reads and re-tokenizes
+The historical naive column reads and tokenizes storage on every query. The current benchmark method is described in [ENGINEERING.md](ENGINEERING.md). Read the historical column for what it is. `naiveSearch` re-reads and re-tokenizes
 every document from disk on each call, so the comparison is "no index at all"
 against "index already built", not "linear scan of pre-tokenized data" against
 "index". The index build cost is paid once at ingest and does not appear here.
 A pre-tokenized linear scan would land somewhere between the two columns.
 
 These are local measurements, not a performance guarantee. Run `npm run seed`
-and `npm run bench` on the target machine for fresh numbers. The crash harness
-proves that acknowledged writes survive repeated SIGKILLs with no missing or
-corrupted records.
+and `npm run bench` on the target machine for fresh numbers. The crash test checks acknowledged writes after repeated SIGKILLs. It exercises process crashes; it does not prove behavior under physical power loss or faulty hardware.
 
 

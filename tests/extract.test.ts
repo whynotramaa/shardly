@@ -61,12 +61,56 @@ describe("extractDocuments", () => {
     expect(r.docs).toHaveLength(2);
   });
 
+  it.each(["jsonl", "ndjson"])("rejects partial %s extraction instead of reporting valid rows as indexed", async ext => {
+    const result = await extractDocuments(`records.${ext}`, Buffer.from('{"content":"first"}\n{"content":'));
+    expect(result.status).toBe("skipped");
+    expect(result.docs).toEqual([]);
+    expect(result.reason).toContain("line 2");
+  });
+
+  it("rejects malformed managed JSON while preserving the upload raw-text fallback", async () => {
+    const buffer = Buffer.from('[{"content":"first"},');
+    const strict = await extractDocuments("records.json", buffer, { strictStructured: true });
+    expect(strict.status).toBe("skipped");
+    expect(strict.docs).toEqual([]);
+    expect(strict.reason).toBeTruthy();
+    expect((await extractDocuments("records.json", buffer)).docs).toEqual([{ filename: "records.json", content: buffer.toString() }]);
+  });
+
+  it("rejects empty JSON and binary-contaminated managed structured files", async () => {
+    for (const [filename, buffer] of [
+      ["empty.json", Buffer.from("")], ["binary.json", Buffer.from('{"content":"first"}\u0000')],
+      ["binary.jsonl", Buffer.from('{"content":"first"}\n\u0000')],
+    ] as const) {
+      const result = await extractDocuments(filename, buffer, { strictStructured: true });
+      expect(result.status).toBe("skipped");
+      expect(result.reason).toMatch(/invalid/);
+      expect(result.docs).toEqual([]);
+    }
+  });
+
+  it("retains JSON scalar records and their ordinals in strict extraction", async () => {
+    const result = await extractDocuments("records.json", Buffer.from('[{"content":"first"},"second",42,null]'), { strictStructured: true });
+    expect(result.status).toBe("indexed");
+    expect(result.docs).toEqual([
+      { filename: "records.json", content: "first" }, { filename: "records.json", content: "second" },
+      { filename: "records.json", content: 42 }, { filename: "records.json", content: null },
+    ]);
+  });
+
   it("skips a binary file instead of indexing garbage", async () => {
     const bin = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x00, 0x01, 0x02, 0xff, 0x00]);
     const r = await extractDocuments("image.png", bin);
     expect(r.status).toBe("skipped");
     expect(r.docs).toHaveLength(0);
     expect(r.reason).toMatch(/binary/i);
+    expect((await extractDocuments("fake.txt", bin)).status).toBe("skipped");
+  });
+
+  it("rejects invalid UTF-8 rather than adding replacement characters", async () => {
+    const result = await extractDocuments("bad.txt", Buffer.from([0xc3, 0x28]));
+    expect(result.status).toBe("skipped");
+    expect(result.docs).toEqual([]);
   });
 
   it("skips an empty file", async () => {
@@ -83,5 +127,7 @@ describe("extractDocuments", () => {
     expect(content).toContain("Shardly");
     expect(content).toContain("extraction");
     expect(r.docs[0]!.type).toBe("pdf");
+    const offsets = r.docs[0]!.pageOffsets as Array<{ page: number; start: number; end: number }>;
+    expect(offsets).toEqual([{ page: 1, start: 0, end: content.length }]);
   });
 });

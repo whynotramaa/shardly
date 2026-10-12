@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { benchmark, type BenchmarkResponse } from "@/lib/api";
+import { Icon } from "@/components/ui";
 
 export default function BenchmarkView() {
   const [q, setQ] = useState("");
@@ -13,93 +14,43 @@ export default function BenchmarkView() {
     if (!q.trim()) return;
     setBusy(true);
     setErr(null);
-    try {
-      setRes(await benchmark(q));
-    } catch (e) {
-      setErr(e instanceof Error ? e.message : "Benchmark failed");
-      setRes(null);
-    } finally {
-      setBusy(false);
-    }
+    try { setRes(await benchmark(q)); }
+    catch (e) { setErr(e instanceof Error ? e.message : "Benchmark failed"); setRes(null); }
+    finally { setBusy(false); }
   }
 
-  // Bars are scaled to the slower (naive) time so the contrast is visible.
   const maxMs = res ? Math.max(res.naive.tookMs, res.indexed.tookMs) : 1;
-  const pct = (ms: number) => Math.max((ms / maxMs) * 100, 4);
+  const pct = (ms: number) => Math.max((ms / maxMs) * 100, 1.5);
 
   return (
-    <div>
-      <div className="panel">
-        <label htmlFor="bq">
-          Run the same query two ways — inverted index vs. naive linear scan
-        </label>
-        <div className="row">
-          <input
-            id="bq"
-            type="text"
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && run()}
-            placeholder="Query to race both ways — e.g. distributed replication shard"
-          />
-          <button className="primary" onClick={run} disabled={busy}>
-            {busy ? "Running…" : "Run benchmark"}
-          </button>
-        </div>
-        <p className="hint">
-          Both paths compute identical BM25 rankings. The naive path reads and
-          tokenizes every document on disk; the indexed path jumps straight to
-          the query terms&apos; posting lists.
-        </p>
+    <section className="source">
+      <span className="source-icon"><Icon name="pulse" size={18} /></span>
+      <div className="source-body">
+        <h2>Benchmark</h2>
+        <p className="hint">Run one query through the index and through a full scan. Both rank with BM25.</p>
+        <form className="inline-form" onSubmit={(e) => { e.preventDefault(); void run(); }}>
+          <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="replication shard" aria-label="Benchmark query" spellCheck={false} />
+          <button className="button small" disabled={busy || !q.trim()}>{busy ? "Running…" : "Run"}</button>
+        </form>
+        {err && <p className="alert" role="alert">{err}</p>}
+        {res && (
+          <div className="race" key={res.query + res.indexed.tookMs}>
+            <div className="race-row">
+              <span>Full scan</span>
+              <span className="race-track"><span className="race-bar slow" style={{ width: `${pct(res.naive.tookMs)}%` }} /></span>
+              <span className="mono">{res.naive.tookMs.toFixed(1)} ms</span>
+            </div>
+            <div className="race-row">
+              <span>Index</span>
+              <span className="race-track"><span className="race-bar" style={{ width: `${pct(res.indexed.tookMs)}%` }} /></span>
+              <span className="mono">{res.indexed.tookMs.toFixed(2)} ms</span>
+            </div>
+            <p className="row-meta">
+              <b className="accent">{res.speedup.toFixed(0)}× faster</b> · scanned {res.naive.scanned.toLocaleString()} docs vs {res.indexed.scanned.toLocaleString()} candidates · top hit {res.topHitsMatch ? "agrees" : "differs"}
+            </p>
+          </div>
+        )}
       </div>
-
-      {err && <div className="notice err">{err}</div>}
-
-      {res && (
-        <div className="panel" style={{ marginTop: 20 }}>
-          <div className="bars">
-            <div className="bar-row">
-              <span className="bar-label">Naive scan</span>
-              <div className="bar-track">
-                <div
-                  className="bar-fill naive"
-                  style={{ width: `${pct(res.naive.tookMs)}%` }}
-                />
-                <span className="bar-value">{res.naive.tookMs.toFixed(1)} ms</span>
-              </div>
-            </div>
-            <div className="bar-row">
-              <span className="bar-label">Inverted index</span>
-              <div className="bar-track">
-                <div
-                  className="bar-fill indexed"
-                  style={{ width: `${pct(res.indexed.tookMs)}%` }}
-                />
-                <span className="bar-value">{res.indexed.tookMs.toFixed(2)} ms</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="speedup-callout">
-            <div className="speedup-number">{res.speedup.toFixed(0)}× faster</div>
-            <div className="stat-pills" style={{ justifyContent: "center" }}>
-              <span className="pill">
-                naive scanned <b>{res.naive.scanned.toLocaleString()}</b> docs
-              </span>
-              <span className="pill">
-                index examined <b>{res.indexed.scanned.toLocaleString()}</b>{" "}
-                candidates
-              </span>
-              <span className="pill">
-                top hit agrees:{" "}
-                <b style={{ color: res.topHitsMatch ? "var(--good)" : "var(--bad)" }}>
-                  {res.topHitsMatch ? "yes" : "no"}
-                </b>
-              </span>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
+    </section>
   );
 }

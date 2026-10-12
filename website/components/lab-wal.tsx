@@ -40,7 +40,7 @@ const CASES: Case[] = [
     mem: "unchanged",
     acked: false,
     recovery:
-      "Pass 2 finds a pending record with no committed twin. verifySegmentRecord() sees the file is shorter than 4096 + 231 and discards it.",
+      "Ordered replay finds a pending record with no committed twin. verifySegmentRecord() sees the file is too short and discards it.",
     verdict:
       "The log recorded an intent that was never carried out. Discarding it is the only right answer.",
     correct: true,
@@ -66,33 +66,33 @@ const CASES: Case[] = [
     mem: "unchanged",
     acked: false,
     recovery:
-      "All four checks pass: the file exists, it is long enough, the bytes parse, and the embedded id matches. The record is applied.",
+      "The file exists, the range is complete, the checksum and JSON are valid, and the id and newline match. The record is applied.",
     verdict:
       "Recovered even though the caller never got an acknowledgement. Correct, and more than was promised.",
     correct: true,
   },
   {
     id: "P4",
-    at: "After the in-memory map is updated",
-    wal: "pending @ segment-0000:4096, len 231",
+    at: "After the commit fsync, before the memory update",
+    wal: "pending + committed",
     seg: "complete record, durable",
-    mem: "offsetIndex updated, then lost with the process",
+    mem: "unchanged",
     acked: false,
     recovery:
-      "Memory did not survive, so the on-disk state is identical to P3. The same four checks pass and the record is applied.",
+      "Recovery verifies the committed record and rebuilds the offset entry. The write was durable even though the caller had not received its id.",
     verdict:
       "In-memory state is never part of the durability argument. Only the two fsynced files are.",
     correct: true,
   },
   {
     id: "P5",
-    at: "After the committed record is fsynced",
+    at: "After the memory update and acknowledgement",
     wal: "pending + committed",
     seg: "complete record, durable",
     mem: "offsetIndex updated",
     acked: true,
     recovery:
-      "Pass 1 applies it without inspection. A committed record is proof that the segment fsync already returned.",
+      "Ordered replay verifies the committed bytes, checksum and id before applying the entry. Corruption fails loudly.",
     verdict:
       "This is the only case where the caller was told the write succeeded, so this is the only case where losing it would be a bug.",
     correct: true,
@@ -102,8 +102,8 @@ const CASES: Case[] = [
 const STEPS = [
   "wal.logPending() + fsync",
   "writeSync(segment) + fsync",
-  "offsetIndex.set(...)",
   "wal.logCommitted() + fsync",
+  "offsetIndex.set(...) + ack",
 ];
 
 export default function LabWal() {

@@ -35,6 +35,7 @@ async function fetchBatch(attempt = 0): Promise<WikiPage[]> {
 function toDocument(p: WikiPage): Document {
   return {
     source: "wikipedia",
+    sourceId: `wikipedia:${p.pageid}`,
     type: "article",
     title: p.title,
     content: p.extract ?? "",

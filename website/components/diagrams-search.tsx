@@ -5,9 +5,9 @@
 export function TokenLoss() {
   const stages = [
     ["toLowerCase()", "Zürich Café", "zürich café", "Case is gone. Acronyms and names flatten into common words."],
-    ["replace(/[^a-z0-9\\s]+/g, ' ')", "zürich café", "z rich caf", "Every non-ASCII letter is a separator. 東京 becomes nothing at all."],
+    ["Unicode word matching", "zürich café", "zürich café", "Punctuation separates words. Unicode letters and marks survive."],
     ["stopword filter", "the storage layer", "storage layer", "51 surface forms, checked before stemming."],
-    ["stem()", "storage layer", "storag layer", "Six suffix rules. Not Porter. It over-stems and under-stems."],
+    ["stem()", "running layers", "runn layer", "Six suffix rules. Not Porter. It over-stems and under-stems."],
   ];
 
   return (

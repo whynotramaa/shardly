@@ -1,7 +1,6 @@
 /**
- * Faithful browser ports of the pieces of Shardly the diagrams need to run
- * live. Kept byte-for-byte equivalent to the engine so the site never shows a
- * number the real system would not produce.
+ * Browser labs illustrate tokenization and baseline BM25. The workspace's
+ * inspector shows the full field and passage ranking used by live searches.
  *
  * Sources: src/search/tokenizer.ts, src/search/rank.ts, src/config.ts.
  */
@@ -17,7 +16,7 @@ export const STOPWORDS = [
 
 const STOPSET = new Set(STOPWORDS);
 
-const NON_ALNUM = /[^a-z0-9\s]+/g;
+const WORD = /[\p{L}\p{M}\p{N}_]+/gu;
 const WHITESPACE = /\s+/;
 
 export const BM25_K1 = 1.5;
@@ -50,12 +49,13 @@ export function stem(token: string): string {
 }
 
 export function tokenize(text: string): string[] {
-  const cleaned = text.toLowerCase().replace(NON_ALNUM, " ");
   const out: string[] = [];
-  for (const raw of cleaned.split(WHITESPACE)) {
-    if (raw.length === 0) continue;
+  for (const match of text.matchAll(WORD)) {
+    const original = match[0];
+    const raw = original.normalize("NFC").toLowerCase();
     if (STOPSET.has(raw)) continue;
-    out.push(stem(raw));
+    const parts = original.split(/[_\-.]+|(?<=[a-z\d])(?=[A-Z])/).filter(Boolean).map((part) => part.normalize("NFC").toLowerCase());
+    out.push(...(parts.length > 1 ? [raw, ...parts] : [stem(raw)]));
   }
   return out;
 }
@@ -79,19 +79,17 @@ export function traceTokens(text: string): TokenTrace[] {
   const words = text.split(/\s+/).filter((w) => w.length > 0);
   return words.map((raw) => {
     const lowered = raw.toLowerCase();
-    const pieces = lowered
-      .replace(NON_ALNUM, " ")
-      .split(WHITESPACE)
-      .filter((p) => p.length > 0);
+    const pieces = [...raw.matchAll(WORD)].map((match) => match[0]);
     return {
       raw,
       lowered,
       pieces,
       results: pieces.map((piece) => {
-        if (STOPSET.has(piece))
+        if (STOPSET.has(piece.toLowerCase()))
           return { piece, dropped: true, rule: "stopword", stem: "" };
-        const s = stemExplained(piece);
-        return { piece, dropped: false, rule: s.rule, stem: s.out };
+        const tokens = tokenize(piece);
+        const s = stemExplained(piece.toLowerCase());
+        return { piece, dropped: false, rule: tokens.length > 1 ? "identifier and parts" : s.rule, stem: tokens.join(" · ") };
       }),
     };
   });

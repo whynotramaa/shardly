@@ -49,9 +49,16 @@ function withSource(value: unknown, filename: string): Document {
 
 async function extractPdf(filename: string, buffer: Buffer): Promise<ExtractResult> {
   const pdf = await getDocumentProxy(new Uint8Array(buffer));
-  const { totalPages, text } = await extractText(pdf, { mergePages: true });
-  const content = (text ?? "").trim();
-  if (content.length === 0) {
+  const { totalPages, text } = await extractText(pdf, { mergePages: false });
+  const pageTexts = Array.isArray(text) ? text : [text ?? ""];
+  let offset = 0;
+  const pageOffsets = pageTexts.map((page, index) => {
+    const start = offset;
+    offset += page.length + (index < pageTexts.length - 1 ? 2 : 0);
+    return { page: index + 1, start, end: start + page.length };
+  });
+  const content = pageTexts.join("\n\n");
+  if (content.trim().length === 0) {
     return {
       filename,
       status: "skipped",
@@ -62,29 +69,32 @@ async function extractPdf(filename: string, buffer: Buffer): Promise<ExtractResu
   return {
     filename,
     status: "indexed",
-    docs: [{ filename, type: "pdf", pages: totalPages, content }],
+    docs: [{ filename, type: "pdf", pages: totalPages, pageOffsets, content }],
   };
 }
 
-function extractJson(filename: string, text: string): Document[] | null {
+export interface ExtractOptions { strictStructured?: boolean }
+
+function extractJson(filename: string, text: string, strict: boolean): Document[] | null {
   try {
     const parsed = JSON.parse(text);
     const arr = Array.isArray(parsed) ? parsed : [parsed];
     return arr.map((o) => withSource(o, filename));
-  } catch {
+  } catch (error) {
+    if (strict) throw error;
     return null;
   }
 }
 
 function extractNdjson(filename: string, text: string): Document[] {
   const docs: Document[] = [];
-  for (const line of text.split("\n")) {
+  for (const [index, line] of text.split("\n").entries()) {
     const t = line.trim();
     if (!t) continue;
     try {
       docs.push(withSource(JSON.parse(t), filename));
     } catch {
-      /* skip malformed line */
+      throw new Error(`invalid JSON on line ${index + 1}`);
     }
   }
   return docs;
@@ -93,6 +103,7 @@ function extractNdjson(filename: string, text: string): Document[] {
 export async function extractDocuments(
   filename: string,
   buffer: Buffer,
+  options: ExtractOptions = {},
 ): Promise<ExtractResult> {
   const ext = extensionOf(filename);
 
@@ -100,7 +111,8 @@ export async function extractDocuments(
     if (ext === "pdf") return await extractPdf(filename, buffer);
 
     // For everything else we need UTF-8 text. Reject true binaries up front.
-    if (!TEXT_EXTENSIONS.has(ext) && isProbablyBinary(buffer)) {
+    if (isProbablyBinary(buffer)) {
+      if (options.strictStructured && ["json", "ndjson", "jsonl"].includes(ext)) throw new Error("invalid structured file: binary content");
       return {
         filename,
         status: "skipped",
@@ -109,21 +121,22 @@ export async function extractDocuments(
       };
     }
 
-    const text = buffer.toString("utf8");
+    const text = new TextDecoder("utf-8", { fatal: true }).decode(buffer);
+
+    if (text.trim().length === 0) {
+      if (ext === "json" && options.strictStructured) throw new Error("invalid JSON: empty file");
+      return { filename, status: "skipped", reason: "empty file", docs: [] };
+    }
 
     if (ext === "json") {
-      const docs = extractJson(filename, text);
+      const docs = extractJson(filename, text, options.strictStructured === true);
       if (docs) return { filename, status: "indexed", docs };
       // Not valid JSON — fall back to storing the raw text.
     }
 
     if (ext === "ndjson" || ext === "jsonl") {
       const docs = extractNdjson(filename, text);
-      if (docs.length > 0) return { filename, status: "indexed", docs };
-    }
-
-    if (text.trim().length === 0) {
-      return { filename, status: "skipped", reason: "empty file", docs: [] };
+      return { filename, status: "indexed", docs };
     }
 
     return {

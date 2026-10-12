@@ -1,0 +1,22 @@
+{
+  "label": "synthetic-authored-regression",
+  "fixtureCases": 80,
+  "distinctQueriesAndOptions": 80,
+  "gain": "2^grade-1",
+  "baseline": {
+    "MRR": 0.7,
+    "nDCG": 0.8262937872722027,
+    "p50Ms": 0.04411799999999744,
+    "p95Ms": 0.2250439999999969
+  },
+  "tuned": {
+    "MRR": 1,
+    "nDCG": 0.9964943595580286,
+    "p50Ms": 0.03586700000001031,
+    "p95Ms": 0.09435999999999467
+  },
+  "ingestMs": 18.4176,
+  "heapDeltaBytes": 3919112,
+  "restartMs": 8.685929000000002,
+  "restartHits": true
+}

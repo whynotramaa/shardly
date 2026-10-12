@@ -1,5 +1,10 @@
 import { describe, it, expect } from "vitest";
-import { tokenize, stem, tokenizeDocument } from "../src/search/tokenizer.js";
+import {
+  tokenize,
+  stem,
+  tokenizeDocument,
+  tokenizeDetailed,
+} from "../src/search/tokenizer.js";
 
 describe("tokenizer", () => {
   it("lowercases and strips punctuation", () => {
@@ -24,6 +29,17 @@ describe("tokenizer", () => {
 
   it("keeps alphanumerics together", () => {
     expect(tokenize("ipv4 h2o test123")).toEqual(["ipv4", "h2o", "test123"]);
+  });
+
+  it("keeps combining marks in words and normalizes NFC without changing offsets", () => {
+    const decomposed = "cafe\u0301";
+    expect(tokenize(decomposed)).toEqual(["café"]);
+    expect(tokenize("café")).toEqual(["café"]);
+    const indic = tokenizeDetailed("हिन्दी")[0]!;
+    expect(indic.term).toBe("हिन्दी");
+    expect(indic.original).toBe("हिन्दी");
+    expect(indic.start).toBe(0);
+    expect(indic.end).toBe("हिन्दी".length);
   });
 
   describe("stemmer", () => {

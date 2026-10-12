@@ -142,7 +142,7 @@ export function SystemMap() {
 
       {/* storage branch */}
       <text x="766" y="52" className="d-t-ac">DURABILITY</text>
-      {box(766, 62, 190, 34, "Storage", "offset index in memory", false, "Owns the offset map, one write descriptor, and a read descriptor per segment. Many readers, one writer, no locking.")}
+      {box(766, 62, 190, 34, "Storage", "offset index in memory", false, "Owns the offset map, one write descriptor, and read descriptors. A directory lock rejects a second writer.")}
       {box(766, 104, 190, 34, "WriteAheadLog", "pending → committed", false, "Two records per write. The pending one bounds where damage can be; the committed one proves it is not there.")}
       {box(766, 146, 190, 34, "segment-NNNN.log", "append only · 64 MiB cap", false, "One JSON record per line. Old bytes are never touched, so a crash can only ever damage the tail.")}
       <path d="M861 96 V104 M861 138 V146" className="d-line" markerEnd="url(#ah)" />
@@ -419,7 +419,7 @@ export function AppendVsUpdate() {
       <line x1="640" y1="192" x2="1180" y2="192" className="d-dash" />
       <text x="640" y="214" className="d-t-ac">WHAT IT BUYS</text>
       <text x="640" y="234" className="d-t">A crash can only ever damage the tail</text>
-      <text x="640" y="254" className="d-t">One writer, no locking, no in-place torn state</text>
+      <text x="640" y="254" className="d-t">One writer, directory lock, immutable records</text>
       <text x="640" y="274" className="d-t">Sequential writes, which every disk prefers</text>
       <text x="640" y="302" className="d-t-ac">WHAT IT COSTS</text>
       <text x="640" y="322" className="d-t">Dead bytes accumulate until compaction runs</text>
@@ -443,23 +443,23 @@ export function RecoveryTree() {
   const checks = [
     ["Does the segment file exist?", "A rotation that never landed"],
     ["Is the file long enough?", "The write was cut short"],
-    ["Do those bytes parse as JSON?", "The write was cut mid-object"],
-    ["Does the embedded id match?", "The offset points at a stranger"],
+    ["Valid JSON with matching checksum?", "Detects torn or changed bytes"],
+    ["Matching id and final newline?", "Checks identity and record boundary"],
   ];
 
   return (
     <svg viewBox="0 0 1180 430" role="img" aria-label="The recovery decision path">
-      <text x="0" y="12" className="d-t-s">Storage.replayWal() · TWO PASSES OVER wal.log</text>
+      <text x="0" y="12" className="d-t-s">Storage.replayWal() · COMMIT LOOKUP THEN ORDERED REPLAY</text>
       <line x1="0" y1="22" x2="1180" y2="22" className="d-line" />
 
-      <text x="0" y="50" className="d-t-ac">PASS 1 · APPLY WITHOUT INSPECTION</text>
-      {node(0, 60, 340, "status: committed", "Proven durable. Trust it.")}
+      <text x="0" y="50" className="d-t-ac">COMMITTED · VERIFY BEFORE APPLYING</text>
+      {node(0, 60, 340, "status: committed", "Corruption stops recovery.")}
       <path d="M340 83 H392" className="d-line-2" markerEnd="url(#ah-fg)" />
       {node(400, 60, 300, "offsetIndex.set(...)", "Or set deleted: true for tombstones")}
 
       <line x1="0" y1="130" x2="1180" y2="130" className="d-dash" />
 
-      <text x="0" y="158" className="d-t-ac">PASS 2 · THE CRASH WINDOW</text>
+      <text x="0" y="158" className="d-t-ac">PENDING · THE CRASH WINDOW</text>
       {node(0, 168, 340, "pending with no committed twin", "Keyed by segment:byteOffset")}
 
       <path d="M170 214 V236" className="d-ac" markerEnd="url(#ah-ac)" />
@@ -488,10 +488,10 @@ export function RecoveryTree() {
       <text x="954" y="304" className="d-t-s">THE CALLER NEVER GOT AN ACK</text>
 
       <rect x="940" y="330" width="240" height="88" className="d-box-2" />
-      <text x="954" y="352" className="d-t" style={{ fill: "var(--accent)" }}>WHAT SLIPS THROUGH</text>
-      <text x="954" y="372" className="d-t-s">A FLIPPED BIT INSIDE A STRING</text>
-      <text x="954" y="388" className="d-t-s">STRUCTURE IS INTACT, MEANING IS NOT</text>
-      <text x="954" y="410" className="d-t-s" style={{ fill: "var(--accent)" }}>FIX: A CRC PER RECORD</text>
+      <text x="954" y="352" className="d-t" style={{ fill: "var(--accent)" }}>LEGACY RECORDS</text>
+      <text x="954" y="372" className="d-t-s">MAY HAVE NO CONTENT CHECKSUM</text>
+      <text x="954" y="388" className="d-t-s">NEW RECORDS USE SHA-256</text>
+      <text x="954" y="410" className="d-t-s" style={{ fill: "var(--accent)" }}>DETECTION DOES NOT REPAIR DAMAGE</text>
     </svg>
   );
 }
@@ -549,8 +549,8 @@ export function FsyncMath() {
 export function CompactTimeline() {
   const steps = [
     ["1", "Write live records into fresh segments", "Numbered from currentSegmentIndex + 1"],
-    ["2", "fsync every new segment", "Data durable, nothing references it yet"],
-    ["3", "snapshot() writes new offsets, truncates the WAL", "THE COMMIT POINT"],
+    ["2", "fsync new segments and their directory", "Data durable, nothing references it yet"],
+    ["3", "Rename the new offset snapshot", "THE COMMIT POINT"],
     ["4", "Unlink the old segment files", "Reclaim the dead bytes"],
   ];
   return (

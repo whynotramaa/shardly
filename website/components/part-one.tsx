@@ -143,9 +143,9 @@ export default function PartOne() {
                 <code>Storage</code> keeps a read-only file descriptor per
                 segment in <code>this.readFds</code>, so a hot read never pays
                 for <code>open</code>. It keeps exactly one write descriptor,
-                on the newest segment, in append mode. That asymmetry removes
-                the need for any lock: writes only ever touch the end of one
-                file, and reads only ever touch bytes that are already final.
+                on the newest segment, in append mode. Reads use immutable
+                byte ranges. A directory lock separately rejects a second
+                process trying to write the same store.
               </p>
               <h4>An id carries no order, and that is a real cost</h4>
               <p>
@@ -305,11 +305,11 @@ fsync(walFd);
 fs.writeSync(segFd, record + `}<span className="s">{`"\\n"`}</span>{`);
 fsync(segFd);
 
-`}<span className="c">{`// 3 · Reflect it, then prove it.`}</span>{`
-offsetIndex.set(docId, entry);
+`}<span className="c">{`// 3 · Commit durably, then publish.`}</span>{`
 wal.logCommitted({ docId, segment,
                    byteOffset, length });
 fsync(walFd);
+offsetIndex.set(docId, entry);
 
 `}<span className="c">{`// Only now does write() return.`}</span>{``}
             </pre>
@@ -334,7 +334,8 @@ fsync(walFd);
               <h4>What Shardly actually promises</h4>
               <p>
                 <code>write()</code> returns to the caller only after step 3. An
-                acknowledged write survives any crash, full stop. A write still
+                acknowledged write survives process crashes under the filesystem
+                sync contract. A write still
                 in flight might survive and might not, and both outcomes are
                 correct, because nobody was told it succeeded.
               </p>
@@ -363,13 +364,13 @@ fsync(walFd);
               <em className="italic ac">deliberately drops</em>
             </>
           }
-          lede="Two passes over the log. The first trusts, the second interrogates."
+          lede="Find matching commits, then replay records in their original order."
         />
 
         <Reveal>
           <Figure
             n="05.1"
-            cap="Committed records are applied without inspection. Pending records without a committed twin face four checks, and one failure discards the record."
+            cap="Committed data is verified and corruption fails loudly. An intact pending write without a commit can be recovered; a torn pending write is discarded."
           >
             <RecoveryTree />
           </Figure>
@@ -388,24 +389,20 @@ fsync(walFd);
               </p>
               <h4>Where the honesty is</h4>
               <p>
-                The four checks confirm structure. They cannot confirm meaning.
-                A record that is byte-complete, parses as JSON, and carries the
-                right id can still have a flipped bit inside a string value, and
-                every check will pass it. Detecting that needs a checksum per
-                record, and Shardly does not have one.
+                Structure alone cannot detect a flipped bit inside a valid
+                JSON string. New records carry SHA-256 checksums, checked both
+                during recovery and on direct document reads.
               </p>
               <p>
-                Adding a CRC to the record format is the single most valuable
-                change left in this file. I am saying so here rather than
-                letting you discover it.
+                Legacy records without checksums retain structural validation.
+                Checksums detect damage; they do not repair it. Keep a portable
+                backup if the documents cannot be re-imported.
               </p>
               <h4>A torn tail should not condemn the file</h4>
               <p>
-                <code>readAll()</code> swallows parse errors on individual
-                lines. That is narrow and intentional. The last line of the log
-                is the one most likely to be torn by the exact crash being
-                recovered from, and one bad tail should not make the whole log
-                unreadable.
+                <code>readAll()</code> discards only an unterminated malformed
+                final line. Malformed interior records and checksum failures
+                stop recovery instead of silently dropping acknowledged work.
               </p>
             </div>
           </div>
@@ -414,11 +411,11 @@ fsync(walFd);
             <div className="cut panel panel-2" style={{ position: "relative" }}>
               <Marks />
               <p className="label label-ac" style={{ marginBottom: 6 }}>
-                Crash harness · npx tsx scripts/crash-test.ts 6
+                Historical crash run · npx tsx scripts/crash-test.ts 6
               </p>
               <p className="label" style={{ marginBottom: 24 }}>
-                Spawn a writer, SIGKILL it after a random 150 to 550 ms, reopen
-                the store, verify every id ever acknowledged.
+                The current script waits for the first acknowledgement before
+                timing SIGKILL, then verifies every acknowledged id after reopen.
               </p>
               <div className="cols">
                 <div className="c-6" style={{ marginBottom: 22 }}>
@@ -600,7 +597,7 @@ fsync(walFd);
             <div className="cut panel panel-2" style={{ position: "relative" }}>
               <Marks />
               <p className="label label-ac" style={{ marginBottom: 20 }}>
-                Measured · 20,000 seeded documents, half deleted
+                Historical baseline · 20,000 seeded documents, half deleted
               </p>
               <div className="cols">
                 <div className="c-6" style={{ marginBottom: 20 }}>
@@ -622,8 +619,9 @@ fsync(walFd);
                 <div className="dl-row">
                   <dt>Blocking</dt>
                   <dd>
-                    Yes. All I/O in Shardly is synchronous, so a compaction
-                    stalls every concurrent request for its duration.
+                    Compaction blocks the engine worker. The HTTP thread can
+                    still serve health requests, but engine requests wait until
+                    that storage operation finishes.
                   </dd>
                 </div>
                 <div className="dl-row">

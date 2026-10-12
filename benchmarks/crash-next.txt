@@ -1,0 +1,11 @@
+crash-test data dir: /tmp/shardly-crash-iT1S9l
+round 1: killed@398ms  acked_total=28839  missing=0  corrupt=0
+round 2: killed@527ms  acked_total=68073  missing=0  corrupt=0
+round 3: killed@210ms  acked_total=82773  missing=0  corrupt=0
+round 4: killed@540ms  acked_total=123255  missing=0  corrupt=0
+round 5: killed@359ms  acked_total=148992  missing=0  corrupt=0
+round 6: killed@191ms  acked_total=161703  missing=0  corrupt=0
+round 7: killed@541ms  acked_total=199892  missing=0  corrupt=0
+round 8: killed@350ms  acked_total=225141  missing=0  corrupt=0
+
+✓ 225141 acknowledged writes survived 8 SIGKILLs with zero loss or corruption

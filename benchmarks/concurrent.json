@@ -1,0 +1,25 @@
+{
+  "label": "production-worker-http-concurrent-import",
+  "node": "v26.7.0",
+  "count": 3000,
+  "elapsedMs": 251.64663699999994,
+  "searchesDuringImport": 40,
+  "partialImportSearches": 39,
+  "health": {
+    "samples": 40,
+    "p50Ms": 0.5383310000000279,
+    "p95Ms": 4.9523660000000405,
+    "maxMs": 8.483802000000026
+  },
+  "search": {
+    "samples": 40,
+    "p50Ms": 1.448457000000019,
+    "p95Ms": 9.46274500000004,
+    "maxMs": 10.159763999999996
+  },
+  "eventLoopDelay": {
+    "meanMs": 10.102784,
+    "maxMs": 10.895359
+  },
+  "methodology": "Real loopback HTTP, one bulk import and sequential streams of 40 health and 40 search requests started concurrently. Each search is followed by a stats request to verify searches observe partially indexed batches. Existing unique reference must remain first. Includes RPC, JSON and HTTP overhead. Does not model many users, large PDFs, or physical disk faults."
+}

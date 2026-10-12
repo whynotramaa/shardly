@@ -3,7 +3,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import { search, type SearchResponse } from "@/lib/api";
-import { describe } from "@/lib/docmeta";
+import { describe, snippet } from "@/lib/docmeta";
+import { Icon } from "@/components/ui";
 
 export default function TryItSearch() {
   const [q, setQ] = useState("");
@@ -15,64 +16,42 @@ export default function TryItSearch() {
     if (!q.trim()) return;
     setBusy(true);
     setErr(null);
-    try {
-      setRes(await search(q, 6));
-    } catch (e) {
-      setErr(e instanceof Error ? e.message : "Search failed");
-      setRes(null);
-    } finally {
-      setBusy(false);
-    }
+    try { setRes(await search(q, 5)); }
+    catch (e) { setErr(e instanceof Error ? e.message : "Search failed"); setRes(null); }
+    finally { setBusy(false); }
   }
 
   return (
-    <div>
-      <div className="tryit-box">
-        <input
-          type="text"
-          value={q}
-          onChange={(e) => setQ(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && !busy && run()}
-          placeholder="query the live index — e.g. storage recovery"
-          aria-label="Live search query"
-        />
-        <button onClick={run} disabled={busy || !q.trim()}>
-          {busy ? "…" : "Search"}
-        </button>
-      </div>
-
-      {err && <div className="tryit-empty">Engine unreachable — {err}</div>}
-
+    <div className="tryit">
+      <form className={`searchbox${busy ? " busy" : ""}`} role="search" onSubmit={(e) => { e.preventDefault(); if (!busy) void run(); }}>
+        <Icon name="search" size={18} />
+        <input type="text" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Try “crash recovery”" aria-label="Search the live index" spellCheck={false} />
+        <button className="button solid search-go" disabled={busy || !q.trim()}>{busy ? "Searching" : "Search"}</button>
+        <span className="scanline" aria-hidden />
+      </form>
+      {err && <p className="hint">The engine is not reachable. Start the API, then try again.</p>}
       {res && (
-        <>
-          <div className="tryit-meta">
-            {res.total.toLocaleString()} matches · ranked in{" "}
-            {res.tookMs.toFixed(2)} ms · terms [{res.terms.join(" ")}]
-          </div>
+        <div className="tryit-results" key={res.query}>
+          <p className="row-meta"><b>{res.total.toLocaleString()}</b> matches <span className="mono">{res.tookMs.toFixed(1)} ms</span></p>
           {res.hits.length === 0 ? (
-            <div className="tryit-empty">
-              Nothing indexed matched. Add documents in the workspace, then try
-              again.
-            </div>
+            <p className="hint">Nothing matched. Add documents in the app, then search again.</p>
           ) : (
-            <div className="tryit-results">
+            <ol className="hits">
               {res.hits.map((hit, i) => {
-                const { title } = describe(hit.doc);
+                const { title, badge } = describe(hit.doc);
                 return (
-                  <Link
-                    key={hit.docId}
-                    href={`/document/${hit.docId}?q=${encodeURIComponent(res.query)}`}
-                    className="tryit-row"
-                  >
-                    <span className="tryit-rank">{i + 1}</span>
-                    <span className="tryit-title">{title}</span>
-                    <span className="tryit-score">{hit.score.toFixed(3)}</span>
-                  </Link>
+                  <li key={hit.docId} className="hit" style={{ "--i": i } as React.CSSProperties}>
+                    <Link className="hit-open" href={`/document/${encodeURIComponent(hit.docId)}?q=${encodeURIComponent(res.query)}`}>
+                      <span className="hit-title"><span className="tag">{badge}</span>{title}</span>
+                      <span className="hit-snippet">{hit.snippet?.text ?? snippet(hit.doc, 160)}</span>
+                    </Link>
+                  </li>
                 );
               })}
-            </div>
+            </ol>
           )}
-        </>
+          <Link href={`/app?q=${encodeURIComponent(res.query)}`} className="text-button">See all results in the app<Icon name="arrow" size={14} /></Link>
+        </div>
       )}
     </div>
   );

@@ -7,6 +7,8 @@ export interface GithubOptions {
   user: string;
   token?: string;
   deep?: boolean;
+  signal?: AbortSignal;
+  onProgress?: (completed: number, total: number) => void;
   /** Safety caps so one call can't fan out unboundedly. */
   maxRepos?: number;
   maxFilesPerRepo?: number;
@@ -51,6 +53,7 @@ async function gh<T>(
   path: string,
   token: string | undefined,
   accept = "application/vnd.github+json",
+  signal?: AbortSignal,
 ): Promise<GhResponse<T>> {
   const headers: Record<string, string> = {
     Accept: accept,
@@ -61,6 +64,7 @@ async function gh<T>(
 
   const res = await fetch(path.startsWith("http") ? path : `${API}${path}`, {
     headers,
+    signal: signal ? AbortSignal.any([signal, AbortSignal.timeout(30000)]) : AbortSignal.timeout(30000),
   });
   const remainingHeader = res.headers.get("x-ratelimit-remaining");
   const rateRemaining = remainingHeader === null ? null : Number(remainingHeader);
@@ -115,9 +119,10 @@ export function parseGithubTarget(input: string): GithubTarget {
 async function repoListPath(
   user: string,
   token: string | undefined,
+  signal?: AbortSignal,
 ): Promise<{ base: string; ownAccount: boolean }> {
   if (token) {
-    const me = await gh<{ login?: string }>("/user", token);
+    const me = await gh<{ login?: string }>("/user", token, undefined, signal);
     if (me.ok && me.data?.login?.toLowerCase() === user.toLowerCase()) {
       return {
         base: "/user/repos?per_page=100&affiliation=owner&sort=updated",
@@ -132,8 +137,9 @@ async function listRepos(
   user: string,
   token: string | undefined,
   maxRepos: number,
+  signal?: AbortSignal,
 ): Promise<{ repos: Repo[]; rateRemaining: number | null }> {
-  const { base } = await repoListPath(user, token);
+  const { base } = await repoListPath(user, token, signal);
   const repos: Repo[] = [];
   let rateRemaining: number | null = null;
 
@@ -141,6 +147,8 @@ async function listRepos(
     const res = await gh<Repo[] | { message?: string }>(
       `${base}&page=${page}`,
       token,
+      undefined,
+      signal,
     );
     rateRemaining = res.rateRemaining;
 
@@ -167,11 +175,13 @@ async function listRepos(
 async function fetchReadme(
   fullName: string,
   token: string | undefined,
+  signal?: AbortSignal,
 ): Promise<string | undefined> {
   const res = await gh<string>(
     `/repos/${fullName}/readme`,
     token,
     "application/vnd.github.raw",
+    signal,
   );
   if (!res.ok || typeof res.data !== "string") return undefined;
   return res.data.trim() || undefined;
@@ -180,7 +190,10 @@ async function fetchReadme(
 function repoDoc(repo: Repo, readme: string | undefined): Document {
   return {
     source: "github",
-    repo: repo.name,
+    sourceId: `github:${repo.full_name.toLowerCase()}:repository`,
+    type: "repository",
+    title: repo.full_name,
+    repo: repo.full_name,
     fullName: repo.full_name,
     description: repo.description ?? "",
     language: repo.language ?? "",
@@ -208,10 +221,13 @@ async function fetchRepoFiles(
   maxFiles: number,
   maxFileBytes: number,
   errors: string[],
+  signal?: AbortSignal,
 ): Promise<Document[]> {
   const tree = await gh<{ tree?: TreeEntry[]; message?: string }>(
     `/repos/${repo.full_name}/git/trees/${repo.default_branch}?recursive=1`,
     token,
+    undefined,
+    signal,
   );
   if (!tree.ok || !Array.isArray(tree.data.tree)) return [];
 
@@ -229,15 +245,20 @@ async function fetchRepoFiles(
     const blob = await gh<{ content?: string; encoding?: string }>(
       `/repos/${repo.full_name}/git/blobs/${entry.sha}`,
       token,
+      undefined,
+      signal,
     );
     if (!blob.ok || !blob.data.content) return null;
     try {
-      const content = Buffer.from(blob.data.content, "base64").toString("utf8");
+      const content = new TextDecoder("utf-8", { fatal: true }).decode(Buffer.from(blob.data.content, "base64"));
       if (content.trim().length === 0) return null;
       return {
         source: "github",
+        sourceId: `github:${repo.full_name.toLowerCase()}:file:${entry.path}`,
         type: "file",
-        repo: repo.name,
+        repo: repo.full_name,
+        fullName: repo.full_name,
+        language: repo.language ?? "",
         path: entry.path,
         url: `${repo.html_url}/blob/${repo.default_branch}/${entry.path}`,
         content,
@@ -256,10 +277,13 @@ async function fetchRepo(
   owner: string,
   repo: string,
   token: string | undefined,
+  signal?: AbortSignal,
 ): Promise<{ repo: Repo; rateRemaining: number | null }> {
   const res = await gh<Repo | { message?: string }>(
     `/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}`,
     token,
+    undefined,
+    signal,
   );
   if (!res.ok) {
     if (res.status === 404) throw new Error(`repository "${owner}/${repo}" not found`);
@@ -280,8 +304,10 @@ async function documentsForRepo(
   maxFilesPerRepo: number,
   maxFileBytes: number,
   errors: string[],
+  signal?: AbortSignal,
 ): Promise<Document[]> {
-  const readme = await fetchReadme(repo.full_name, token).catch(() => undefined);
+  signal?.throwIfAborted();
+  const readme = await fetchReadme(repo.full_name, token, signal).catch(() => undefined);
   const docs: Document[] = [repoDoc(repo, readme)];
 
   if (deep && fileBudget > 0) {
@@ -291,12 +317,14 @@ async function documentsForRepo(
       Math.min(maxFilesPerRepo, fileBudget),
       maxFileBytes,
       errors,
+      signal,
     ).catch((e) => {
       errors.push(`${repo.full_name}: ${e instanceof Error ? e.message : e}`);
       return [] as Document[];
     });
     docs.push(...files);
   }
+  signal?.throwIfAborted();
   return docs;
 }
 
@@ -322,12 +350,12 @@ export async function fetchGithubDocuments(
   let rateRemaining: number | null;
   let label: string;
   if (target.kind === "repo") {
-    const r = await fetchRepo(target.owner!, target.repo!, opts.token);
+    const r = await fetchRepo(target.owner!, target.repo!, opts.token, opts.signal);
     repos = [r.repo];
     rateRemaining = r.rateRemaining;
     label = `${target.owner}/${target.repo}`;
   } else {
-    const listed = await listRepos(target.user!, opts.token, caps.maxRepos);
+    const listed = await listRepos(target.user!, opts.token, caps.maxRepos, opts.signal);
     repos = listed.repos;
     rateRemaining = listed.rateRemaining;
     label = target.user!;
@@ -335,24 +363,31 @@ export async function fetchGithubDocuments(
 
   const docs: Document[] = [];
   let filesIndexed = 0;
+  let completed = 0;
 
   if (deep) {
     for (const repo of repos) {
       const budget = caps.maxTotalFiles - filesIndexed;
       const repoDocs = await documentsForRepo(
-        repo, opts.token, true, budget, caps.maxFilesPerRepo, caps.maxFileBytes, errors,
+        repo, opts.token, true, budget, caps.maxFilesPerRepo, caps.maxFileBytes, errors, opts.signal,
       );
       filesIndexed += repoDocs.filter((d) => d.type === "file").length;
       docs.push(...repoDocs);
+      opts.signal?.throwIfAborted();
+      opts.onProgress?.(++completed, repos.length);
     }
   } else {
     // No files to budget — fetch every repo's README concurrently.
     const perRepo = await mapLimit(repos, 8, (repo) =>
-      documentsForRepo(repo, opts.token, false, 0, 0, caps.maxFileBytes, errors),
+      documentsForRepo(repo, opts.token, false, 0, 0, caps.maxFileBytes, errors, opts.signal).then((docs) => {
+        opts.onProgress?.(++completed, repos.length);
+        return docs;
+      }),
     );
     for (const ds of perRepo) docs.push(...ds);
   }
 
+  opts.signal?.throwIfAborted();
   const summary: GithubSummary = {
     user: label,
     reposFound: repos.length,

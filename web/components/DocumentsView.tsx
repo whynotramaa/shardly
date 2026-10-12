@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { listDocuments, type DocumentList } from "@/lib/api";
 import { describe, snippet } from "@/lib/docmeta";
+import { Icon } from "@/components/ui";
 
 const PAGE = 25;
 
@@ -21,67 +22,36 @@ export default function DocumentsView() {
       .then((d) => active && setData(d))
       .catch((e) => active && setErr(e instanceof Error ? e.message : "Failed to load"))
       .finally(() => active && setBusy(false));
-    return () => {
-      active = false;
-    };
+    return () => { active = false; };
   }, [offset]);
 
   const total = data?.total ?? 0;
-  const from = total === 0 ? 0 : offset + 1;
   const to = Math.min(offset + PAGE, total);
 
   return (
-    <div>
-      <div className="panel">
-        <div className="row" style={{ justifyContent: "space-between" }}>
-          <span className="meta" style={{ margin: 0 }}>
-            {total > 0
-              ? `Showing ${from}–${to} of ${total.toLocaleString()} indexed documents`
-              : busy
-                ? "Loading…"
-                : "No documents indexed yet."}
-          </span>
-          <div className="row">
-            <button
-              className="pager"
-              onClick={() => setOffset(Math.max(0, offset - PAGE))}
-              disabled={busy || offset === 0}
-            >
-              ← Prev
-            </button>
-            <button
-              className="pager"
-              onClick={() => setOffset(offset + PAGE)}
-              disabled={busy || to >= total}
-            >
-              Next →
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {err && <div className="notice err">{err}</div>}
-
-      {total === 0 && !busy && !err && (
-        <p className="meta">
-          Head to <b>Upload</b> or <b>GitHub</b> to add documents.
-        </p>
-      )}
-
-      <div className="doc-list">
-        {data?.items.map((item) => {
+    <>
+      {err && <p className="alert" role="alert">{err}</p>}
+      {total === 0 && !busy && !err && <p className="hint"><Link className="text-link" href="/app?view=sources">Add a source</Link> to fill your library.</p>}
+      <ul className={`docs${busy ? " loading" : ""}`}>
+        {data?.items.map((item, i) => {
           const { title, badge } = describe(item.doc);
           return (
-            <Link key={item.id} href={`/document/${item.id}`} className="doc-row">
-              <div className="doc-row-head">
-                <span className={`badge src-${badge.split(" ")[0]}`}>{badge}</span>
-                <span className="doc-title">{title}</span>
-              </div>
-              <div className="doc-snippet">{snippet(item.doc)}</div>
-            </Link>
+            <li key={item.id} style={{ "--i": i } as React.CSSProperties}>
+              <Link href={`/document/${encodeURIComponent(item.id)}`}>
+                <span className="hit-title"><span className="tag">{badge}</span>{title}</span>
+                <span className="doc-snippet">{snippet(item.doc, 160)}</span>
+              </Link>
+            </li>
           );
         })}
-      </div>
-    </div>
+      </ul>
+      {total > PAGE && (
+        <nav className="pager" aria-label="Document pages">
+          <button type="button" className="button ghost small" onClick={() => setOffset(Math.max(0, offset - PAGE))} disabled={busy || offset === 0}><Icon name="back" size={14} />Previous</button>
+          <span className="mono">{offset + 1}–{to} of {total.toLocaleString()}</span>
+          <button type="button" className="button ghost small" onClick={() => setOffset(offset + PAGE)} disabled={busy || to >= total}>Next<Icon name="arrow" size={14} /></button>
+        </nav>
+      )}
+    </>
   );
 }
