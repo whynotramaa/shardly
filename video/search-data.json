@@ -19,7 +19,7 @@
       "record"
     ]
   },
-  "tookMs": 7.187930000000051,
+  "tookMs": 6.46285899999998,
   "total": 10,
   "candidates": 32,
   "postingReads": 42,
@@ -193,5 +193,251 @@
     "segment": "segment-0000.log",
     "byteOffset": 122996,
     "length": 3304
+  },
+  "analysis": [
+    {
+      "word": "Recovery",
+      "lower": "recovery",
+      "stop": false,
+      "term": "recovery"
+    },
+    {
+      "word": "replays",
+      "lower": "replays",
+      "stop": false,
+      "term": "replay"
+    },
+    {
+      "word": "durable",
+      "lower": "durable",
+      "stop": false,
+      "term": "durable"
+    },
+    {
+      "word": "records",
+      "lower": "records",
+      "stop": false,
+      "term": "record"
+    },
+    {
+      "word": "after",
+      "lower": "after",
+      "stop": false,
+      "term": "after"
+    },
+    {
+      "word": "a",
+      "lower": "a",
+      "stop": true,
+      "term": "a"
+    },
+    {
+      "word": "process",
+      "lower": "process",
+      "stop": false,
+      "term": "process"
+    },
+    {
+      "word": "crash",
+      "lower": "crash",
+      "stop": false,
+      "term": "crash"
+    }
+  ],
+  "idfs": [
+    {
+      "term": "http",
+      "df": 2400,
+      "idf": 0.019594315661221714
+    },
+    {
+      "term": "crash",
+      "df": 22,
+      "idf": 4.689511334421843
+    },
+    {
+      "term": "recovery",
+      "df": 20,
+      "idf": 4.782601757487854
+    }
+  ],
+  "corpus": {
+    "vocabulary": 26496,
+    "avgdl": 82.82795259501431,
+    "lengths": [
+      402,
+      872,
+      135,
+      871
+    ]
+  },
+  "entries": [
+    {
+      "id": "249c47c1-8be4-4667-a0e9-dfab953adfeb",
+      "title": "demo.ts",
+      "segment": "segment-0000.log",
+      "byteOffset": 122996,
+      "length": 3304,
+      "checksum": "7a00ef15e038a6804dd8b43c9f612a50bb5b7415d5d8d34309dc4af600832c5d"
+    },
+    {
+      "id": "392b2ab1-dcbb-4970-8d92-f3f39d48aa08",
+      "title": "VERIFICATION.md",
+      "segment": "segment-0000.log",
+      "byteOffset": 416563,
+      "length": 7200,
+      "checksum": "3feaf6a9037694abbb55251f62ececed200ac4c5bccf698d333fe75b5f77f8ac"
+    },
+    {
+      "id": "9bf38194-e5ec-4234-a139-8ab74ef8328f",
+      "title": "PRODUCT.md",
+      "segment": "segment-0000.log",
+      "byteOffset": 395175,
+      "length": 1317,
+      "checksum": "cb70dad561fa9f846eb187fb92109a5d421628c8a166d9f6c94a81816e9702e7"
+    },
+    {
+      "id": "4933af63-bafa-4f04-8847-d485a3eed9c1",
+      "title": "compare-fts.ts",
+      "segment": "segment-0000.log",
+      "byteOffset": 346630,
+      "length": 6606,
+      "checksum": "fa244b3600546134d993629daa82d0b6a51eb0b2a180c615fea5c243d95f0ab1"
+    }
+  ],
+  "wal": {
+    "id": "a8958700-22d4-426a-8854-a2531b63adcb",
+    "wal": [
+      {
+        "docId": "a8958700-22d4-426a-8854-a2531b63adcb",
+        "segment": "segment-0000.log",
+        "byteOffset": 0,
+        "length": 152,
+        "dataChecksum": "9305bc1d167daf4e0a51ef103ae08a60b99d23111fcf2b99999e80494cbe96bd",
+        "op": "write",
+        "status": "pending",
+        "checksum": "eb8298158d6d0e7ffdb504c81d3ebebecfa7e964c77a141ca24d2fac8f80c4e7"
+      },
+      {
+        "docId": "a8958700-22d4-426a-8854-a2531b63adcb",
+        "segment": "segment-0000.log",
+        "byteOffset": 0,
+        "length": 152,
+        "dataChecksum": "9305bc1d167daf4e0a51ef103ae08a60b99d23111fcf2b99999e80494cbe96bd",
+        "op": "write",
+        "status": "committed",
+        "checksum": "f73fd314291fdb2e42145db7263a862e499c7e69cf6b3a18eb4b03a475e80cb3"
+      }
+    ],
+    "segment": "{\"id\":\"a8958700-22d4-426a-8854-a2531b63adcb\",\"doc\":{\"title\":\"Crash recovery guide\",\"content\":\"Recovery replays durable records after a process crash.\"}}"
+  },
+  "titles": {
+    "code": [
+      "config.ts",
+      "engine.ts",
+      "types.ts",
+      "storage.ts",
+      "wal.ts",
+      "heap.ts",
+      "index.ts",
+      "rank.ts",
+      "tokenizer.ts",
+      "demo-writer.ts",
+      "demo.ts",
+      "engine.ts",
+      "worker.ts",
+      "corpus.ts",
+      "demo.ts",
+      "extract.ts",
+      "folders.ts",
+      "github.ts",
+      "jobs.ts",
+      "wikipedia.ts",
+      "routes.ts",
+      "server.ts",
+      "validation.ts",
+      "api-features.test.ts",
+      "api.test.ts",
+      "corpus.test.ts",
+      "demo.test.ts",
+      "engine-next.test.ts",
+      "extract.test.ts",
+      "folders.test.ts",
+      "github.test.ts",
+      "index.test.ts",
+      "ingestion-integration.test.ts",
+      "jobs.test.ts",
+      "rank.test.ts",
+      "relevance-metrics.test.ts",
+      "runtime.test.ts",
+      "search-features.test.ts",
+      "storage-hardening.test.ts",
+      "storage.test.ts",
+      "tokenizer.test.ts",
+      "website-analyzer.test.ts",
+      "workspace.test.ts",
+      "bench-concurrent.ts",
+      "bench.ts",
+      "compare-fts.ts",
+      "crash-test.ts",
+      "crash-writer.ts",
+      "evaluate-real.ts",
+      "evaluate.ts",
+      "fetch-wikipedia.ts",
+      "relevance-metrics.ts",
+      "seed-demo.ts",
+      "seed.ts"
+    ],
+    "docs": [
+      "DATASETS.md",
+      "DESIGN.md",
+      "ENGINEERING.md",
+      "FEATURES.md",
+      "PRODUCT.md",
+      "README.md",
+      "VERIFICATION.md"
+    ],
+    "wiki": [
+      "Fruitvale, Colorado",
+      "Mailsort",
+      "William Pickersgill",
+      "KDYA",
+      "Repoxygen",
+      "Ken Bartholomew",
+      "Feller from Fortune",
+      "Şorbaçı, Jalilabad",
+      "Robin Frijns",
+      "Kingston, Arkansas",
+      "Todor Trayanov",
+      "Preherpetic neuralgia",
+      "Ostrocerca dimicki",
+      "Perfect Union",
+      "Douglas O-38",
+      "1938",
+      "Arslan-Shah of Ghazna",
+      "Number (music)",
+      "Uzun Tappeh",
+      "Michael Reisch",
+      "Dascha Polanco",
+      "Al-Funduq",
+      "Goran Karadžić",
+      "Jin Ju-hyung",
+      "Adagnesia opaca",
+      "Wickford Harbor Light",
+      "Jim Duffy (animator)",
+      "Aethes sonorae",
+      "Chen Shaoliang",
+      "Keith D. Cooper",
+      "David Ngodiga",
+      "Castagna (restaurant)",
+      "Leif Bech",
+      "Paris selon Moussa",
+      "ASG Baseball",
+      "Jack Reid (politician)",
+      "Ninth Dynasty of Egypt",
+      "Toshiyuki Kajiyama",
+      "Bernard Kleiman",
+      "USS Dauntless (SP-1002)"
+    ]
   }
 }

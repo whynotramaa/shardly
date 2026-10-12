@@ -6,7 +6,8 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { Engine } from "../../src/engine.js";
-import { tokenize, tokenizeDetailed } from "../../src/search/tokenizer.js";
+import { tokenize, tokenizeDetailed, surfaceTokens, stem } from "../../src/search/tokenizer.js";
+import { Storage } from "../../src/storage/storage.js";
 
 const root = path.resolve(import.meta.dirname, "../..");
 const query = process.argv[2] ?? "crash recovery";
@@ -43,6 +44,19 @@ try {
     return (at > 0 ? "…" : "") + cut + (line.length > at + 64 ? "…" : "");
   };
   const topId = res.hits[0]!.docId;
+  const full = index as unknown as { terms(): string[]; documentLength(id: string): number; averageDocumentLength(): number; documentCount(): number };
+  // The tokenizer demo sentence is the real passage the preview highlights.
+  const sentence = "Recovery replays durable records after a process crash.";
+  const kept = new Set(tokenizeDetailed(sentence).map((t) => t.position));
+  const analysis = surfaceTokens(sentence).map((t) => ({ word: t.original, lower: t.term, stop: !kept.has(t.position), term: stem(t.term) }));
+  // IDF contrast: the most common indexed term against the query terms.
+  const vocab = full.terms();
+  let common = vocab[0]!; for (const v of vocab) if (index.documentFrequency(v) > index.documentFrequency(common)) common = v;
+  const N = full.documentCount();
+  const idfOf = (df: number) => Math.log((N - df + 0.5) / (df + 0.5) + 1);
+  const idfs = [common, ...terms].map((term) => ({ term, df: index.documentFrequency(term), idf: idfOf(index.documentFrequency(term)) }));
+  const lengths = res.hits.map((h) => full.documentLength(h.docId));
+  const entries = res.hits.map((h) => { const e = (storage.offsetIndex.get(h.docId) as unknown as { segment: string; byteOffset: number; length: number; checksum?: string }); return { id: h.docId, title: String(h.doc.title), segment: e.segment, byteOffset: e.byteOffset, length: e.length, checksum: e.checksum ?? "" }; });
   const offset = storage.offsetIndex.get(topId)!;
   const out = {
     query,
@@ -58,7 +72,25 @@ try {
     baseline: base.hits.map((h) => ({ title: String(h.doc.title), score: h.score, breakdown: h.breakdown.map((b) => ({ term: b.term, tf: b.termFrequency, idf: b.idf, contribution: b.contribution })) })),
     postings,
     storage: { segment: offset.segment, byteOffset: offset.byteOffset, length: offset.length },
+    analysis,
+    idfs,
+    corpus: { vocabulary: vocab.length, avgdl: full.averageDocumentLength(), lengths },
+    entries,
+    wal: walSample(),
+    titles: { code: code.map((f) => path.basename(f)), docs, wiki: wiki.filter((w) => String(w.title).length < 24).slice(0, 40).map((w) => String(w.title)) },
   };
   fs.writeFileSync(path.join(root, "video/search-data.json"), JSON.stringify(out, null, 2));
   console.log(JSON.stringify(out, null, 2));
 } finally { engine.close(); fs.rmSync(dir, { recursive: true, force: true }); }
+
+// Real on-disk bytes for one acknowledged write: the WAL pending/committed pair and the segment line.
+function walSample() {
+  const d = fs.mkdtempSync(path.join(os.tmpdir(), "shardly-wal-"));
+  const s = new Storage(d);
+  try {
+    const id = s.write({ title: "Crash recovery guide", content: "Recovery replays durable records after a process crash." });
+    const wal = fs.readFileSync(path.join(d, "wal.log"), "utf8").trim().split("\n").map((l) => JSON.parse(l));
+    const segment = fs.readFileSync(path.join(d, "segments", "segment-0000.log"), "utf8").trim();
+    return { id, wal, segment };
+  } finally { s.close(); fs.rmSync(d, { recursive: true, force: true }); }
+}

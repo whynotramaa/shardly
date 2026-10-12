@@ -5,46 +5,38 @@
 <title>Shardly film</title>
 <link rel="stylesheet" href="fonts/fonts.css">
 <style>
-  :root {
-    --bg: #0b0b0c; --surface: #141416; --surface-2: #1b1b1e; --surface-3: #242428;
-    --ink: #ededec; --ink-2: #b9b9bd; --ink-muted: #87878c; --hair: #2a2a2e; --hair-2: #3a3a3f;
-    --ember: #c4552e; --ember-text: #e27950; --ember-soft: rgba(196, 85, 46, 0.16);
-    --serif: "Instrument Serif", serif; --sans: "Syne", sans-serif; --mono: "Geist Mono", monospace;
-  }
+  :root { --serif: "Zarathustra", "Coconat", serif; --sans: "Syne", sans-serif; --mono: "Geist Mono", monospace; }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  html, body { width: 1920px; height: 1080px; overflow: hidden; background: var(--bg); }
-  #stage { position: relative; width: 1920px; height: 1080px; overflow: hidden; background: var(--bg); color: var(--ink); }
-  .abs { position: absolute; left: 0; top: 0; will-change: transform, opacity; }
-  .serif { font-family: var(--serif); font-weight: 400; letter-spacing: -0.01em; white-space: nowrap; }
-  .mono { font-family: var(--mono); white-space: nowrap; }
+  html, body { width: 1920px; height: 1080px; overflow: hidden; background: #f4f4f3; }
+  #stage { position: relative; width: 1920px; height: 1080px; overflow: hidden; background: #f4f4f3; color: var(--ink); }
+  .layer { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; }
+  .abs { position: absolute; left: 0; top: 0; }
+  .serif { font-family: var(--serif); font-weight: 400; white-space: nowrap; }
   .sans { font-family: var(--sans); white-space: nowrap; }
-  .label { font-family: var(--mono); font-size: 17px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-muted); white-space: nowrap; }
+  .mono { font-family: var(--mono); white-space: nowrap; }
+  .label { font-family: var(--mono); font-size: 16px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); white-space: nowrap; }
+  .mw { display: inline-block; overflow: hidden; vertical-align: top; padding: 0.1em 0.06em 0.24em; margin: -0.1em -0.06em -0.24em; }
+  .mi { display: inline-block; }
+  .em { color: var(--ember-text); }
+  .chip { position: absolute; font-family: var(--mono); color: var(--ember-text); background: var(--ember-soft); border: 1.5px solid var(--ember); border-radius: 2px; white-space: nowrap; }
+  .tag { font-family: var(--mono); font-size: 14px; letter-spacing: 0.12em; color: var(--muted); border: 1px solid var(--hair2); padding: 3px 8px; border-radius: 2px; display: inline-block; white-space: nowrap; }
+  .card { position: absolute; width: 300px; height: 176px; background: var(--surface); border: 1px solid var(--hair2); border-radius: 3px; padding: 18px 20px; backface-visibility: hidden; }
+  .card .ttl { font-family: var(--sans); font-weight: 600; font-size: 22px; color: var(--ink); margin-top: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .card .ln { height: 7px; background: var(--s3); margin-top: 13px; border-radius: 1px; }
+  .halo { text-shadow: 0 0 28px var(--bg), 0 0 14px var(--bg), 0 0 6px var(--bg); }
   svg { position: absolute; left: 0; top: 0; overflow: visible; }
-  .card { width: 250px; height: 150px; border: 1px solid var(--hair-2); background: var(--surface); border-radius: 3px; padding: 18px 20px; }
-  .card .tag { font-family: var(--mono); font-size: 14px; letter-spacing: 0.12em; color: var(--ink-muted); border: 1px solid var(--hair-2); padding: 3px 7px; border-radius: 2px; display: inline-block; }
-  .card .ttl { font-family: var(--sans); font-weight: 600; font-size: 21px; color: var(--ink); margin-top: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .card .ln { height: 6px; background: var(--surface-3); margin-top: 12px; border-radius: 1px; }
-  .chip { font-family: var(--mono); color: var(--ember-text); background: var(--ember-soft); border: 1px solid rgba(196,85,46,0.55); border-radius: 2px; padding: 6px 14px; display: inline-block; white-space: nowrap; }
-  .typetag { font-family: var(--mono); font-size: 14px; letter-spacing: 0.12em; color: var(--ink-muted); border: 1px solid var(--hair-2); padding: 2px 7px; border-radius: 2px; }
-  #iso3d { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; perspective: 5200px; perspective-origin: 960px 420px; }
-  #iso { position: absolute; left: 0; top: 0; width: 0; height: 0; transform-style: preserve-3d; }
-  .plate { position: absolute; left: -560px; top: -170px; width: 1120px; height: 340px; background: #111113; border: 1.5px solid #3a3a3f; border-radius: 4px; }
-  .plate .pl { position: absolute; left: 28px; top: 22px; font-family: var(--mono); font-size: 20px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-muted); }
-  .plate .mk { position: absolute; width: 1px; height: 1px; }
-  .plate > *:not(.mk) { opacity: var(--dim, 1); }
-  .sq { position: absolute; width: 24px; height: 24px; border: 1px solid #3a3a3f; border-radius: 1px; }
-  .hl { color: var(--ember-text); }
 </style>
 </head>
 <body>
 <div id="stage"></div>
 <script>
-// Every visual is a pure function of t (seconds). seek(t) renders one frame.
-// Beat grid: 120 BPM, one beat every 0.5 s. Major cuts land on beats.
-const W = 1920, H = 1080, FPS = 30, DURATION = 30;
+// Every frame is a pure function of t (seconds): seek(t) renders it.
+// Scene starts live in timeline.json, shared with the score in scripts/sound.py.
+const TL = __TIMELINE__;
 const DATA = __SEARCH_DATA__;
+const W = 1920, H = 1080, FPS = TL.fps, DURATION = TL.duration;
 
-// ---------- easing ----------
+// ---------- easing and time ----------
 function bezier(x1, y1, x2, y2) {
   const cx = 3 * x1, bx = 3 * (x2 - x1) - cx, ax = 1 - cx - bx;
   const cy = 3 * y1, by = 3 * (y2 - y1) - cy, ay = 1 - cy - by;
@@ -59,547 +51,1104 @@ function bezier(x1, y1, x2, y2) {
 const ease = bezier(0.16, 1, 0.3, 1);            // the product's motion curve
 const easeIn = bezier(0.7, 0, 0.84, 0);
 const easeInOut = bezier(0.65, 0, 0.35, 1);
+const snap = bezier(0.2, 0.9, 0.2, 1);
 const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
 const lin = (t, a, b) => clamp((t - a) / (b - a));
 const E = (t, a, b, f = ease) => f(lin(t, a, b));
 const mix = (a, b, p) => a + (b - a) * p;
 const env = (t, a, b, c, d) => Math.min(E(t, a, b), 1 - E(t, c, d, easeIn));
+const fmt = (n, d = 2) => n.toFixed(d);
+const fmtInt = (n) => Math.round(n).toLocaleString("en-US");
+function rng(seed) { return () => { seed |= 0; seed = (seed + 0x6d2b79f5) | 0; let x = Math.imul(seed ^ (seed >>> 15), 1 | seed); x = (x + Math.imul(x ^ (x >>> 7), 61 | x)) ^ x; return ((x ^ (x >>> 14)) >>> 0) / 4294967296; }; }
+
+// ---------- theme: light and dark tokens from DESIGN.md, interpolated per frame ----------
+const LIGHT = { bg: "#f4f4f3", surface: "#ffffff", s2: "#ececeb", s3: "#e2e2e0", ink: "#17171a", ink2: "#3d3d43", muted: "#6b6b72", hair: "#dededb", hair2: "#c6c6c2", ember: "#b0431d", "ember-text": "#a33c17" };
+const DARK = { bg: "#0b0b0c", surface: "#141416", s2: "#1b1b1e", s3: "#242428", ink: "#ededec", ink2: "#b9b9bd", muted: "#87878c", hair: "#2a2a2e", hair2: "#3a3a3f", ember: "#c4552e", "ember-text": "#e27950" };
+const hex = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
+const TOK = {};
+function setTheme(th) {
+  for (const k in LIGHT) {
+    const a = hex(LIGHT[k]), b = hex(DARK[k]);
+    TOK[k] = a.map((v, i) => Math.round(mix(v, b[i], th)));
+    stage.style.setProperty(`--${k}`, `rgb(${TOK[k].join(",")})`);
+  }
+  stage.style.setProperty("--ember-soft", `rgba(${TOK.ember.join(",")},${mix(0.12, 0.17, th)})`);
+  stage.style.setProperty("--grid", `rgba(${TOK.ink.join(",")},${mix(0.045, 0.03, th)})`);
+}
+const rgba = (k, a = 1) => `rgba(${TOK[k].join(",")},${a})`;
 
 // ---------- DOM helpers ----------
 const stage = document.getElementById("stage");
 function el(tag, cls, html, parent = stage) { const n = document.createElement(tag); if (cls) n.className = cls; if (html !== undefined) n.innerHTML = html; parent.appendChild(n); return n; }
+const div = (cls, html, parent) => el("div", cls, html, parent);
+const layer = (parent = stage) => div("layer", "", parent);
 const SVGNS = "http://www.w3.org/2000/svg";
-function svgEl(tag, attrs, parent) { const n = document.createElementNS(SVGNS, tag); for (const k in attrs) n.setAttribute(k, attrs[k]); parent.appendChild(n); return n; }
-function place(n, x, y, { o = 1, s = 1, blur = 0, ax = 0, ay = 0, r = 0 } = {}) {
-  n.style.transform = `translate(${x}px, ${y}px) translate(${-ax * 100}%, ${-ay * 100}%) scale(${s}) rotate(${r}deg)`;
+function svgEl(tag, attrs, parent, style = {}) { const n = document.createElementNS(SVGNS, tag); for (const k in attrs) n.setAttribute(k, attrs[k]); Object.assign(n.style, style); parent.appendChild(n); return n; }
+const svgLayer = (parent) => svgEl("svg", { width: W, height: H }, parent);
+function place(n, x, y, { o = 1, s = 1, blur = 0, ax = 0, ay = 0, r = 0, sx = 1, sy = 1 } = {}) {
+  n.style.transform = `translate(${x}px, ${y}px) translate(${-ax * 100}%, ${-ay * 100}%) scale(${s * sx}, ${s * sy}) rotate(${r}deg)`;
   n.style.opacity = o; n.style.filter = blur > 0.05 ? `blur(${blur}px)` : "none";
   n.style.visibility = o <= 0.001 ? "hidden" : "visible";
 }
-function setLine(l, x1, y1, x2, y2, o = 1, color, width) {
-  l.setAttribute("x1", x1); l.setAttribute("y1", y1); l.setAttribute("x2", x2); l.setAttribute("y2", y2);
-  l.setAttribute("opacity", o); if (color) l.setAttribute("stroke", color); if (width) l.setAttribute("stroke-width", width);
+function setLine(l, x1, y1, x2, y2, o = 1) {
+  l.setAttribute("x1", x1); l.setAttribute("y1", y1); l.setAttribute("x2", x2); l.setAttribute("y2", y2); l.style.opacity = o;
 }
-const fmt = (n, d = 2) => n.toFixed(d);
-const fmtInt = (n) => Math.round(n).toLocaleString("en-US");
-const center = (n) => { const r = n.getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2]; };
+const rect = (n) => n.getBoundingClientRect();
+const show = (n, on) => { n.style.display = on ? "" : "none"; };
+const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;");
 
-// ================= chrome: a technical-drawing frame =================
-const grid = svgEl("svg", { width: W, height: H }, stage);
-for (let x = 120; x < W; x += 120) svgEl("line", { x1: x, y1: 0, x2: x, y2: H, stroke: "#ededec", "stroke-width": 1, opacity: 0.028 }, grid);
-for (let y = 120; y < H; y += 120) svgEl("line", { x1: 0, y1: y, x2: W, y2: y, stroke: "#ededec", "stroke-width": 1, opacity: 0.028 }, grid);
-const chromeSvg = svgEl("svg", { width: W, height: H }, stage);
-for (const [cx, cy, sx, sy] of [[64, 64, 1, 1], [W - 64, 64, -1, 1], [64, H - 64, 1, -1], [W - 64, H - 64, -1, -1]])
-  svgEl("path", { d: `M${cx} ${cy + 28 * sy} L${cx} ${cy} L${cx + 28 * sx} ${cy}`, stroke: "#87878c", fill: "none", "stroke-width": 1 }, chromeSvg);
-const secLabel = el("div", "abs label"), secLabelPrev = el("div", "abs label"), timecode = el("div", "abs label");
-const footLeft = el("div", "abs label", "shardly &nbsp;·&nbsp; a search engine you can read"), footRight = el("div", "abs label");
-const SECTIONS = [[0, "01 &nbsp;/&nbsp; what"], [4.0, "02 &nbsp;/&nbsp; search"], [9.0, "03 &nbsp;/&nbsp; inside"], [19.0, "04 &nbsp;/&nbsp; crash"], [25.0, "05 &nbsp;/&nbsp; shardly"]];
+// Masked line text: words rise out of their own clip boxes. *word* marks the accent.
+function maskText(parent, cls, text, size) {
+  const n = div(`abs ${cls}`, "", parent); n.style.fontSize = `${size}px`;
+  const parts = [];
+  text.split(" ").forEach((w, i) => {
+    if (i) n.appendChild(document.createTextNode(" "));
+    const accent = /^\*.*\*[.,?]?$/.test(w);
+    const wrap = el("span", "mw", "", n), inner = el("span", "mi" + (accent ? " em" : ""), esc(w.replace(/\*/g, "")), wrap);
+    parts.push(inner);
+  });
+  n.parts = parts; return n;
+}
+function maskAnim(n, t, tin, tout = Infinity, { dur = 0.8, st = 0.07, outDur = 0.5 } = {}) {
+  let vis = false;
+  n.parts.forEach((p, i) => {
+    const a = E(t, tin + i * st, tin + i * st + dur), b = tout === Infinity ? 0 : E(t, tout + i * st * 0.5, tout + i * st * 0.5 + outDur, easeIn);
+    p.style.transform = `translateY(${(1 - a) * 115 - b * 115}%)`;
+    if (a > 0 && b < 1) vis = true;
+  });
+  n.style.visibility = vis ? "visible" : "hidden";
+}
+function typeOn(n, text, t, t0, cps = 40) { const k = clamp(Math.floor((t - t0) * cps), 0, text.length); n.textContent = text.slice(0, k); return k; }
 
-// ================= SCENE 1: what it is =================
-// Card names are real files and articles from the indexed corpus; the PDF
-// stands for a file type the product ingests.
-const CARDS = [
-  ["TS", "storage.ts", -620, -250, -4], ["MD", "README.md", 470, -300, 3], ["WIKI", "Mailsort", -330, 250, 2],
-  ["TS", "wal.ts", 650, 120, -3], ["PDF", "design-review.pdf", -760, 60, 2], ["MD", "ENGINEERING.md", 120, -360, -2],
-  ["REPO", "whynotramaa/shardly", 310, 300, 4], ["JSON", "fixtures.json", -120, 360, -3], ["TS", "crash-test.ts", -470, -60, 3],
-  ["WIKI", "Fruitvale, Colorado", 760, -110, -2], ["MD", "PRODUCT.md", -720, 330, -4], ["TS", "rank.ts", 230, 70, 2],
+// ================= backdrop: paper, night wipe, grid, frame =================
+const night = div("layer"); night.style.background = DARK.bg;
+const day = div("layer"); day.style.background = LIGHT.bg;
+const gridSvg = svgLayer(stage);
+for (let x = 120; x < W; x += 120) svgEl("line", { x1: x, y1: 0, x2: x, y2: H }, gridSvg, { stroke: "var(--grid)" });
+for (let y = 120; y < H; y += 120) svgEl("line", { x1: 0, y1: y, x2: W, y2: y }, gridSvg, { stroke: "var(--grid)" });
+const frameSvg = svgLayer(stage);
+const corners = [[64, 64, 1, 1], [W - 64, 64, -1, 1], [64, H - 64, 1, -1], [W - 64, H - 64, -1, -1]].map(([cx, cy, sx, sy]) =>
+  svgEl("path", { d: `M${cx} ${cy + 30 * sy} L${cx} ${cy} L${cx + 30 * sx} ${cy}`, fill: "none", "stroke-width": 1.2 }, frameSvg, { stroke: "var(--muted)" }));
+const timecode = div("abs label");
+const brandTag = div("abs label", "shardly");
+
+// motion blur filters: one horizontal gaussian per sliding layer
+const defs = svgEl("defs", {}, svgLayer(stage));
+let mbCount = 0;
+function motionBlur(n) {
+  const id = `mb${mbCount++}`, f = svgEl("filter", { id, x: "-10%", y: "-10%", width: "120%", height: "120%" }, defs);
+  const g = svgEl("feGaussianBlur", { stdDeviation: "0 0" }, f);
+  return (amount) => { if (amount < 0.3) n.style.filter = "none"; else { g.setAttribute("stdDeviation", `${amount} 0`); n.style.filter = `url(#${id})`; } };
+}
+
+// ================= 01 OPEN: the answer is somewhere in your files =================
+const S1 = layer();
+const caret0 = div("abs", "", S1); caret0.style.cssText += "width:6px;height:96px;background:var(--ember);";
+const hookA = maskText(S1, "serif", "Somewhere in your files", 128);
+const hookB = maskText(S1, "serif", "is the *answer* you need.", 128);
+const field3d = div("layer", "", S1); field3d.style.perspective = "1200px"; field3d.style.perspectiveOrigin = "960px 540px";
+const fieldWorld = div("abs", "", field3d); fieldWorld.style.cssText += "transform-style:preserve-3d;transform:translate(960px,540px);";
+const CARD_KINDS = [
+  ...DATA.titles.code.slice(0, 22).map((t) => ["TS", t]),
+  ...DATA.titles.docs.map((t) => ["MD", t]),
+  ...DATA.titles.wiki.slice(0, 22).map((t) => ["WIKI", t]),
+  ["PDF", "design-review.pdf"], ["PDF", "postmortem-q3.pdf"], ["PDF", "onboarding.pdf"], ["PDF", "rfc-0007.pdf"],
+  ["REPO", "whynotramaa/shardly"], ["REPO", "shardly/web"], ["JSON", "fixtures.json"], ["NDJSON", "wikipedia.ndjson"],
 ];
-const GROUP = { TS: 0, JSON: 0, MD: 1, PDF: 2, REPO: 2, WIKI: 2 };
-const cardEls = CARDS.map(([tag, title]) => {
-  const c = el("div", "abs card");
-  c.innerHTML = `<span class="tag">${tag}</span><div class="ttl">${title}</div><div class="ln" style="width:86%"></div><div class="ln" style="width:62%"></div>`;
-  return c;
+const R1 = rng(7);
+const fieldCards = CARD_KINDS.map(([tag, title], i) => {
+  const c = div("card", `<span class="tag">${tag}</span><div class="ttl">${esc(title)}</div><div class="ln" style="width:88%"></div><div class="ln" style="width:64%"></div><div class="ln" style="width:76%"></div>`, fieldWorld);
+  const side = i % 2 ? 1 : -1;
+  return { c, x: side * (260 + R1() * 1250), y: (R1() - 0.5) * 1150, z0: -300 - R1() * 3900, ry: (R1() - 0.5) * 16, rx: (R1() - 0.5) * 10, tag };
 });
-const WORDS = ["Your code.", "Your docs.", "Your PDFs, repos, wikis."];
-const wordEls = WORDS.map((w) => { const n = el("div", "abs serif", w); n.style.fontSize = "124px"; return n; });
-const oneBox = el("div", "abs serif", "One search box."); oneBox.style.fontSize = "112px";
-const subLine = el("div", "abs mono", "local full-text search for your files, repos and pdfs");
-subLine.style.cssText += "font-size:24px;color:var(--ink-2);letter-spacing:0.01em;";
+const countNum = div("abs serif halo", "", S1); countNum.style.fontSize = "150px"; countNum.style.lineHeight = "1";
+const countLbl = div("abs mono halo", `documents &nbsp;·&nbsp; ${DATA.mix.code} source files &nbsp;·&nbsp; ${DATA.mix.docs} docs &nbsp;·&nbsp; ${fmtInt(DATA.mix.wikipedia)} wikipedia articles`, S1);
+countLbl.style.cssText += "font-size:24px;color:var(--ink2);";
+const finds = maskText(S1, "serif halo", "*Shardly* finds it.", 150);
 
-// ================= SCENE 2: the search box and the demo =================
-const boxSvg = svgEl("svg", { width: W, height: H }, stage);
-const boxRect = svgEl("rect", { fill: "#0b0b0c", stroke: "#3a3a3f", "stroke-width": 1.4, rx: 6 }, boxSvg);
-const boxUnder = svgEl("line", { stroke: "#c4552e", "stroke-width": 2 }, boxSvg);
-const scanSweep = svgEl("line", { stroke: "#c4552e", "stroke-width": 3 }, boxSvg);
-const searchBtn = el("div", "abs mono", "Search");
-searchBtn.style.cssText += "font-size:22px;color:#0b0b0c;background:var(--ember);height:62px;width:146px;display:flex;align-items:center;justify-content:center;border-radius:3px;font-weight:600;letter-spacing:0.04em;";
-const qText = el("div", "abs mono", ""); qText.style.cssText += "font-size:42px;white-space:pre;color:var(--ink);";
-const caret = el("div", "abs"); caret.style.cssText += "width:3px;height:48px;background:var(--ember);";
+// ================= 02 SEARCH: the product, for real =================
+const S2 = layer();
+const uiGroup = layer(S2);
+const idleTitle = maskText(uiGroup, "serif", "Search everything you have.", 76);
+const boxSvg = svgLayer(uiGroup);
+const boxRect = svgEl("rect", { rx: 6 }, boxSvg, { fill: "var(--surface)", stroke: "var(--hair2)", strokeWidth: 1.4 });
+const boxUnder = svgEl("line", { "stroke-width": 2 }, boxSvg, { stroke: "var(--ember)" });
+const scanSweep = svgEl("line", { "stroke-width": 3 }, boxSvg, { stroke: "var(--ember)" });
+const placeholder = div("abs mono", "Search code, docs, PDFs and repos", uiGroup); placeholder.style.cssText += "font-size:36px;color:var(--muted);";
+const qText = div("abs mono", "", uiGroup); qText.style.cssText += "font-size:40px;white-space:pre;color:var(--ink);";
+const caret = div("abs", "", uiGroup); caret.style.cssText += "width:3px;height:46px;background:var(--ember);";
 const QUERY = DATA.query;
-const Q_T = Array.from(QUERY, (_, i) => 4.55 + i * 0.058 + (i % 5 === 2 ? 0.03 : 0));
-const statChip = el("div", "abs mono", `${DATA.total} results &nbsp;·&nbsp; ${fmtInt(DATA.documents)} documents searched &nbsp;·&nbsp; <span class="hl">${DATA.tookMs.toFixed(1)} ms</span>`);
-statChip.style.cssText += "font-size:21px;color:var(--ink-muted);letter-spacing:0.02em;";
-const ROW_X = 300, ROW_W = 1320, ROW_H = 124, ROW_Y0 = 380;
+const Q_T = Array.from(QUERY, (_, i) => TL.type + i * 0.082 + (i % 4 === 1 ? 0.035 : 0) + (i > 5 ? 0.06 : 0));
+const searchBtn = div("abs mono", "<span>Search</span>", S2);
+searchBtn.style.cssText += "font-size:22px;color:#fff;background:var(--ember);display:flex;align-items:center;justify-content:center;border-radius:3px;font-weight:600;letter-spacing:0.04em;";
+const statLine = div("abs mono", `${DATA.total} results &nbsp;·&nbsp; ${fmtInt(DATA.documents)} documents searched &nbsp;·&nbsp; <span class="em">${DATA.tookMs.toFixed(1)} ms</span>`, uiGroup);
+statLine.style.cssText += "font-size:21px;color:var(--muted);";
+const ROW_X = 340, ROW_W = 1240, ROW_H = 128, ROW_Y0 = 330;
 const TYPE_TAG = { code: "CODE", markdown: "MARKDOWN", article: "WIKI" };
-function markTerms(text) {
-  const re = new RegExp(`(${DATA.queryTerms.join("|")})`, "gi");
-  return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(re, `<span class="m">$1</span>`);
-}
+const markTerms = (text) => esc(text).replace(new RegExp(`(${DATA.queryTerms.join("|")})`, "gi"), `<span class="m">$1</span>`);
 const rows = DATA.hits.map((h, i) => {
-  const row = el("div", "abs"); row.style.cssText += `width:${ROW_W}px;height:${ROW_H}px;`;
-  const rank = el("div", "abs mono", String(i + 1).padStart(2, "0"), row); rank.style.cssText += "font-size:19px;color:var(--ink-muted);top:8px;";
-  const title = el("div", "abs sans", h.title, row); title.style.cssText += "font-size:32px;font-weight:600;color:var(--ember-text);left:56px;top:0;";
-  const tag = el("span", "abs typetag", TYPE_TAG[h.type] ?? h.type.toUpperCase(), row); tag.style.top = "10px";
-  const p = el("div", "abs mono", h.path, row); p.style.cssText += "font-size:18px;color:var(--ink-muted);left:56px;top:46px;";
-  const score = el("div", "abs mono", fmt(h.score), row); score.style.cssText += "font-size:24px;color:var(--ink);left:auto;right:0;top:6px;";
-  const sn = el("div", "abs mono", markTerms(h.line), row); sn.style.cssText += "font-size:20px;color:var(--ink-2);left:56px;top:80px;overflow:hidden;";
-  const rule = el("div", "abs", "", row); rule.style.cssText += `top:${ROW_H - 1}px;width:${ROW_W}px;height:1px;background:#2a2a2e;transform-origin:left;`;
-  return { row, title, tag, sn, rule, score, marks: [...sn.querySelectorAll(".m")] };
+  const row = div("abs", "", uiGroup); row.style.cssText += `width:${ROW_W}px;height:${ROW_H}px;`;
+  const rank = div("abs mono", String(i + 1).padStart(2, "0"), row); rank.style.cssText += "font-size:18px;color:var(--muted);top:9px;";
+  const title = div("abs sans", esc(h.title), row); title.style.cssText += "font-size:30px;font-weight:600;color:var(--ember-text);left:56px;top:0;";
+  const tag = el("span", "abs tag", TYPE_TAG[h.type] ?? h.type.toUpperCase(), row); tag.style.top = "9px";
+  const p = div("abs mono", esc(h.path), row); p.style.cssText += "font-size:18px;color:var(--muted);left:56px;top:46px;";
+  const score = div("abs mono", fmt(h.score), row); score.style.cssText += "font-size:22px;color:var(--ink);left:auto;right:0;top:6px;";
+  const sn = div("abs mono", markTerms(h.line), row); sn.style.cssText += "font-size:20px;color:var(--ink2);left:56px;top:82px;overflow:hidden;";
+  const rule = div("abs", "", row); rule.style.cssText += `top:${ROW_H - 1}px;width:${ROW_W}px;height:1px;background:var(--hair);transform-origin:left;`;
+  return { row, title, tag, sn, rule, marks: [...sn.querySelectorAll(".m")] };
 });
-// split preview: the real embedded markdown inside src/ingest/demo.ts
-const preview = el("div", "abs");
-preview.style.cssText += "width:600px;height:500px;background:var(--surface);border:1px solid var(--hair-2);border-radius:3px;padding:34px 40px;";
-preview.innerHTML = `<div class="label">preview &nbsp;·&nbsp; src/ingest/demo.ts</div>
-<div class="serif" style="font-size:58px;margin-top:22px;white-space:normal">Crash recovery guide</div>
-<div class="sans" style="font-size:22px;line-height:1.7;color:var(--ink-2);margin-top:18px;white-space:normal">A write-ahead log records intent before segment data is written. <span class="pvm">Recovery replays durable records after a process crash.</span></div>
-<div class="sans" style="font-size:22px;line-height:1.7;color:var(--ink-muted);margin-top:16px;white-space:normal">Acknowledged writes survive restart. A torn final record is discarded.</div>`;
+const preview = div("abs", `<div class="label">preview &nbsp;·&nbsp; ${esc(DATA.hits[0].path)}</div>
+<div class="serif" style="font-size:56px;margin-top:22px;white-space:normal;line-height:1.05">Crash recovery guide</div>
+<div class="sans" style="font-size:22px;line-height:1.7;color:var(--ink2);margin-top:18px;white-space:normal">A write-ahead log records intent before segment data is written. <span class="pvm">Recovery replays durable records after a process crash.</span></div>
+<div class="sans" style="font-size:22px;line-height:1.7;color:var(--muted);margin-top:16px;white-space:normal">Acknowledged writes survive restart. A torn final record is discarded.</div>`, uiGroup);
+preview.style.cssText += "width:580px;height:520px;background:var(--surface);border:1px solid var(--hair2);border-radius:3px;padding:34px 40px;";
 const pvm = preview.querySelector(".pvm");
-const openUp = el("div", "abs serif", "Now open it up."); openUp.style.fontSize = "150px";
-
-// ================= SCENE 3: the exploded view =================
-const iso3d = el("div", "", "", stage); iso3d.id = "iso3d";
-const iso = el("div", "", "", iso3d); iso.id = "iso";
-function mkPlate(label) {
-  const p = el("div", "plate", "", iso);
-  el("div", "pl", label, p);
-  const mkR = el("div", "mk", "", p); mkR.style.cssText += "left:1120px;top:170px;";
-  const mkC = el("div", "mk", "", p); mkC.style.cssText += "left:560px;top:170px;";
-  return { p, mkR, mkC };
-}
-// index 0 is the top plate (the query), 4 is storage at the bottom
-const P = ["query", "01 analyzer", "02 inverted index", "03 ranker", "04 storage"].map(mkPlate);
-{
-  const b = el("div", "abs", "", P[0].p); b.style.cssText += "left:60px;top:84px;width:1000px;height:110px;border:1.5px solid #c4552e;border-radius:6px;";
-  const q = el("div", "abs mono", QUERY, b); q.style.cssText += "font-size:50px;left:36px;top:24px;";
-}
-const p0result = el("div", "abs mono", `&rarr; ${DATA.hits[0].title} &nbsp;·&nbsp; ${DATA.tookMs.toFixed(1)} ms`, P[0].p);
-p0result.style.cssText += "font-size:40px;color:#e27950;left:96px;top:232px;";
-// analyzer
-const anaIn = el("div", "abs mono", QUERY, P[1].p); anaIn.style.cssText += "font-size:40px;color:var(--ink-2);left:70px;top:96px;";
-const anaChips = DATA.queryTerms.map((t) => { const c = el("div", "abs chip", t, P[1].p); c.style.fontSize = "38px"; return c; });
-const anaId = el("div", "abs mono", DATA.identifier.text, P[1].p); anaId.style.cssText += "font-size:40px;color:var(--ink-2);left:70px;top:206px;";
-const idParts = DATA.identifier.tokens.slice(1).map((t) => { const c = el("div", "abs chip", t, P[1].p); c.style.fontSize = "38px"; return c; });
-const anaArrows = [el("div", "abs mono", "&rarr;", P[1].p), el("div", "abs mono", "&rarr;", P[1].p)];
-anaArrows.forEach((a, i) => { a.style.cssText += `font-size:40px;color:var(--ink-muted);left:500px;top:${i ? 206 : 96}px;`; });
-// inverted index: one square per document in each posting list; documents in both line up
-const CR = DATA.postings[0], RE = DATA.postings[1], BOTH = DATA.total;
-const nCols = CR.df + RE.df - BOTH;
-const common = new Set(), onlyCr = new Set(), onlyRe = new Set();
-{ // deterministic interleave so the overlap reads as scattered, not a block
-  const pattern = [...Array(nCols).keys()].sort((a, b) => ((a * 37) % 17) - ((b * 37) % 17));
-  pattern.forEach((c, k) => { if (k < BOTH) common.add(c); else if (k < CR.df) onlyCr.add(c); else onlyRe.add(c); });
-}
-const SQ0 = 260, SQW = 26;
-const idxLbl = [CR, RE].map((p, i) => { const n = el("div", "abs mono", `${p.term} <span style="color:#87878c;font-size:26px">${p.df} docs</span>`, P[2].p); n.style.cssText += `font-size:32px;left:56px;top:${i ? 192 : 104}px;`; return n; });
-const crSq = [...Array(nCols).keys()].filter((c) => common.has(c) || onlyCr.has(c)).map((c) => { const s = el("div", "sq", "", P[2].p); s.style.left = `${SQ0 + c * SQW}px`; s.style.top = "112px"; s.dataset.c = c; return s; });
-const reSq = [...Array(nCols).keys()].filter((c) => common.has(c) || onlyRe.has(c)).map((c) => { const s = el("div", "sq", "", P[2].p); s.style.left = `${SQ0 + c * SQW}px`; s.style.top = "200px"; s.dataset.c = c; return s; });
-const links = [...common].map((c) => { const l = el("div", "abs", "", P[2].p); l.style.cssText += `left:${SQ0 + c * SQW + 11}px;top:136px;width:2px;height:64px;background:#c4552e;transform-origin:top;`; return l; });
-const idxCap = el("div", "abs mono", `${BOTH} documents contain both`, P[2].p); idxCap.style.cssText += "font-size:28px;color:#e27950;left:260px;top:262px;";
-// ranker: bars arrive unsorted, then physically re-sort by score
-const RANK = DATA.hits.map((h) => ({ title: h.title, score: h.score }));
-const START_ORDER = [2, 0, 3, 1];
-const maxScore = Math.max(...RANK.map((r) => r.score));
-const rk = RANK.map((r) => {
-  const t = el("div", "abs mono", r.title, P[3].p); t.style.cssText += "font-size:26px;left:56px;";
-  const track = el("div", "abs", "", P[3].p); track.style.cssText += "left:340px;width:580px;height:26px;background:#1b1b1e;";
-  const bar = el("div", "abs", "", P[3].p); bar.style.cssText += "left:340px;height:26px;background:#c4552e;";
-  const v = el("div", "abs mono", "", P[3].p); v.style.cssText += "font-size:26px;left:944px;";
-  return { t, track, bar, v, w: 580 * r.score / maxScore };
+const annSvg = svgLayer(uiGroup);
+const ANN = [
+  { text: "the exact passage that matched", sub: "highlighted at its original offsets" },
+  { text: "the whole document", sub: "fetched with one direct byte seek" },
+].map((a) => {
+  const n = div("abs", `<div class="sans" style="font-size:26px;font-weight:600">${a.text}</div><div class="mono" style="font-size:18px;color:var(--muted);margin-top:6px">${a.sub}</div>`, uiGroup);
+  return { n, line: svgEl("polyline", { fill: "none", "stroke-width": 1.4 }, annSvg, { stroke: "var(--ink2)" }), dot: svgEl("rect", { width: 9, height: 9 }, annSvg, { fill: "var(--ember)" }) };
 });
-const formula = el("div", "abs mono", "bm25 &nbsp;·&nbsp; rare words weigh more &nbsp;·&nbsp; repeats saturate &nbsp;·&nbsp; length normalized", P[3].p);
-formula.style.cssText += "font-size:19px;color:var(--ink-muted);left:56px;top:290px;letter-spacing:0.02em;";
-// storage: WAL above an append-only segment of records
-const walRow = el("div", "abs", "", P[4].p); walRow.style.cssText += "left:56px;top:110px;width:1008px;height:1.5px;background:#3a3a3f;";
-const walLbl = el("div", "abs mono", "wal.log", P[4].p); walLbl.style.cssText += "font-size:20px;color:var(--ink-muted);left:880px;top:70px;";
-const walNodes = [...Array(14)].map((_, i) => { const n = el("div", "abs", "", P[4].p); n.style.cssText += `left:${80 + i * 70}px;top:103px;width:15px;height:15px;border:1.5px solid #87878c;background:#111113;`; return n; });
-const SEGS = [70, 50, 96, 40, 66, 120, 58, 44, 88, 52, 76, 60, 84, 96];
-const HIT_SEG = 5;
-const segEls = []; { let x = 56; SEGS.forEach((w) => { const s = el("div", "abs", "", P[4].p); s.style.cssText += `left:${x}px;top:150px;width:${w - 4}px;height:56px;border:1.5px solid #3a3a3f;`; segEls.push({ s, x, w }); x += w; }); }
-const segLbl = el("div", "abs mono", DATA.storage.segment, P[4].p); segLbl.style.cssText += "font-size:20px;color:var(--ink-muted);left:820px;top:216px;";
-const hitSeg = segEls[HIT_SEG];
-const seekLine = el("div", "abs", "", P[4].p);
-seekLine.style.cssText += `left:${hitSeg.x + hitSeg.w / 2 - 1}px;top:0px;width:3px;height:148px;background:#c4552e;transform-origin:top;`;
-const seekCap = el("div", "abs mono", `seek to byte ${fmtInt(DATA.storage.byteOffset)} &nbsp;·&nbsp; read ${fmtInt(DATA.storage.length)} bytes`, P[4].p);
-seekCap.style.cssText += "font-size:26px;color:#e27950;left:56px;top:262px;";
+const qA = maskText(S2, "serif", "How did it find that", 122);
+const qB = maskText(S2, "serif", `in *${DATA.tookMs.toFixed(1)}* milliseconds?`, 122);
 
-// screen-space callouts beside the stack
-const CALL = [
-  ["query", "what you typed"],
-  ["analyzer", "splits text into searchable terms"],
-  ["inverted index", "term → every document that has it"],
-  ["ranker", "bm25 scores and sorts the matches"],
-  ["storage", "append-only log · direct byte seek"],
+// ================= 03 INSIDE: the map =================
+const S3 = layer();
+const inA = maskText(S3, "serif", "Inside, every layer is *hand-built.*", 104);
+const inB = maskText(S3, "sans", "No database. No search library. Just TypeScript you can read.", 34);
+inB.style.color = "var(--ink2)";
+const MAP = [
+  ["01", "Ingest", "files, repos and PDFs", "become documents"],
+  ["02", "Analyze", "text is split", "into terms"],
+  ["03", "Index", "each term points to", "the documents with it"],
+  ["04", "Rank", "BM25 orders", "the matches"],
+  ["05", "Store", "an append-only log", "read by direct seek"],
+  ["06", "Recover", "the write-ahead log", "survives kill -9"],
 ];
-const calloutSvg = svgEl("svg", { width: W, height: H }, stage);
-const callLines = CALL.map(() => svgEl("polyline", { fill: "none", stroke: "#3a3a3f", "stroke-width": 1.2 }, calloutSvg));
-const callDots = CALL.map(() => svgEl("rect", { width: 9, height: 9, fill: "#87878c" }, calloutSvg));
-const callEls = CALL.map(([a, b]) => { const n = el("div", "abs"); n.innerHTML = `<div class="sans" style="font-size:30px;font-weight:600">${a}</div><div class="mono" style="font-size:19px;color:var(--ink-muted);margin-top:6px">${b}</div>`; return n; });
-const signalTrail = svgEl("polyline", { fill: "none", stroke: "#c4552e", "stroke-width": 2, "stroke-dasharray": "2 7" }, calloutSvg);
-const signal = el("div", "abs"); signal.style.cssText += "width:22px;height:22px;background:#c4552e;";
-const handBuilt = el("div", "abs serif", "Every layer, hand-built."); handBuilt.style.fontSize = "86px";
-const noDb = el("div", "abs serif", "No database underneath."); noDb.style.cssText += "font-size:86px;color:var(--ember-text);font-style:italic;";
+const mapLayer = layer(S3);
+const mapSvg = svgLayer(mapLayer);
+const mapLine = svgEl("line", { "stroke-width": 1.4 }, mapSvg, { stroke: "var(--hair2)" });
+const mapTrail = svgEl("line", { "stroke-width": 2 }, mapSvg, { stroke: "var(--ember)" });
+const MAP_X = (i) => 210 + i * 280, MAP_Y = 520;
+const mapNodes = MAP.map(([num, name, a, b], i) => {
+  const sq = svgEl("rect", { width: 18, height: 18, x: -9, y: -9, "stroke-width": 1.5 }, mapSvg, { fill: "var(--bg)", stroke: "var(--muted)" });
+  const n = div("abs", `<div class="label" style="letter-spacing:.14em">${num}</div><div class="serif" style="font-size:52px;margin-top:10px">${name}</div><div class="mono" style="font-size:18px;color:var(--muted);margin-top:12px;line-height:1.5">${a}<br>${b}</div>`, mapLayer);
+  return { sq, n };
+});
+const mapSignal = div("abs", "", mapLayer); mapSignal.style.cssText += "width:20px;height:20px;background:var(--ember);";
 
-// ================= SCENE 4: the crash =================
-const diag3d = el("div", ""); diag3d.style.cssText = "position:absolute;left:0;top:0;width:1920px;height:1080px;perspective:2600px;perspective-origin:960px 540px;";
-const diagWrap = el("div", "", "", diag3d); diagWrap.style.cssText = "position:absolute;left:0;top:0;width:1920px;height:1080px;transform-origin:960px 600px;";
-const diag = svgEl("svg", { width: W, height: H }, diagWrap);
-const WAL_Y = 460, SEG_Y = 700, SEG_H = 56;
-const NODES = { P1: 640, C1: 900, P2: 1160, C2: 1420 };
-const R1 = [560, 1010], R2 = [1030, 1500];
-svgEl("line", { x1: 470, y1: WAL_Y, x2: 1560, y2: WAL_Y, stroke: "#3a3a3f", "stroke-width": 1.4 }, diag);
-svgEl("line", { x1: 470, y1: SEG_Y + SEG_H / 2 + 18, x2: 1560, y2: SEG_Y + SEG_H / 2 + 18, stroke: "#2a2a2e" }, diag);
-const lblWal = el("div", "abs label", "wal.log", diagWrap), lblSeg = el("div", "abs label", DATA.storage.segment, diagWrap);
+// ================= persistent chapter rail =================
+const railLayer = layer();
+const RAIL_X = (i) => 520 + i * 176, RAIL_Y = 1004;
+const railSvg = svgLayer(railLayer);
+const railLine = svgEl("line", { x1: RAIL_X(0), y1: RAIL_Y - 30, x2: RAIL_X(5), y2: RAIL_Y - 30, "stroke-width": 1 }, railSvg, { stroke: "var(--hair2)" });
+const railTicks = MAP.map((_, i) => svgEl("rect", { x: RAIL_X(i) - 4, y: RAIL_Y - 34, width: 8, height: 8 }, railSvg, { fill: "var(--bg)", stroke: "var(--muted)" }));
+const railLabels = MAP.map(([num, name]) => div("abs label", `${num} ${name}`, railLayer));
+const railMark = div("abs", "", railLayer); railMark.style.cssText += "height:2px;background:var(--ember);";
+
+// ================= chapter scaffolding =================
+const CHAPTERS = [];
+function chapter(i, key, next, headline, sub) {
+  const root = layer(), inner = layer(root);
+  const kicker = div("abs label", `<span class="em">${MAP[i][0]} / 06</span> &nbsp; ${MAP[i][1]}`, inner);
+  const head = maskText(inner, "serif", headline, 84);
+  const subN = div("abs sans", sub, inner); subN.style.cssText += "font-size:28px;color:var(--ink2);";
+  const c = { i, root, inner, kicker, head, sub: subN, t0: TL[key], t1: TL[next], blur: motionBlur(inner) };
+  CHAPTERS.push(c); return c;
+}
+// returns local time inside the chapter, or null when it is off screen
+function runChapter(c, t) {
+  if (t < c.t0 - 0.01 || t > c.t1 + 0.01) { show(c.root, false); return null; }
+  show(c.root, true);
+  const pin = E(t, c.t0, c.t0 + 0.8), pout = E(t, c.t1 - 0.55, c.t1, easeIn);
+  c.inner.style.transform = `translateX(${320 * (1 - pin) - 320 * pout}px)`;
+  c.inner.style.opacity = Math.min(E(t, c.t0, c.t0 + 0.35, (x) => x), 1 - pout);
+  c.blur(28 * (1 - E(t, c.t0, c.t0 + 0.5)) * (t > c.t0 ? 1 : 0) + 30 * pout);
+  const u = t - c.t0;
+  place(c.kicker, 140, 104, { o: E(u, 0.2, 0.6) });
+  place(c.head, 140, 140); maskAnim(c.head, u, 0.25);
+  place(c.sub, 142, 262 + 12 * (1 - E(u, 0.7, 1.2)), { o: E(u, 0.7, 1.2) });
+  return u;
+}
+
+// ---------------- 01 INGEST ----------------
+const CI = chapter(0, "ingest", "analyze", "Anything with text goes in.", "Every source is extracted into plain JSON documents with a stable id.");
+const SOURCES = [
+  ["FOLDER", "projects/shardly", "watched, re-read on change"],
+  ["GITHUB", "whynotramaa/shardly", "repo, readme and source files"],
+  ["PDF", "design-review.pdf", "text extracted page by page"],
+  ["NDJSON", "records.ndjson", "one document per line"],
+  ["WIKI", "wikipedia sample", `${fmtInt(DATA.mix.wikipedia)} offline articles`],
+  ["BINARY", "photo.png", "not text"],
+];
+const SRC_Y = (i) => 372 + i * 92;
+const srcRows = SOURCES.map(([tag, name, sub], i) => {
+  const n = div("abs", `<span class="tag" style="width:96px;text-align:center">${tag}</span><span class="sans" style="font-size:26px;font-weight:600;margin-left:22px">${name}</span><div class="mono" style="font-size:17px;color:var(--muted);margin:8px 0 0 118px">${sub}</div>`, CI.inner);
+  return n;
+});
+const rejectMark = div("abs mono", "rejected before indexing", CI.inner); rejectMark.style.cssText += "font-size:17px;color:var(--ember-text);";
+const ingSvg = svgLayer(CI.inner);
+const EX = { x: 860, y: 470, w: 280, h: 280 };
+const exBox = svgEl("rect", { x: EX.x, y: EX.y, width: EX.w, height: EX.h, rx: 3, "stroke-width": 1.5 }, ingSvg, { fill: "var(--surface)", stroke: "var(--hair2)" });
+const exLbl = div("abs", `<div class="label" style="color:var(--ink2)">extract</div><div class="mono" style="font-size:17px;color:var(--muted);margin-top:8px">decode · parse · normalize</div>`, CI.inner);
+const exBars = [0, 1, 2, 3].map(() => svgEl("rect", { height: 8, rx: 1 }, ingSvg, { fill: "var(--s3)" }));
+const paths = SOURCES.map((_, i) => svgEl("path", { fill: "none", "stroke-width": 1.2, "stroke-dasharray": "3 6" }, ingSvg, { stroke: "var(--hair2)" }));
+const packets = SOURCES.map(() => div("abs", "", CI.inner));
+packets.forEach((p) => { p.style.cssText += "width:16px;height:16px;background:var(--ember);"; });
+const outPath = svgEl("line", { x1: EX.x + EX.w, y1: EX.y + EX.h / 2, x2: 1250, y2: EX.y + EX.h / 2, "stroke-width": 1.4 }, ingSvg, { stroke: "var(--hair2)" });
+const hit0 = DATA.entries[0];
+const JSON_LINES = [
+  `{`,
+  `  <span class="k">"id"</span>: <span class="v">"${hit0.id.slice(0, 13)}…"</span>,`,
+  `  <span class="k">"title"</span>: <span class="v">"${esc(DATA.hits[0].title)}"</span>,`,
+  `  <span class="k">"path"</span>: <span class="v">"${esc(DATA.hits[0].path)}"</span>,`,
+  `  <span class="k">"source"</span>: <span class="v">"folder"</span>,`,
+  `  <span class="k">"content"</span>: <span class="v">"export const demo…"</span>`,
+  `}`,
+];
+const jsonStack = [2, 1].map((k) => { const n = div("abs", "", CI.inner); n.style.cssText += "width:520px;height:330px;background:var(--surface);border:1px solid var(--hair2);border-radius:3px;"; n.k = k; return n; });
+const jsonCard = div("abs", `<div class="label">document</div>` + JSON_LINES.map((l) => `<div class="mono jl" style="font-size:21px;line-height:1.7;color:var(--ink2);white-space:pre">${l}</div>`).join(""), CI.inner);
+jsonCard.style.cssText += "width:520px;height:330px;background:var(--surface);border:1px solid var(--hair2);border-radius:3px;padding:24px 30px;";
+jsonCard.querySelectorAll(".v").forEach((n) => (n.style.color = "var(--ember-text)"));
+const jsonLines = [...jsonCard.querySelectorAll(".jl")];
+const batchLbl = div("abs mono", "imports land in batches that share one fsync", CI.inner); batchLbl.style.cssText += "font-size:18px;color:var(--muted);";
+
+// ---------------- 02 ANALYZE ----------------
+const CA = chapter(1, "analyze", "index", "Text becomes terms.", "The analyzer turns every sentence into the words a search can match.");
+const STEPS = ["split", "lowercase", "drop stopwords", "stem"];
+const stepEls = STEPS.map((s, i) => div("abs mono", `<span style="color:var(--muted)">${i + 1}</span>&nbsp; ${s}`, CA.inner));
+stepEls.forEach((n) => (n.style.fontSize = "22px"));
+const stepMark = div("abs", "", CA.inner); stepMark.style.cssText += "height:2px;background:var(--ember);";
+const AN = DATA.analysis.map((a) => {
+  const cut = a.lower.length - a.term.length;
+  const chip = div("chip", "", CA.inner); chip.style.cssText += "font-size:46px;height:76px;display:flex;align-items:center;overflow:hidden;";
+  // only a letter that changes case gets the rolling swap
+  const first = el("span", "", "", chip); first.style.cssText = "display:inline-block;position:relative;" + (a.word[0] !== a.lower[0] ? "overflow:hidden;height:1.25em;line-height:1.25em;" : "");
+  const fA = el("span", "", a.word[0], first); fA.style.cssText = "display:block;";
+  const fB = el("span", "", a.word[0] !== a.lower[0] ? a.lower[0] : "", first); fB.style.cssText = "display:block;position:absolute;left:0;top:100%;";
+  const body = el("span", "", esc(a.word.slice(1, a.word.length - cut)), chip);
+  const tail = el("span", "", esc(a.word.slice(a.word.length - cut)), chip); tail.style.display = "inline-block";
+  return { ...a, cut, chip, first, fA, fB, body, tail };
+});
+const period = div("abs mono", ".", CA.inner); period.style.cssText += "font-size:46px;color:var(--ink);";
+const termsLbl = div("abs mono", `${AN.filter((a) => !a.stop).length} terms, ready for the index`, CA.inner); termsLbl.style.cssText += "font-size:22px;color:var(--ember-text);";
+const idText = DATA.identifier.text;
+const idParts = idText.split(/(?=[A-Z])/);
+const idRow = div("abs mono", "", CA.inner); idRow.style.cssText += "font-size:46px;";
+const idSpans = idParts.map((p) => { const s = el("span", "", p, idRow); s.style.display = "inline-block"; return s; });
+const idLbl = div("abs label", "a code identifier", CA.inner);
+const idChips = DATA.identifier.tokens.map((tk) => { const c = div("chip", tk, CA.inner); c.style.cssText += "font-size:34px;padding:8px 16px;"; return c; });
+const idCap = div("abs sans", `Identifiers also split on camelCase and snake_case, so a search for <span class="em">wal</span> finds <span class="mono" style="font-size:25px">${idText}</span>.`, CA.inner);
+idCap.style.cssText += "font-size:26px;color:var(--ink2);";
+
+// ---------------- 03 INDEX ----------------
+const CX = chapter(2, "index", "rank", "Every term points to its documents.", "This map from term to documents is the inverted index. It is built once, at ingest.");
+const TOY = [["doc 1", "Crash recovery guide"], ["doc 2", "Recovery replays the log"], ["doc 3", "Crash test: crash, crash"]];
+const toyLayer = layer(CX.inner);
+const toySvg = svgLayer(toyLayer);
+const toyDocs = TOY.map(([lbl, text], d) => {
+  const n = div("abs", `<div class="label">${lbl}</div>`, toyLayer); n.style.cssText += "width:470px;height:118px;background:var(--surface);border:1px solid var(--hair2);border-radius:3px;padding:18px 24px;";
+  const line = div("sans", "", n); line.style.cssText += "font-size:30px;font-weight:600;margin-top:12px;white-space:nowrap;";
+  const words = text.split(" ").map((w, k) => { if (k) line.appendChild(document.createTextNode(" ")); const s = el("span", "", esc(w), line); return s; });
+  return { n, words };
+});
+const DICT = ["crash", "guide", "log", "recovery", "replay", "test"];
+// (doc, word index, term): the order tokens travel into the index; "the" is a stopword and never leaves
+const FLIGHTS = [[0, 0, "crash"], [0, 1, "recovery"], [0, 2, "guide"], [1, 0, "recovery"], [1, 1, "replay"], [1, 3, "log"], [2, 0, "crash"], [2, 1, "test"], [2, 2, "crash"], [2, 3, "crash"]];
+const DICT_X = 760, POST_X = 1010, DICT_Y = (k) => 392 + k * 76;
+const dictHead = div("abs label", "term", toyLayer), postHead = div("abs label", "posting list &nbsp;·&nbsp; doc × term frequency", toyLayer);
+const dictRows = DICT.map((term) => { const n = div("abs mono", term, toyLayer); n.style.cssText += "font-size:30px;"; return n; });
+const dictRules = DICT.map(() => svgEl("line", { "stroke-width": 1 }, toySvg, { stroke: "var(--hair)" }));
+const postings = {};
+FLIGHTS.forEach(([d, , term]) => { (postings[term] ??= new Map()).set(d, ((postings[term].get(d)) ?? 0) + 1); });
+const postChips = DICT.flatMap((term, k) => [...postings[term].keys()].map((d, j) => {
+  const n = div("abs mono", `d${d + 1}`, toyLayer); n.style.cssText += "font-size:24px;padding:8px 14px;border:1.5px solid var(--hair2);border-radius:2px;background:var(--surface);";
+  const tf = el("span", "", "", n); tf.style.cssText = "color:var(--muted);margin-left:8px;font-size:20px;";
+  return { n, tf, term, d, k, j };
+}));
+const flyers = FLIGHTS.map(() => { const n = div("abs", "", toyLayer); n.style.cssText += "width:14px;height:14px;background:var(--ember);"; return n; });
+const toyQuery = div("abs", `<span class="label">query</span>&nbsp;&nbsp;<span class="mono" style="font-size:30px;color:var(--ember-text)">crash recovery</span>`, toyLayer);
+const toyCap = div("abs sans", "The query reads two rows. It never opens a document to find candidates.", toyLayer); toyCap.style.cssText += "font-size:26px;color:var(--ink2);";
+// the real corpus, one dot per document
+const scaleLayer = layer(CX.inner);
+const dotCanvas = el("canvas", "abs", undefined, scaleLayer); dotCanvas.width = W; dotCanvas.height = H;
+const dctx = dotCanvas.getContext("2d");
+const GCOLS = 86, GPITCH = 18, GX = 960 - (GCOLS * GPITCH) / 2, GY = 350, NDOC = DATA.documents, GROWS = Math.ceil(NDOC / GCOLS);
+const CR = DATA.postings[0], RE = DATA.postings[1], BOTH = DATA.total, CAND = DATA.candidates;
+const candKind = new Map(); // dot index -> "both" | "one"
+{ const r = rng(23); const pool = new Set(); while (pool.size < CAND) pool.add(Math.floor(r() * NDOC)); [...pool].forEach((d, k) => candKind.set(d, k < BOTH ? "both" : "one")); }
+const scanTitle = maskText(scaleLayer, "serif", "Without an index: read everything.", 56);
+const idxTitle = maskText(scaleLayer, "serif", "With the index: read two lists.", 56);
+const scanCount = div("abs mono", "", scaleLayer); scanCount.style.cssText += "font-size:24px;color:var(--ink2);";
+const scanHead = div("abs", "", scaleLayer); scanHead.style.cssText += "width:3px;height:" + (GROWS * GPITCH + 24) + "px;background:var(--ember);";
+const idxCount = div("abs mono", `posting lists read <span class="em">2</span> &nbsp;·&nbsp; ${CR.term} <span class="em">${CR.df}</span> &nbsp;·&nbsp; ${RE.term} <span class="em">${RE.df}</span> &nbsp;·&nbsp; candidates scored <span class="em">${CAND}</span> &nbsp;·&nbsp; documents opened <span class="em">0</span>`, scaleLayer);
+idxCount.style.cssText += "font-size:24px;color:var(--ink2);";
+
+// ---------------- 04 RANK ----------------
+const CR4 = chapter(3, "rank", "store", "BM25 decides what comes first.", "Three ideas, one formula. k1 = 1.5, b = 0.75, the classic defaults.");
+const formula = div("abs mono", `score = sum over terms of &nbsp;<span class="f0">IDF</span> × <span class="f1">tf·(k1+1) / (tf + k1·(</span><span class="f2">1 − b + b·|D|/avgdl</span><span class="f1">))</span>`, CR4.inner);
+formula.style.cssText += "font-size:30px;color:var(--ink2);";
+const fParts = [0, 1, 2].map((k) => [...formula.querySelectorAll(`.f${k}`)]);
+const PANEL_X = [140, 700, 1260], PANEL_Y = 440, PANEL_W = 520;
+const panels = [
+  ["01 &nbsp;idf", "Rare words count more."],
+  ["02 &nbsp;term frequency", "Repeats help, less each time."],
+  ["03 &nbsp;length", "Length is evened out."],
+].map(([k, h], i) => {
+  const n = div("abs", `<div class="label">${k}</div><div class="serif" style="font-size:40px;margin-top:12px">${h}</div>`, CR4.inner);
+  const box = div("abs", "", CR4.inner); box.style.cssText += `width:${PANEL_W}px;height:1px;background:var(--hair2);`;
+  return { n, box };
+});
+const N_DOCS = DATA.documents, AVGDL = DATA.corpus.avgdl, K1 = 1.5, B = 0.75;
+const contrib = (idf, tf, len) => (idf * tf * (K1 + 1)) / (tf + K1 * (1 - B + (B * len) / AVGDL));
+const idfRows = DATA.idfs.map((r) => {
+  const t = div("abs mono", `${r.term} <span style="color:var(--muted);font-size:18px">df ${fmtInt(r.df)}</span>`, CR4.inner); t.style.fontSize = "24px";
+  const bar = div("abs", "", CR4.inner); bar.style.cssText += "height:22px;background:var(--ember);";
+  const v = div("abs mono", "", CR4.inner); v.style.fontSize = "22px";
+  return { ...r, t, bar, v };
+});
+const plotSvg = svgLayer(CR4.inner);
+const PL = { x: 760, y: 790, w: 400, h: 190 }, TF_MAX = 10, Y_MAX = 2.8;
+const pX = (tf) => PL.x + (tf / TF_MAX) * PL.w, pY = (v) => PL.y - (v / Y_MAX) * PL.h;
+const satur = (tf) => (tf * (K1 + 1)) / (tf + K1);
+svgEl("line", { x1: PL.x, y1: PL.y, x2: PL.x + PL.w, y2: PL.y, "stroke-width": 1.2 }, plotSvg, { stroke: "var(--muted)" });
+svgEl("line", { x1: PL.x, y1: PL.y, x2: PL.x, y2: PL.y - PL.h - 10, "stroke-width": 1.2 }, plotSvg, { stroke: "var(--muted)" });
+const asym = svgEl("line", { x1: PL.x, y1: pY(K1 + 1), x2: PL.x + PL.w, y2: pY(K1 + 1), "stroke-width": 1, "stroke-dasharray": "4 6" }, plotSvg, { stroke: "var(--muted)" });
+const linePath = svgEl("path", { fill: "none", "stroke-width": 1.5, "stroke-dasharray": "6 6", d: `M${pX(0)} ${pY(0)} L${pX(Y_MAX / ((K1 + 1) / K1) * 1.0)} ${pY(Y_MAX)}` }, plotSvg, { stroke: "var(--ink2)" });
+const curve = svgEl("path", { fill: "none", "stroke-width": 3, d: Array.from({ length: 101 }, (_, k) => `${k ? "L" : "M"}${pX(k / 10)} ${pY(satur(k / 10))}`).join(" ") }, plotSvg, { stroke: "var(--ember)" });
+const curveLen = 620; curve.setAttribute("stroke-dasharray", `${curveLen} ${curveLen}`);
+const plotDot = svgEl("rect", { width: 14, height: 14, x: -7, y: -7 }, plotSvg, { fill: "var(--ember)" });
+const plotLbls = [div("abs mono", "tf", CR4.inner), div("abs mono", "score", CR4.inner), div("abs mono", "if every repeat counted", CR4.inner), div("abs mono", "ceiling k1+1", CR4.inner), div("abs mono", "", CR4.inner)];
+plotLbls.forEach((n) => (n.style.cssText += "font-size:17px;color:var(--muted);"));
+const crashIdf = DATA.idfs[1].idf;
+const LEN = [["short doc", Math.round(AVGDL)], ["long doc", Math.max(...DATA.corpus.lengths)]].map(([name, len]) => {
+  const t = div("abs mono", `${name} <span style="color:var(--muted);font-size:18px">${fmtInt(len)} tokens · tf 3</span>`, CR4.inner); t.style.fontSize = "24px";
+  const doc = div("abs", "", CR4.inner); doc.style.cssText += "height:16px;border:1.5px solid var(--hair2);";
+  const bar = div("abs", "", CR4.inner); bar.style.cssText += "height:22px;background:var(--ember);";
+  const v = div("abs mono", "", CR4.inner); v.style.fontSize = "22px";
+  return { len, t, doc, bar, v, score: contrib(crashIdf, 3, len) };
+});
+const bd = DATA.baseline[0];
+const sumTitle = div("abs", `<span class="label">baseline bm25 &nbsp;·&nbsp; top result</span><div class="sans" style="font-size:44px;font-weight:600;color:var(--ember-text);margin-top:10px">${esc(bd.title)}</div>`, CR4.inner);
+const sumSegs = bd.breakdown.map((b, k) => {
+  const bar = div("abs", "", CR4.inner); bar.style.cssText += `height:54px;background:var(--ember);opacity:${k ? 0.55 : 1};`;
+  const l = div("abs mono", `${b.term} &nbsp;<span style="color:var(--muted)">tf ${b.tf} · idf ${fmt(b.idf)}</span>`, CR4.inner); l.style.fontSize = "22px";
+  const v = div("abs mono", fmt(b.contribution), CR4.inner); v.style.cssText += "font-size:26px;color:var(--bg);font-weight:600;";
+  return { ...b, bar, l, v };
+});
+const sumTotal = div("abs serif", "", CR4.inner); sumTotal.style.fontSize = "76px";
+const ranked = DATA.baseline.map((h, i) => {
+  const t = div("abs mono", esc(h.title), CR4.inner); t.style.fontSize = "24px";
+  const bar = div("abs", "", CR4.inner); bar.style.cssText += "height:20px;background:var(--ember);";
+  const v = div("abs mono", fmt(h.score), CR4.inner); v.style.fontSize = "22px";
+  return { t, bar, v, score: h.score };
+});
+const rankCap = div("abs sans", "Every result carries this breakdown, so a ranking can always be explained.", CR4.inner); rankCap.style.cssText += "font-size:26px;color:var(--ink2);";
+
+// ---------------- 05 STORE ----------------
+const CS = chapter(4, "store", "recover", "Documents live in an append-only log.", "Reads never scan. An offset map knows exactly where every record's bytes are.");
+const COLS = [["id", 140], ["segment", 600], ["byte offset", 900], ["length", 1130], ["sha-256", 1320]];
+const tblHead = COLS.map(([h, x]) => { const n = div("abs label", h, CS.inner); n.x = x; return n; });
+const tblRows = DATA.entries.map((e) => {
+  const cells = [`${e.id.slice(0, 8)}… &nbsp;<span style="color:var(--muted);font-size:18px">${esc(e.title)}</span>`, e.segment, fmtInt(e.byteOffset), fmtInt(e.length), `${e.checksum.slice(0, 16)}…`].map((v, k) => {
+    const n = div("abs mono", v, CS.inner); n.style.cssText += "font-size:22px;color:var(--ink2);"; n.x = COLS[k][1]; return n;
+  });
+  return { e, cells };
+});
+const tblSvg = svgLayer(CS.inner);
+const tblRules = [0, 1, 2, 3, 4].map(() => svgEl("line", { "stroke-width": 1 }, tblSvg, { stroke: "var(--hair)" }));
+const rowHi = svgEl("rect", { height: 46 }, tblSvg, { fill: "var(--ember-soft)" });
+const TAPE = { x: 140, y: 700, w: 1640, h: 60 };
+const TAPE_BYTES = Math.max(...DATA.entries.map((e) => e.byteOffset + e.length)) * 1.07;
+const bx = (b) => TAPE.x + (b / TAPE_BYTES) * TAPE.w;
+const blocks = [];
+{ // filler records between the real ones, so the real offsets sit at their true positions
+  const r = rng(5), real = [...DATA.entries].sort((a, b) => a.byteOffset - b.byteOffset);
+  let at = 0;
+  for (const e of [...real, { byteOffset: TAPE_BYTES, length: 0 }]) {
+    while (at < e.byteOffset) { const len = Math.min(e.byteOffset - at, 1500 + r() * 9000); blocks.push({ b0: at, b1: at + len }); at += len; }
+    if (e.length) { blocks.push({ b0: e.byteOffset, b1: e.byteOffset + e.length, real: e }); at = e.byteOffset + e.length; }
+  }
+}
+const tapeSvg = svgLayer(CS.inner);
+const tapeOutline = svgEl("rect", { x: TAPE.x, y: TAPE.y, width: TAPE.w, height: TAPE.h, "stroke-width": 1.2 }, tapeSvg, { fill: "none", stroke: "var(--hair2)" });
+const hatch = svgEl("pattern", { id: "hatch", width: 8, height: 8, patternUnits: "userSpaceOnUse", patternTransform: "rotate(45)" }, svgEl("defs", {}, tapeSvg));
+svgEl("line", { x1: 0, y1: 0, x2: 0, y2: 8, "stroke-width": 3 }, hatch, { stroke: "var(--muted)" });
+blocks.forEach((b) => { b.r = svgEl("rect", { x: bx(b.b0) + 0.5, y: TAPE.y + 6, width: Math.max(1, bx(b.b1) - bx(b.b0) - 1.5), height: TAPE.h - 12 }, tapeSvg, { fill: "var(--s3)" }); });
+const tomb = blocks[Math.floor(blocks.length * 0.62)];
+const ruler = [];
+for (let b = 0; b <= TAPE_BYTES; b += 50000) {
+  const major = b % 100000 === 0;
+  ruler.push(svgEl("line", { x1: bx(b), y1: TAPE.y + TAPE.h + 4, x2: bx(b), y2: TAPE.y + TAPE.h + (major ? 16 : 9), "stroke-width": 1 }, tapeSvg, { stroke: "var(--muted)" }));
+  if (major) { const n = div("abs mono", b ? `${b / 1000} KB` : "0", CS.inner); n.style.cssText += "font-size:15px;color:var(--muted);"; n.b = b; ruler.push(n); }
+}
+const tapeLbl = div("abs label", DATA.storage.segment, CS.inner);
+const writeHead = div("abs", "", CS.inner); writeHead.style.cssText += `width:3px;height:${TAPE.h + 28}px;background:var(--ember);`;
+const appendLbl = div("abs mono", "append", CS.inner); appendLbl.style.cssText += "font-size:17px;color:var(--ember-text);";
+const seekPath = svgEl("polyline", { fill: "none", "stroke-width": 2 }, tapeSvg, { stroke: "var(--ember)" });
+const zoomLines = [0, 1].map(() => svgEl("line", { "stroke-width": 1.2 }, tapeSvg, { stroke: "var(--ember)" }));
+const zoomBox = div("abs mono", "", CS.inner);
+zoomBox.style.cssText += "font-size:19px;padding:12px 18px;border:1.5px solid var(--ember);background:var(--surface);color:var(--ink2);border-radius:2px;";
+zoomBox.innerHTML = `<span style="color:var(--muted)">bytes ${fmtInt(hit0.byteOffset)} … ${fmtInt(hit0.byteOffset + hit0.length)}</span> &nbsp; {"id":"${hit0.id.slice(0, 8)}…","doc":{"title":"<span class="em">${esc(hit0.title)}</span>",…}}`;
+const LOOK = ["look up the id", `seek to byte ${fmtInt(hit0.byteOffset)}`, `read ${fmtInt(hit0.length)} bytes`, "verify sha-256"];
+const lookSteps = LOOK.map((s, i) => { const n = div("abs mono", `<span class="em">${i + 1}</span>&nbsp; ${s}`, CS.inner); n.style.fontSize = "22px"; return n; });
+const tombLbl = div("abs mono", "deleted: a tombstone, reclaimed later by compaction", CS.inner); tombLbl.style.cssText += "font-size:18px;color:var(--muted);";
+const tombLine = svgEl("line", { "stroke-width": 1.2 }, tapeSvg, { stroke: "var(--muted)" });
+
+// ---------------- 06 RECOVER ----------------
+const CV = chapter(5, "recover", "recap", "What if the process dies mid-write?", "Every write takes four steps, and the order is the whole trick.");
+const cvLayer = layer(CV.inner);
+const cvSvg = svgLayer(cvLayer);
+const WAL_Y = 520, SEG_Y = 760, SEG_H = 64, LANE_X0 = 380, LANE_X1 = 1660;
+const N_X = { P1: 560, C1: 900, P2: 1180, C2: 1480 };
+const RC1 = [440, 960], RC2 = [1020, 1560];
+const walLane = svgEl("line", { x1: LANE_X0, y1: WAL_Y, x2: LANE_X1, y2: WAL_Y, "stroke-width": 1.4 }, cvSvg, { stroke: "var(--hair2)" });
+const segLane = svgEl("line", { x1: LANE_X0, y1: SEG_Y + SEG_H / 2 + 14, x2: LANE_X1, y2: SEG_Y + SEG_H / 2 + 14, "stroke-width": 1 }, cvSvg, { stroke: "var(--hair)" });
+const laneLbls = [div("abs label", "wal.log", cvLayer), div("abs label", DATA.storage.segment, cvLayer)];
 function mkNode(dashed) {
-  const g = svgEl("g", {}, diag);
-  const ring = svgEl("rect", { width: 26, height: 26, x: -13, y: -13, fill: "#0b0b0c", stroke: "#87878c", "stroke-width": 1.2, "stroke-dasharray": dashed ? "4 4" : "none" }, g);
-  const fill = svgEl("rect", { width: 14, height: 14, x: -7, y: -7, fill: "#c4552e" }, g);
-  const pulse = svgEl("rect", { width: 26, height: 26, x: -13, y: -13, fill: "none", stroke: "#c4552e", "stroke-width": 2 }, g);
+  const g = svgEl("g", {}, cvSvg);
+  const ring = svgEl("rect", { width: 30, height: 30, x: -15, y: -15, "stroke-width": 1.4, "stroke-dasharray": dashed ? "4 4" : "none" }, g, { fill: "var(--bg)", stroke: "var(--muted)" });
+  const fill = svgEl("rect", { width: 16, height: 16, x: -8, y: -8 }, g, { fill: "var(--ember)" });
+  const pulse = svgEl("rect", { width: 30, height: 30, x: -15, y: -15, fill: "none", "stroke-width": 2 }, g, { stroke: "var(--ember)" });
   return { g, ring, fill, pulse };
 }
 const nP1 = mkNode(), nC1 = mkNode(), nP2 = mkNode(), nC2 = mkNode(true);
-const lP1 = el("div", "abs label", "pending", diagWrap), lC1 = el("div", "abs label", "committed", diagWrap), lP2 = el("div", "abs label", "pending", diagWrap), lC2 = el("div", "abs label", "no commit", diagWrap);
-const connP1 = svgEl("line", { stroke: "#87878c" }, diag), connC1 = svgEl("line", { stroke: "#87878c" }, diag), connP2 = svgEl("line", { stroke: "#87878c" }, diag);
+const nodeLbl = ["pending", "committed", "pending", "no commit"].map((s) => div("abs label", s, cvLayer));
+const conns = [0, 1, 2].map(() => svgEl("line", { "stroke-width": 1.2 }, cvSvg, { stroke: "var(--muted)" }));
 function mkRecord(x0, x1, text) {
-  const outline = svgEl("rect", { x: x0, y: SEG_Y - SEG_H / 2, width: x1 - x0, height: SEG_H, fill: "none", stroke: "#3a3a3f" }, diag);
-  const fill = svgEl("rect", { x: x0, y: SEG_Y - SEG_H / 2, height: SEG_H, width: 0, fill: "#c4552e" }, diag);
-  const txt = el("div", "abs mono", text, diagWrap); txt.style.cssText += "font-size:19px;color:#0b0b0c;overflow:hidden;font-weight:500;";
+  const outline = svgEl("rect", { x: x0, y: SEG_Y - SEG_H / 2, width: x1 - x0, height: SEG_H, "stroke-width": 1.2 }, cvSvg, { fill: "none", stroke: "var(--hair2)" });
+  const fill = svgEl("rect", { x: x0, y: SEG_Y - SEG_H / 2, height: SEG_H, width: 0 }, cvSvg, { fill: "var(--ember)" });
+  const txt = div("abs mono", text, cvLayer); txt.style.cssText += "font-size:19px;color:var(--bg);overflow:hidden;font-weight:500;";
   return { outline, fill, txt };
 }
-const rec1 = mkRecord(R1[0], R1[1], '{"id":"9f2c41","doc":{"title":"demo.ts"}}');
-const rec2 = mkRecord(R2[0], R2[1], '{"id":"b7e0d3","doc":{"title":"PRODUCT.md"}}');
-const tornEdge = svgEl("path", { fill: "#0b0b0c" }, diag);
-const glitchA = svgEl("rect", { fill: "#ededec" }, diag), glitchB = svgEl("rect", { fill: "#c4552e" }, diag), cutLine = svgEl("line", { stroke: "#ededec", "stroke-width": 2 }, diag);
-const fsyncTags = [0, 1, 2, 3].map(() => el("div", "abs label", "fsync", diagWrap));
-const ackTag = el("div", "abs mono", "ack &rarr; client", diagWrap);
-ackTag.style.cssText += "font-size:18px;color:var(--ember-text);border:1px solid var(--ember);padding:6px 10px;border-radius:2px;";
-const sigTag = el("div", "abs mono", "kill -9", diagWrap);
-sigTag.style.cssText += "font-size:26px;color:#0b0b0c;background:var(--ember);padding:8px 16px;border-radius:2px;letter-spacing:0.08em;font-weight:600;";
-const scanBand = svgEl("rect", { y: 360, height: 440, fill: "rgba(196,85,46,0.10)" }, diag);
-const scanLine = svgEl("line", { stroke: "#c4552e", "stroke-width": 2 }, diag);
-const cap1 = el("div", "abs mono", "committed &nbsp;·&nbsp; verified &nbsp;·&nbsp; kept", diagWrap);
-const cap2 = el("div", "abs mono", "torn &nbsp;·&nbsp; unacked &nbsp;·&nbsp; discarded", diagWrap);
-for (const c of [cap1, cap2]) c.style.cssText += "font-size:22px;";
-cap1.style.color = "var(--ember-text)"; cap2.style.color = "var(--ink-muted)";
-const question = el("div", "abs serif", "What if it dies <em style='color:#e27950'>mid-write?</em>"); question.style.fontSize = "104px";
-const flash = el("div", "abs"); flash.style.cssText += "width:1920px;height:1080px;background:#ededec;";
-// odometer
-const odo = el("div", "abs");
+const walId = DATA.wal.id;
+const rec1 = mkRecord(RC1[0], RC1[1], `{"id":"${walId.slice(0, 8)}…","doc":{"title":"Crash recovery guide"}}`);
+const rec2 = mkRecord(RC2[0], RC2[1], `{"id":"7c19e0aa…","doc":{"title":"PRODUCT.md","content":"…`);
+const tornEdge = svgEl("path", {}, cvSvg, { fill: "var(--bg)" });
+const shards = Array.from({ length: 26 }, () => svgEl("rect", {}, cvSvg, { fill: "var(--ember)" }));
+const STEP_TXT = ["1 &nbsp;intent to wal.log, fsync", "2 &nbsp;bytes to the segment, fsync", "3 &nbsp;commit to wal.log, fsync", "4 &nbsp;acknowledge the client"];
+const stepTags = STEP_TXT.map((s) => { const n = div("abs mono", s, cvLayer); n.style.cssText += "font-size:20px;color:var(--ember-text);"; return n; });
+const walLine = div("abs mono", "", cvLayer); walLine.style.cssText += "font-size:18px;color:var(--muted);white-space:pre;";
+const WAL_JSON = (st) => `${JSON.stringify({ docId: walId.slice(0, 8) + "…", op: "write", status: st, byteOffset: 0, length: DATA.wal.wal[0].length, dataChecksum: DATA.wal.wal[0].dataChecksum.slice(0, 10) + "…" })}`;
+const killTag = div("abs mono", "kill -9", cvLayer);
+killTag.style.cssText += "font-size:30px;color:#fff;background:var(--ember);padding:10px 20px;border-radius:2px;letter-spacing:0.08em;font-weight:600;";
+const glitchSvg = svgLayer(stage);
+const glitchBars = Array.from({ length: 14 }, () => svgEl("rect", {}, glitchSvg));
+const blackout = div("layer"); blackout.style.background = "#050506";
+const deadA = div("abs mono", "", blackout); deadA.style.cssText += "font-size:24px;color:#87878c;white-space:pre;";
+const term = div("abs mono", "", cvLayer); term.style.cssText += "font-size:22px;color:var(--ink2);white-space:pre;";
+const scanBand = svgEl("rect", { y: WAL_Y - 80, height: SEG_Y - WAL_Y + 160 }, cvSvg, { fill: "var(--ember-soft)" });
+const scanLn = svgEl("line", { "stroke-width": 2 }, cvSvg, { stroke: "var(--ember)" });
+const verdict1 = div("abs mono", "committed &nbsp;·&nbsp; checksum ok &nbsp;·&nbsp; kept", cvLayer); verdict1.style.cssText += "font-size:22px;color:var(--ember-text);";
+const verdict2 = div("abs mono", "no commit &nbsp;·&nbsp; torn bytes &nbsp;·&nbsp; discarded", cvLayer); verdict2.style.cssText += "font-size:22px;color:var(--muted);";
+const cvCap = div("abs sans", "Acknowledged writes survive. The torn write was never acknowledged, so nothing is lost.", cvLayer); cvCap.style.cssText += "font-size:28px;color:var(--ink);";
+// the proof: the repo's crash test
+const proof = layer(CV.inner);
 function mkCounter(value, label, size) {
-  const wrap = el("div", "abs", "", odo);
-  const num = el("div", "serif", "", wrap); num.style.cssText += `font-size:${size}px;line-height:1;height:${size * 1.02}px;`;
+  const wrap = div("abs", "", proof);
+  const num = div("serif", "", wrap); num.style.cssText += `font-size:${size}px;line-height:1;height:${size * 1.05}px;`;
   const cols = [];
   for (const ch of value) {
     if (ch === ",") { const c = el("span", "", ",", num); c.style.cssText = "display:inline-block;vertical-align:top;"; continue; }
-    const col = el("span", "", "", num); col.style.cssText = `display:inline-block;overflow:hidden;vertical-align:top;text-align:center;height:${size * 1.02}px;-webkit-mask-image:linear-gradient(transparent 0%,#000 22%,#000 78%,transparent 100%);`;
+    const col = el("span", "", "", num); col.style.cssText = `display:inline-block;overflow:hidden;vertical-align:top;text-align:center;height:${size * 1.05}px;-webkit-mask-image:linear-gradient(transparent 0%,#000 20%,#000 80%,transparent 100%);`;
     const strip = el("span", "", "", col); strip.style.display = "block";
-    for (let i = 0; i < 30; i++) { const d = el("span", "", String(i % 10), strip); d.style.cssText = `display:block;height:${size * 1.02}px;`; }
+    for (let i = 0; i < 30; i++) { const d = el("span", "", String(i % 10), strip); d.style.cssText = `display:block;height:${size * 1.05}px;`; }
     cols.push({ col, strip, d: Number(ch) });
   }
-  const lab = el("div", "label", label, wrap); lab.style.marginTop = "22px";
+  const lab = div("label", label, wrap); lab.style.marginTop = "26px"; lab.style.fontSize = "18px";
   return { wrap, num, cols, lab, size };
 }
-const cA = mkCounter("225,141", "acknowledged writes", 190), cB = mkCounter("8", "kill -9 rounds", 190), cC = mkCounter("0", "lost", 190);
+const cA = mkCounter("225,141", "acknowledged writes", 180), cB = mkCounter("8", "kill -9 rounds", 180), cC = mkCounter("0", "lost or corrupted", 180);
+const proofCap = div("abs mono", "npm run crash-test &nbsp;·&nbsp; real SIGKILL against a live writer, then every acknowledged id is checked", proof);
+proofCap.style.cssText += "font-size:20px;color:var(--muted);";
 
-// ================= SCENE 5: lockup =================
-const word = el("div", "abs serif"); word.style.cssText += "font-size:290px;line-height:1;letter-spacing:-0.015em;";
+// ================= 07 FINALE =================
+const S7 = layer();
+const recapSvg = svgLayer(S7);
+const recapLine = svgEl("line", { "stroke-width": 2 }, recapSvg, { stroke: "var(--ember)" });
+const recapNodes = MAP.map(([num, name]) => div("abs", `<div class="label">${num}</div><div class="serif" style="font-size:46px;margin-top:8px">${name}</div>`, S7));
+const recapSq = MAP.map(() => svgEl("rect", { width: 14, height: 14, x: -7, y: -7 }, recapSvg, { fill: "var(--ember)" }));
+const recapHead = maskText(S7, "serif", "Six layers. No black boxes.", 84);
+const word = div("abs serif", "", S7); word.style.cssText += "font-size:300px;line-height:1;";
 const wordLetters = Array.from("Shardly", (ch) => { const s = el("span", "", ch, word); s.style.cssText = "display:inline-block;"; return s; });
-const lockLine = svgEl("line", { stroke: "#c4552e", "stroke-width": 2 }, svgEl("svg", { width: W, height: H }, stage));
-const tag1 = el("div", "abs serif", "A search engine you can read."); tag1.style.cssText += "font-size:66px;color:var(--ink-2);font-style:italic;";
-const tag2 = el("div", "abs mono", "hand-built storage · index · ranking &nbsp;·&nbsp; typescript"); tag2.style.cssText += "font-size:24px;color:var(--ink-muted);letter-spacing:0.02em;";
-const repo = el("div", "abs mono", "github.com/whynotramaa/shardly"); repo.style.cssText += "font-size:26px;color:var(--ember-text);";
-const cursorEnd = el("div", "abs"); cursorEnd.style.cssText += "width:15px;height:30px;background:var(--ember);";
-const blackout = el("div", "abs"); blackout.style.cssText += "width:1920px;height:1080px;background:#0b0b0c;";
+const lockLine = svgEl("line", { "stroke-width": 2 }, recapSvg, { stroke: "var(--ember)" });
+const tag1 = maskText(S7, "serif", "A search engine you can *read.*", 72);
+tag1.style.color = "var(--ink2)";
+const tag2 = div("abs mono", "storage · write-ahead log · inverted index · bm25 &nbsp;/&nbsp; hand-built in typescript", S7); tag2.style.cssText += "font-size:24px;color:var(--muted);";
+const repo = div("abs mono", "github.com/whynotramaa/shardly", S7); repo.style.cssText += "font-size:28px;color:var(--ember-text);";
+const cursorEnd = div("abs", "", S7); cursorEnd.style.cssText += "width:15px;height:32px;background:var(--ember);";
+
+// ---------- finishing: grain and vignette over everything ----------
+const vignette = div("layer"); vignette.style.background = "radial-gradient(ellipse 75% 70% at 50% 50%, transparent 55%, rgba(0,0,0,0.5) 100%)";
+const grain = div("layer");
+{
+  const c = document.createElement("canvas"); c.width = c.height = 256; const x = c.getContext("2d"), img = x.createImageData(256, 256), r = rng(99);
+  for (let i = 0; i < img.data.length; i += 4) { const v = Math.floor(r() * 255); img.data[i] = img.data[i + 1] = img.data[i + 2] = v; img.data[i + 3] = 255; }
+  x.putImageData(img, 0, 0); grain.style.backgroundImage = `url(${c.toDataURL()})`; grain.style.mixBlendMode = "overlay";
+}
 
 // ---------- measurements after fonts load ----------
-let M = {};
+const M = {};
 function measure() {
-  const w = (n) => n.getBoundingClientRect().width;
-  for (const n of [word, repo]) place(n, 0, 0);
-  qText.textContent = QUERY; place(qText, 0, 0); M.qCharW = w(qText) / QUERY.length; qText.textContent = "";
+  const w = (n) => rect(n).width;
+  for (const n of [word, repo, qText, period]) place(n, 0, 0);
+  qText.textContent = QUERY; M.qCharW = w(qText) / QUERY.length; qText.textContent = "";
   M.word = w(word); M.repo = w(repo);
   rows.forEach((r) => { place(r.row, 0, 0); r.tag.style.left = `${56 + w(r.title) + 18}px`; });
-  let x = 600; anaChips.forEach((c) => { c.style.left = `${x}px`; c.style.top = "86px"; x += w(c) + 18; });
-  x = 600; idParts.forEach((c) => { c.style.left = `${x}px`; c.style.top = "196px"; x += w(c) + 18; });
+  const probe = div("abs mono", "x".repeat(20), CA.inner); probe.style.fontSize = "46px"; M.cw = w(probe) / 20; probe.remove();
   for (const c of [cA, cB, cC]) {
-    const probe = el("span", "serif", "0", c.num); probe.style.fontSize = `${c.size}px`; const dw = w(probe); probe.remove();
+    const p = el("span", "serif", "0", c.num); p.style.fontSize = `${c.size}px`; const dw = w(p); p.remove();
     c.cols.forEach((col) => { col.col.style.width = `${dw}px`; });
     c.w = w(c.num);
   }
+  M.zeroX = 1400 + cC.w / 2; M.zeroY = 470 + cC.size * 0.55;
 }
 
 // ================= render =================
 function seek(t) {
+  const frame = Math.round(t * FPS);
+  // ---- theme: light, a night wipe at TL.dark, daylight returns from the zero at TL.light ----
+  const nightR = E(t, TL.dark, TL.dark + 1.25, bezier(0.7, 0, 0.25, 1)) * 1180;
+  const dayR = E(t, TL.light, TL.light + 1.3, bezier(0.7, 0, 0.25, 1)) * 2300;
+  const th = t < TL.light ? E(t, TL.dark + 0.15, TL.dark + 1.0, easeInOut) : 1 - E(t, TL.light + 0.1, TL.light + 1.0, easeInOut);
+  setTheme(th);
+  night.style.clipPath = `circle(${nightR}px at 960px 540px)`; show(night, nightR > 0.5 && dayR < 2299);
+  day.style.clipPath = `circle(${dayR}px at ${M.zeroX ?? 960}px ${M.zeroY ?? 540}px)`; show(day, dayR > 0.5);
+  vignette.style.opacity = mix(0.12, 0.75, th);
+  grain.style.opacity = mix(0.09, 0.07, th);
+  const gr = rng(frame + 1); grain.style.backgroundPosition = `${Math.floor(gr() * 256)}px ${Math.floor(gr() * 256)}px`;
+
   // ---- chrome ----
-  const chromeO = E(t, 0.3, 0.9) * (1 - E(t, 28.6, 29.2, easeIn));
-  grid.style.opacity = chromeO; chromeSvg.style.opacity = chromeO;
-  let si = 0; for (let i = 0; i < SECTIONS.length; i++) if (t >= SECTIONS[i][0]) si = i;
-  const sp = E(t, SECTIONS[si][0], SECTIONS[si][0] + 0.5);
-  secLabel.innerHTML = SECTIONS[si][1]; place(secLabel, 100, 92 - 14 * (1 - sp), { o: chromeO * (si === 0 ? 1 : sp) });
-  secLabelPrev.innerHTML = si > 0 ? SECTIONS[si - 1][1] : ""; place(secLabelPrev, 100, 92 + 14 * sp, { o: si > 0 ? chromeO * (1 - sp) : 0 });
-  timecode.textContent = `t+ ${t.toFixed(2).padStart(5, "0")} s`; place(timecode, W - 100, 92, { ax: 1, o: chromeO });
-  footRight.textContent = `frame ${String(Math.round(t * FPS)).padStart(4, "0")} / 0900`;
-  place(footLeft, 100, H - 112, { o: chromeO }); place(footRight, W - 100, H - 112, { ax: 1, o: chromeO });
+  const chromeO = E(t, 0.2, 1.0) * (1 - E(t, DURATION - 1.2, DURATION - 0.5, easeIn));
+  gridSvg.style.opacity = chromeO; frameSvg.style.opacity = chromeO;
+  timecode.textContent = `t+ ${t.toFixed(2).padStart(6, "0")} s`; place(timecode, W - 100, 92, { ax: 1, o: chromeO });
+  const inChapter = t >= TL.ingest && t < TL.light;
+  place(brandTag, 100, 92, { o: chromeO * (1 - E(t, TL.ingest - 0.4, TL.ingest)) + chromeO * E(t, TL.recap, TL.recap + 0.6) });
 
-  // ================= SCENE 1 =================
-  // cards pop on sixteenth notes, drift, then get pulled into the centre for the downbeat at 3.0
-  const PULL0 = 2.0, PULL1 = 2.95;
-  cardEls.forEach((c, i) => {
-    const [tag, , x0, y0, r0] = CARDS[i];
-    const tIn = 0.25 + i * 0.125, a = E(t, tIn, tIn + 0.35);
-    const drift = Math.max(0, t - tIn) * 10;
-    const pull = E(t, PULL0 + (i % 4) * 0.05, PULL1, bezier(0.7, 0, 0.9, 0.45));
-    const group = t < 1.0 ? 0 : t < 1.5 ? 1 : 2;
-    const active = t >= 0.5 && t < PULL0 && GROUP[tag] === group;
-    c.style.borderColor = active ? "#c4552e" : "#3a3a3f";
-    c.querySelector(".tag").style.color = active ? "#e27950" : "";
-    c.querySelector(".tag").style.borderColor = active ? "#c4552e" : "";
-    const x = mix(960 + x0 + drift * Math.sign(x0), 960, pull), y = mix(540 + y0 + 14 * (1 - a), 640, pull);
-    place(c, x, y, { ax: 0.5, ay: 0.5, o: a * (1 - E(t, PULL1 - 0.2, PULL1)) * (active || t < 0.5 || t >= PULL0 ? 1 : 0.55), s: (0.92 + 0.08 * a) * (1 - 0.88 * pull), r: r0 * (1 - pull) + pull * (i % 2 ? 50 : -50), blur: 5 * pull });
-  });
-  // three words swap in place on the beats 0.5 / 1.0 / 1.5
-  wordEls.forEach((n, i) => {
-    const s = 0.5 + i * 0.5, eIn = E(t, s, s + 0.3), eOut = i < 2 ? E(t, s + 0.5, s + 0.6, easeIn) : E(t, PULL0, PULL0 + 0.35, easeIn);
-    n.style.color = i === 2 ? "#e27950" : "";
-    place(n, 960, 540 + 30 * (1 - eIn) - 30 * eOut, { ax: 0.5, ay: 0.5, o: eIn * (1 - eOut), blur: 8 * (1 - eIn) + 8 * eOut });
-  });
-  // the pulled-in point opens into the search box on the downbeat
-  const BOX0 = { x: 360, w: 1200, y: 592, h: 96 }, BOX1 = { x: 300, w: 1320, y: 190, h: 96 };
-  const open = E(t, 2.95, 3.35, bezier(0.2, 0.9, 0.2, 1));
-  const lift = E(t, 4.0, 4.5, easeInOut);
-  const toIso = E(t, 9.95, 10.3, easeIn);
-  const bx = mix(BOX0.x, BOX1.x, lift), bw = mix(BOX0.w, BOX1.w, lift), by = mix(BOX0.y, BOX1.y, lift), bh = BOX0.h;
-  const cx = bx + bw / 2, boxW = bw * open, boxH = mix(2, bh, E(t, 3.1, 3.45));
-  boxRect.setAttribute("x", cx - boxW / 2); boxRect.setAttribute("y", by + bh / 2 - boxH / 2); boxRect.setAttribute("width", Math.max(0, boxW)); boxRect.setAttribute("height", boxH);
-  boxSvg.style.opacity = (t >= 2.95 ? 1 : 0) * (1 - toIso);
-  setLine(boxUnder, cx - boxW / 2 + 6, by + bh / 2 + boxH / 2, cx + boxW / 2 - 6, by + bh / 2 + boxH / 2, open > 0.02 ? 1 : 0, "#c4552e", 2);
-  const btnA = E(t, 3.3, 3.6);
-  place(searchBtn, bx + bw - 17, by + bh / 2, { ax: 1, ay: 0.5, o: btnA * (1 - toIso), s: 0.94 + 0.06 * btnA });
-  const ob = E(t, 3.05, 3.45), obOut = E(t, 3.95, 4.25, easeIn);
-  place(oneBox, 960, 430 + 20 * (1 - ob) - 30 * obOut, { ax: 0.5, ay: 0.5, o: ob * (1 - obOut), blur: 6 * (1 - ob) + 6 * obOut });
-  place(subLine, 960, 750, { ax: 0.5, o: E(t, 3.45, 3.8) * (1 - E(t, 3.95, 4.2, easeIn)) });
-
-  // ================= SCENE 2 =================
-  const qn = Q_T.filter((k) => t >= k).length;
-  qText.textContent = QUERY.slice(0, qn);
-  const QX = bx + 38, QY = by + 22;
-  place(qText, QX, QY, { o: (t >= 4.5 ? 1 : 0) * (1 - toIso) });
-  const caretOn = t >= 4.4 && t < 5.5 && (qn < QUERY.length || Math.floor(t * 2.4) % 2 === 0);
-  place(caret, QX + qn * M.qCharW + 2, QY + 1, { o: caretOn ? 1 : 0 });
-  // enter on the beat at 5.5; the product's scan line sweeps under the box
-  const sw = lin(t, 5.5, 5.8);
-  setLine(scanSweep, bx + bw * Math.max(0, ease(sw) - 0.25), by + bh + 1, bx + bw * ease(sw), by + bh + 1, sw > 0 && sw < 1 ? 1 : 0, "#c4552e", 3);
-  const dim2 = E(t, 8.45, 8.85, easeIn);
-  place(statChip, bx, by + bh + 26, { o: E(t, 5.75, 6.0) * (1 - dim2) });
-  const pvIn = E(t, 7.0, 7.45, bezier(0.2, 0.9, 0.2, 1));
-  rows.forEach((r, i) => {
-    const s = 6.0 + i * 0.125, a = E(t, s, s + 0.5);
-    const rw = mix(ROW_W, ROW_W - 640, pvIn);
-    r.row.style.width = `${rw}px`; r.rule.style.width = `${rw}px`; r.sn.style.width = `${rw - 56}px`;
-    place(r.row, ROW_X, ROW_Y0 + i * ROW_H + 24 * (1 - a), { o: a * (1 - dim2) * (i === 0 ? 1 : 1 - 0.5 * pvIn) });
-    r.rule.style.transform = `scaleX(${E(t, s + 0.1, s + 0.7)})`;
-    r.marks.forEach((m, k) => {
-      const p = E(t, s + 0.3 + k * 0.08, s + 0.55 + k * 0.08);
-      m.style.background = `linear-gradient(90deg, rgba(196,85,46,0.24) ${p * 100}%, transparent ${p * 100}%)`;
-      m.style.color = p > 0.4 ? "#e27950" : "";
-    });
-    r.title.style.textDecoration = i === 0 && pvIn > 0.05 ? "underline" : "none";
-    r.title.style.textDecorationThickness = "2px"; r.title.style.textUnderlineOffset = "6px";
-  });
-  place(preview, 1020 + 500 * (1 - pvIn), ROW_Y0 - 6, { o: pvIn * (1 - dim2) });
-  const pvp = E(t, 7.5, 7.95);
-  pvm.style.background = `linear-gradient(90deg, rgba(196,85,46,0.24) ${pvp * 100}%, transparent ${pvp * 100}%)`;
-  pvm.style.color = pvp > 0.3 ? "#e27950" : "";
-  // "Now open it up." on the downbeat at 9.0
-  const ou = E(t, 9.0, 9.3), ouOut = E(t, 9.75, 10.0, easeIn);
-  place(openUp, 960, 610 + 20 * (1 - ou), { ax: 0.5, ay: 0.5, o: ou * (1 - ouOut), s: 1 + 0.05 * lin(t, 9.0, 10.0), blur: 8 * (1 - ou) + 12 * ouOut });
-
-  // ================= SCENE 3: explode =================
-  // the query plate takes the box's place, tilts to isometric, and the layers split apart on the 10.5 downbeat
-  const tilt = E(t, 9.95, 10.55, easeInOut);
-  const spread = E(t, 10.4, 11.0, bezier(0.2, 0.9, 0.2, 1));
-  const isoOut = E(t, 18.9, 19.3, easeIn);
-  const isoOn = t >= 9.95 && t < 19.35;
-  iso3d.style.visibility = isoOn ? "visible" : "hidden";
-  const cam = E(t, 17.5, 18.1, easeInOut);
-  iso.style.transform = `translate(${mix(960, 800, tilt) + 420 * cam}px, ${mix(238, 515, tilt) + 25 * cam}px) scale(${mix(1.18, 0.62, tilt) * (1 - 0.1 * cam)}) rotateX(${60 * tilt}deg) rotateZ(${-20 * tilt}deg)`;
-  iso.style.opacity = isoOn ? E(t, 9.95, 10.1) * (1 - isoOut) : 0;
-  let focus = -1;
-  if (t >= 11.0 && t < 17.0) focus = t < 12.5 ? 1 : t < 14.0 ? 2 : t < 15.5 ? 3 : 4;
-  const atTop = t >= 17.0;
-  P.forEach((pl, i) => {
-    pl.p.style.transform = `translateZ(${(2 - i) * 330 * spread + (4 - i) * 1.5}px)`;   // keep stacking order while collapsed
-    const lit = focus === -1 ? !(t >= 11.0 && i !== 0 && atTop) : focus === i;
-    const dimV = t < 11.0 || t >= 18.0 ? 1 : lit || (atTop && i === 0) ? 1 : 0.22;
-    pl.p.style.setProperty("--dim", dimV);
-    pl.p.style.opacity = i > 0 ? E(t, 10.35, 10.6) : 1;
-    pl.p.style.borderColor = focus === i || (i === 0 && atTop && t < 18.0) ? "#c4552e" : "#3a3a3f";
-  });
-  anaChips.forEach((c, i) => { const a = E(t, 11.1 + i * 0.12, 11.45 + i * 0.12); c.style.opacity = a; c.style.transform = `translateX(${-40 * (1 - a)}px)`; });
-  idParts.forEach((c, i) => { const a = E(t, 11.6 + i * 0.1, 11.95 + i * 0.1); c.style.opacity = a; c.style.transform = `translateX(${-40 * (1 - a)}px)`; });
-  anaArrows.forEach((a, i) => { a.style.opacity = E(t, 11.05 + i * 0.5, 11.3 + i * 0.5); });
-  const fillSq = (arr, t0) => arr.forEach((s, k) => {
-    const on = t >= t0 + k * 0.016, isCommon = common.has(Number(s.dataset.c)), lit = t >= 13.1 && isCommon;
-    s.style.background = lit ? "#c4552e" : on ? "#2c2c31" : "transparent";
-    s.style.borderColor = lit ? "#c4552e" : on ? "#4a4a50" : "#2a2a2e";
-    s.style.opacity = t >= 13.1 && !isCommon ? 0.4 : 1;
-  });
-  fillSq(crSq, 12.55); fillSq(reSq, 12.7);
-  links.forEach((l, k) => { l.style.transform = `scaleY(${E(t, 13.15 + k * 0.025, 13.45 + k * 0.025)})`; });
-  idxCap.style.opacity = E(t, 13.4, 13.65);
-  const grow = E(t, 14.05, 14.5), sort = E(t, 14.6, 15.15, easeInOut);
-  rk.forEach((r, i) => {
-    const y = mix(78 + START_ORDER.indexOf(i) * 50, 78 + i * 50, sort);
-    r.t.style.top = `${y - 2}px`; r.track.style.top = `${y + 2}px`; r.bar.style.top = `${y + 2}px`; r.v.style.top = `${y - 2}px`;
-    r.bar.style.width = `${r.w * grow}px`; r.v.textContent = fmt(RANK[i].score * grow);
-    const won = sort > 0.9;
-    r.t.style.color = won && i === 0 ? "#e27950" : "";
-    r.bar.style.background = !won || i === 0 ? "#c4552e" : "#6b3a28";
-  });
-  formula.style.opacity = E(t, 14.3, 14.6);
-  walNodes.forEach((n, k) => { const on = t >= 15.5 + k * 0.02; n.style.background = on ? "#c4552e" : "#111113"; n.style.borderColor = on ? "#c4552e" : "#87878c"; });
-  const sk = E(t, 15.65, 15.95, bezier(0.7, 0, 0.3, 1));
-  seekLine.style.transform = `scaleY(${sk})`; seekLine.style.opacity = sk > 0 ? 1 : 0;
-  segEls.forEach((s, k) => { const lit = k === HIT_SEG && t >= 15.95; s.s.style.background = lit ? "#c4552e" : t >= 15.5 ? "#1b1b1e" : "transparent"; s.s.style.borderColor = lit ? "#c4552e" : "#3a3a3f"; });
-  seekCap.style.opacity = E(t, 16.0, 16.3);
-  p0result.style.opacity = E(t, 17.45, 17.7);
-
-  // callouts and the travelling signal follow the projected plates
-  const marks = P.map((pl) => center(pl.mkR)), centers = P.map((pl) => center(pl.mkC));
-  CALL.forEach((_, i) => {
-    const a = isoOn ? E(t, 10.65 + i * 0.08, 10.95 + i * 0.08) * (1 - E(t, 17.5, 17.8, easeIn)) : 0;
-    const [mx, my] = marks[i], lx = 1430, ly = 200 + i * 150;
-    const on = focus === i || (atTop && i === 0 && t < 18.0);
-    callLines[i].setAttribute("points", `${mx},${my} ${lx - 30},${ly + 18} ${lx - 14},${ly + 18}`);
-    callLines[i].setAttribute("opacity", a); callLines[i].setAttribute("stroke", on ? "#c4552e" : "#3a3a3f");
-    callDots[i].setAttribute("x", mx - 4.5); callDots[i].setAttribute("y", my - 4.5); callDots[i].setAttribute("opacity", a); callDots[i].setAttribute("fill", on ? "#c4552e" : "#87878c");
-    place(callEls[i], lx, ly, { o: a * (focus === -1 || on || t >= 18.0 ? 1 : 0.35) });
-    callEls[i].firstChild.style.color = on ? "#e27950" : "";
-  });
-  let sx = 0, sy = 0, so = 0;
-  const legs = [[10.85, 11.0, 0, 1], [12.35, 12.5, 1, 2], [13.85, 14.0, 2, 3], [15.35, 15.5, 3, 4]];
-  if (t >= 10.75 && t < 17.0) {
-    so = E(t, 10.75, 10.85);
-    let at = 0, moving = false;
-    for (const [a, b, from, to] of legs) {
-      if (t >= b) at = to;
-      else if (t >= a) { const p = E(t, a, b, easeInOut); sx = mix(centers[from][0], centers[to][0], p); sy = mix(centers[from][1], centers[to][1], p); moving = true; break; }
+  // ================= S1 =================
+  show(S1, t < TL.box + 0.6);
+  if (t < TL.box + 0.6) {
+    const cOn = t > 0.5 && t < TL.hook && Math.floor(t * 3) % 2 === 0;
+    place(caret0, 960, 540, { ax: 0.5, ay: 0.5, o: cOn ? 1 : 0 });
+    place(hookA, 960, 400, { ax: 0.5 }); maskAnim(hookA, t, TL.hook, TL.field - 0.3);
+    place(hookB, 960, 560, { ax: 0.5 }); maskAnim(hookB, t, TL.hook + 0.9, TL.field - 0.2);
+    // the field of documents drifts toward the camera, then is pulled into one point
+    const fieldOn = t >= TL.field - 0.1 && t < TL.box + 0.2;
+    show(field3d, fieldOn);
+    if (fieldOn) {
+      fieldCards.forEach((c, i) => {
+        const s = t - TL.field, z = c.z0 + 420 * s + 30 * s * s;
+        const pull = E(t, TL.converge + (i % 9) * 0.035, TL.box - 0.05, bezier(0.6, 0, 0.9, 0.5));
+        const x = mix(c.x, 0, pull), y = mix(c.y, 0, pull), zz = mix(z, -2600, pull);
+        const fog = clamp((zz + 4400) / 1600) * clamp((800 - zz) / 450);
+        const a = E(t, TL.field + (i % 12) * 0.05, TL.field + 0.7 + (i % 12) * 0.05);
+        c.c.style.transform = `translate3d(${x - 150}px, ${y - 88}px, ${zz}px) rotateY(${c.ry * (1 - pull)}deg) rotateX(${c.rx * (1 - pull)}deg)`;
+        c.c.style.opacity = fog * a * (1 - E(t, TL.box - 0.35, TL.box - 0.05));
+        const blur = Math.min(6, Math.abs(zz + 700) / 480);
+        c.c.style.filter = blur > 0.4 ? `blur(${blur.toFixed(1)}px)` : "none";
+        c.c.style.visibility = fog * a > 0.005 ? "visible" : "hidden";
+      });
     }
-    if (!moving) { sx = centers[at][0]; sy = centers[at][1]; }
-  } else if (t >= 17.0 && t < 17.5) {
-    so = 1; const f = 4 * (1 - E(t, 17.0, 17.5, bezier(0.5, 0, 0.2, 1))), i0 = Math.floor(f), fr = f - i0;
-    const lo = centers[i0], hi = centers[Math.min(4, i0 + 1)];
-    sx = mix(lo[0], hi[0], fr); sy = mix(lo[1], hi[1], fr);
+    const cn = E(t, TL.field + 1.2, TL.field + 2.6, bezier(0.3, 0, 0.2, 1)), cnOut = E(t, TL.finds - 0.5, TL.finds - 0.1, easeIn);
+    countNum.textContent = fmtInt(DATA.documents * cn);
+    place(countNum, 140, 760 + 20 * (1 - E(t, TL.field + 1.2, TL.field + 1.8)), { o: E(t, TL.field + 1.2, TL.field + 1.6) * (1 - cnOut) });
+    place(countLbl, 146, 930, { o: E(t, TL.field + 1.8, TL.field + 2.3) * (1 - cnOut) });
+    place(finds, 960, 470, { ax: 0.5 }); maskAnim(finds, t, TL.finds, TL.box - 0.5, { st: 0.1 });
   }
-  place(signal, sx, sy, { ax: 0.5, ay: 0.5, o: so * (isoOn ? 1 : 0), r: 45 });
-  if (t >= 17.0 && t < 18.0) { signalTrail.setAttribute("points", centers.map((c) => c.join(",")).join(" ")); signalTrail.setAttribute("opacity", 1 - E(t, 17.5, 18.0)); }
-  else signalTrail.setAttribute("opacity", 0);
-  const hb = E(t, 17.6, 17.95), nd = E(t, 18.05, 18.4), hbOut = E(t, 18.85, 19.15, easeIn);
-  place(handBuilt, 120, 400 + 16 * (1 - hb), { o: hb * (1 - hbOut), blur: 6 * (1 - hb) });
-  place(noDb, 120, 500 + 16 * (1 - nd), { o: nd * (1 - hbOut), blur: 6 * (1 - nd) });
 
-  // ================= SCENE 4: crash =================
-  // the storage layer swings flat toward the camera and becomes the full write diagram
-  const dIn = E(t, 19.0, 19.55, bezier(0.2, 0.9, 0.2, 1)), dOut = E(t, 22.35, 22.7, easeIn), dO = dIn * (1 - dOut);
-  const KILL = 21.0, glitching = t >= KILL && t < KILL + 0.22;
-  diagWrap.style.transform = `rotateX(${48 * (1 - dIn)}deg) scale(${mix(0.8, 1, dIn) * (1 - 0.02 * dOut)})` + (glitching ? ` translateX(${Math.round(Math.sin(t * 2100) * 10)}px)` : "");
-  diagWrap.style.opacity = dO; diagWrap.style.filter = dOut > 0.02 ? `blur(${6 * dOut}px)` : "none";
-  diag3d.style.visibility = dO > 0.001 ? "visible" : "hidden";
-  const qa = E(t, 19.3, 19.7);
-  place(question, 960, 240 + 16 * (1 - qa), { ax: 0.5, ay: 0.5, o: qa * (1 - dOut), blur: 6 * (1 - qa) });
-  place(lblWal, 470, WAL_Y - 64); place(lblSeg, 470, SEG_Y + SEG_H / 2 + 34);
-  const TICKS = [19.5, 19.85, 20.15, 20.5];
-  const nodeState = (n, appearT, fillT, x) => {
-    const a = E(t, appearT, appearT + 0.25);
-    n.g.setAttribute("transform", `translate(${x} ${WAL_Y}) scale(${0.4 + 0.6 * a})`); n.g.setAttribute("opacity", a);
-    const f = fillT == null ? 0 : E(t, fillT, fillT + 0.1);
-    n.fill.setAttribute("opacity", f); n.fill.setAttribute("transform", `scale(${f})`);
-    const pp = fillT == null ? 0 : lin(t, fillT, fillT + 0.4);
-    n.pulse.setAttribute("opacity", pp > 0 && pp < 1 ? 1 - pp : 0); n.pulse.setAttribute("transform", `scale(${1 + 1.4 * ease(pp)})`);
-    n.ring.setAttribute("stroke", f > 0.5 ? "#c4552e" : "#87878c");
-  };
-  nodeState(nP1, 19.3, TICKS[0], NODES.P1); nodeState(nC1, 19.35, TICKS[2], NODES.C1); nodeState(nP2, 20.35, TICKS[3], NODES.P2); nodeState(nC2, 20.4, null, NODES.C2);
-  place(lP1, NODES.P1, WAL_Y + 30, { ax: 0.5, o: E(t, 19.5, 19.7) });
-  place(lC1, NODES.C1, WAL_Y + 30, { ax: 0.5, o: E(t, 20.15, 20.35) });
-  place(lP2, NODES.P2, WAL_Y + 30, { ax: 0.5, o: E(t, 20.5, 20.7) * (1 - E(t, 21.9, 22.1)) });
-  place(lC2, NODES.C2, WAL_Y + 30, { ax: 0.5, o: E(t, 21.2, 21.4) * (1 - E(t, 21.9, 22.1)) });
-  const cp1 = E(t, 19.5, 19.65), cc1 = E(t, 19.9, 20.1), cp2 = E(t, 20.5, 20.62);
-  setLine(connP1, NODES.P1, WAL_Y + 13, mix(NODES.P1, R1[0] + 2, cp1), mix(WAL_Y + 13, SEG_Y - SEG_H / 2, cp1), cp1 > 0 ? 1 : 0);
-  setLine(connC1, R1[1] - 2, SEG_Y - SEG_H / 2, mix(R1[1] - 2, NODES.C1, cc1), mix(SEG_Y - SEG_H / 2, WAL_Y + 13, cc1), cc1 > 0 ? 1 : 0);
-  rec1.outline.setAttribute("opacity", E(t, 19.1, 19.4)); rec2.outline.setAttribute("opacity", E(t, 19.15, 19.45));
-  const f1 = E(t, 19.58, 19.85, easeInOut) * (R1[1] - R1[0]);
-  rec1.fill.setAttribute("width", f1); rec1.txt.style.width = `${Math.max(0, f1 - 28)}px`; place(rec1.txt, R1[0] + 18, SEG_Y - 13);
-  const f2 = t >= 20.6 ? (R2[1] - R2[0]) * 0.6 * bezier(0.2, 0.6, 0.35, 1)(lin(t, 20.6, KILL)) : 0;
-  rec2.fill.setAttribute("width", f2); rec2.txt.style.width = `${Math.max(0, f2 - 28)}px`; place(rec2.txt, R2[0] + 18, SEG_Y - 13);
-  const tagPos = [[NODES.P1, WAL_Y - 58], [R1[1], SEG_Y - SEG_H / 2 - 50], [NODES.C1, WAL_Y - 58], [NODES.P2, WAL_Y - 58]];
-  fsyncTags.forEach((n, i) => { n.style.color = "#e27950"; place(n, tagPos[i][0], tagPos[i][1] - 8 * E(t, TICKS[i], TICKS[i] + 0.4), { ax: 0.5, o: env(t, TICKS[i], TICKS[i] + 0.12, TICKS[i] + 0.4, TICKS[i] + 0.6) }); });
-  const ackA = E(t, 20.2, 20.4) * (1 - E(t, 20.8, 20.95));
-  place(ackTag, NODES.C1, WAL_Y - 120 + 10 * (1 - ackA), { ax: 0.5, o: ackA });
-  const kp = lin(t, KILL, KILL + 0.22), yTop = SEG_Y - SEG_H / 2, fx = R2[0] + f2;
-  if (glitching) {
-    const j = Math.sin(t * 900) * 18, k = Math.cos(t * 700) * 12;
-    glitchA.setAttribute("x", R2[0] + j); glitchA.setAttribute("y", yTop + 8); glitchA.setAttribute("width", f2 * 0.5); glitchA.setAttribute("height", 6); glitchA.setAttribute("opacity", 0.9);
-    glitchB.setAttribute("x", R2[0] + f2 * 0.3 + k); glitchB.setAttribute("y", yTop + 34); glitchB.setAttribute("width", f2 * 0.8); glitchB.setAttribute("height", 9); glitchB.setAttribute("opacity", 0.9);
-    rec2.fill.setAttribute("transform", `translate(${Math.round(Math.sin(t * 1300) * 7)} 0)`);
-  } else { glitchA.setAttribute("opacity", 0); glitchB.setAttribute("opacity", 0); rec2.fill.setAttribute("transform", ""); }
-  setLine(cutLine, 470, SEG_Y + 2, 1560, SEG_Y + 2, glitching ? 1 - kp : 0, "#ededec", 2);
-  if (t >= KILL) {
-    let d = `M${fx + 1} ${yTop - 1}`;
-    for (let i = 0; i <= 7; i++) d += ` L${fx - (i % 2 ? 14 : 2)} ${yTop + (SEG_H / 7) * i}`;
-    tornEdge.setAttribute("d", d + ` L${fx + 1} ${yTop + SEG_H + 1} Z`);
+  // ================= S2 =================
+  const s2on = t >= TL.box - 0.2 && t < TL.dark + 0.5;
+  show(S2, s2on);
+  if (s2on) {
+    const BOX_IDLE = { x: 340, w: 1240, y: 520, h: 100 }, BOX_TOP = { x: 340, w: 1240, y: 150, h: 100 };
+    const open = E(t, TL.box, TL.box + 0.5, snap), lift = E(t, TL.enter + 0.25, TL.enter + 0.85, easeInOut);
+    const b = { x: BOX_IDLE.x, w: BOX_IDLE.w, y: mix(BOX_IDLE.y, BOX_TOP.y, lift), h: 100 };
+    const cxm = b.x + b.w / 2, boxW = b.w * open, boxH = mix(2, b.h, E(t, TL.box + 0.15, TL.box + 0.55));
+    boxRect.setAttribute("x", cxm - boxW / 2); boxRect.setAttribute("y", b.y + b.h / 2 - boxH / 2); boxRect.setAttribute("width", Math.max(0, boxW)); boxRect.setAttribute("height", boxH);
+    setLine(boxUnder, cxm - boxW / 2 + 6, b.y + b.h / 2 + boxH / 2, cxm + boxW / 2 - 6, b.y + b.h / 2 + boxH / 2, open > 0.02 ? 1 : 0);
+    place(idleTitle, 960, 340 - 200 * lift, { ax: 0.5 }); maskAnim(idleTitle, t, TL.box + 0.3, TL.enter);
+    const qn = Q_T.filter((k) => t >= k).length;
+    qText.textContent = QUERY.slice(0, qn);
+    const QX = b.x + 36, QY = b.y + 25;
+    place(placeholder, QX, QY + 2, { o: E(t, TL.box + 0.5, TL.box + 0.8) * (qn === 0 ? 1 : 0) });
+    place(qText, QX, QY);
+    const caretOn = t >= TL.box + 0.5 && t < TL.enter + 0.4 && (qn > 0 && qn < QUERY.length || Math.floor(t * 2.5) % 2 === 0);
+    place(caret, QX + qn * M.qCharW + 3, QY + 1, { o: caretOn ? 1 : 0 });
+    const sw = lin(t, TL.enter, TL.enter + 0.35);
+    setLine(scanSweep, b.x + b.w * Math.max(0, ease(sw) - 0.3), b.y + b.h + 1, b.x + b.w * ease(sw), b.y + b.h + 1, sw > 0 && sw < 1 ? 1 : 0);
+    // the Search button: pressed on enter, later it becomes the point the night opens from
+    const col = E(t, TL.collapse + 0.4, TL.collapse + 1.0, bezier(0.6, 0, 0.2, 1));
+    const press = env(t, TL.enter - 0.05, TL.enter, TL.enter + 0.05, TL.enter + 0.2);
+    const btnA = E(t, TL.box + 0.35, TL.box + 0.7);
+    const bw0 = 150, bh0 = 66, bxx = b.x + b.w - 17 - bw0, byy = b.y + b.h / 2 - bh0 / 2;
+    const fw = mix(bw0, 26, col), fh = mix(bh0, 26, col), fx = mix(bxx, 960 - 13, col), fy = mix(byy, 540 - 13, col);
+    const pulseS = 1 + 0.25 * env(t, TL.dark - 0.25, TL.dark - 0.1, TL.dark - 0.05, TL.dark + 0.1);
+    searchBtn.style.width = `${fw}px`; searchBtn.style.height = `${fh}px`;
+    searchBtn.firstChild.style.opacity = 1 - E(t, TL.collapse + 0.3, TL.collapse + 0.5);
+    const btnDim = 1 - 0.85 * E(t, TL.question - 0.2, TL.question + 0.4) * (1 - E(t, TL.collapse + 0.2, TL.collapse + 0.6));
+    place(searchBtn, fx, fy, { o: btnA * btnDim * (1 - E(t, TL.dark + 0.3, TL.dark + 0.6)), s: (0.94 + 0.06 * btnA) * (1 - 0.06 * press) * pulseS, r: 45 * E(t, TL.collapse + 0.7, TL.collapse + 1.1) });
+    // results
+    const dim = E(t, TL.question - 0.2, TL.question + 0.4), gone = E(t, TL.collapse, TL.collapse + 0.6, easeIn);
+    uiGroup.style.opacity = (1 - 0.88 * dim) * (1 - gone);
+    uiGroup.style.filter = dim > 0.02 ? `blur(${5 * dim}px)` : "none";
+    place(statLine, b.x, b.y + b.h + 28, { o: E(t, TL.enter + 0.75, TL.enter + 1.0) });
+    const pvIn = E(t, TL.preview, TL.preview + 0.5, snap);
+    rows.forEach((r, i) => {
+      const s = TL.enter + 0.9 + i * 0.12, a = E(t, s, s + 0.55);
+      const rw = mix(ROW_W, ROW_W - 640, pvIn);
+      r.row.style.width = `${rw}px`; r.rule.style.width = `${rw}px`; r.sn.style.width = `${rw - 56}px`;
+      place(r.row, ROW_X, ROW_Y0 + i * ROW_H + 26 * (1 - a), { o: a * (i === 0 ? 1 : 1 - 0.5 * pvIn) });
+      r.rule.style.transform = `scaleX(${E(t, s + 0.1, s + 0.8)})`;
+      r.marks.forEach((m, k) => {
+        const p = E(t, s + 0.45 + k * 0.1, s + 0.75 + k * 0.1);
+        m.style.background = `linear-gradient(90deg, var(--ember-soft) ${p * 100}%, transparent ${p * 100}%)`;
+        m.style.color = p > 0.4 ? "var(--ember-text)" : "";
+      });
+      r.title.style.textDecoration = i === 0 && pvIn > 0.05 ? "underline 2px" : "none"; r.title.style.textUnderlineOffset = "6px";
+    });
+    place(preview, 1000 + 500 * (1 - pvIn), ROW_Y0 - 4, { o: pvIn });
+    const pvp = E(t, TL.preview + 0.6, TL.preview + 1.1);
+    pvm.style.background = `linear-gradient(90deg, var(--ember-soft) ${pvp * 100}%, transparent ${pvp * 100}%)`;
+    pvm.style.color = pvp > 0.3 ? "var(--ember-text)" : "";
+    // two annotations explain what you are looking at
+    const anchors = [rows[0].marks[0], preview];
+    ANN.forEach((a, i) => {
+      const ap = E(t, TL.annotate + i * 0.7, TL.annotate + i * 0.7 + 0.5);
+      const r = rect(anchors[i]);
+      const tx = i ? r.left + 60 : r.left + r.width / 2, ty = i ? r.bottom : r.bottom + 2;
+      const ly = 930;
+      place(a.n, i ? tx - 4 : tx + 4, ly + 10 * (1 - ap), { o: ap, ax: i ? 0 : 1 });
+      const k = E(t, TL.annotate + i * 0.7, TL.annotate + i * 0.7 + 0.4);
+      a.line.setAttribute("points", `${tx},${ty + 6} ${tx},${mix(ty + 6, ly - 12, k)}`); a.line.style.opacity = ap > 0 ? 1 : 0;
+      a.dot.setAttribute("x", tx - 4.5); a.dot.setAttribute("y", ty + 2); a.dot.style.opacity = ap;
+    });
+    place(qA, 960, 380, { ax: 0.5 }); maskAnim(qA, t, TL.question, TL.collapse - 0.3);
+    place(qB, 960, 530, { ax: 0.5 }); maskAnim(qB, t, TL.question + 0.5, TL.collapse - 0.2);
   }
-  place(flash, 0, 0, { o: t >= KILL && t < KILL + 0.07 ? 0.08 : 0 });
-  const sigA = env(t, KILL - 0.02, KILL + 0.04, 21.55, 21.75);
-  place(sigTag, R2[1], SEG_Y - SEG_H / 2 - 74, { ax: 1, o: sigA, s: 1 + 0.12 * (1 - E(t, KILL, KILL + 0.3)) });
-  const sp2 = E(t, 21.5, 22.2, easeInOut), scx = mix(440, 1600, sp2), scanOn = t >= 21.5 && t <= 22.3;
-  setLine(scanLine, scx, 360, scx, 800, scanOn ? 1 : 0, "#c4552e", 2);
-  scanBand.setAttribute("x", Math.max(440, scx - 180)); scanBand.setAttribute("width", Math.max(0, Math.min(180, scx - 440))); scanBand.setAttribute("opacity", scanOn ? 1 : 0);
-  const passed2 = E(t, 21.85, 22.15), dropO = 1 - 0.85 * passed2;
-  rec2.fill.setAttribute("opacity", dropO); tornEdge.setAttribute("opacity", (t >= KILL ? 1 : 0) * dropO); rec2.txt.style.opacity = dropO;
-  rec2.outline.setAttribute("stroke-dasharray", passed2 > 0.1 ? "6 6" : "none");
-  nP2.g.setAttribute("opacity", Number(nP2.g.getAttribute("opacity")) * (1 - 0.8 * passed2));
-  setLine(connP2, NODES.P2, WAL_Y + 13, mix(NODES.P2, R2[0] + 2, cp2), mix(WAL_Y + 13, SEG_Y - SEG_H / 2, cp2), cp2 > 0 ? 1 - 0.8 * passed2 : 0);
-  place(cap1, R1[0], SEG_Y + SEG_H / 2 + 80, { o: E(t, 21.7, 21.95) });
-  place(cap2, R2[1], SEG_Y + SEG_H / 2 + 80, { ax: 1, o: E(t, 22.0, 22.2) });
-  // odometer: the 0 lands on the 23.5 downbeat
-  place(odo, 0, 0, { o: E(t, 22.45, 22.7) * (1 - E(t, 24.75, 25.05, easeIn)) });
-  const roll = (c, start, dur, spins) => c.cols.forEach((col, i) => {
-    const s = start + i * 0.05, p = bezier(0.2, 0.7, 0.2, 1)(lin(t, s, s + dur));
-    col.strip.style.transform = `translateY(${-p * (spins * 10 + col.d) * c.size * 1.02}px)`;
-  });
-  roll(cA, 22.5, 0.8, 1); roll(cB, 22.65, 0.75, 1); roll(cC, 22.8, 0.7, 2);
-  const OY = 400, dim = E(t, 23.55, 23.8), zeroLand = E(t, 23.5, 23.75);
-  place(cA.wrap, 300, OY + 24 * (1 - E(t, 22.5, 22.9)), { o: E(t, 22.5, 22.8) * (1 - 0.65 * dim) });
-  place(cB.wrap, 1000, OY + 24 * (1 - E(t, 22.65, 23.05)), { o: E(t, 22.65, 22.95) * (1 - 0.65 * dim) });
-  cC.num.style.color = zeroLand > 0.05 ? "#e27950" : "#ededec"; cC.lab.style.color = zeroLand > 0.05 ? "#e27950" : "";
-  cC.wrap.style.transformOrigin = "50% 40%";
-  place(cC.wrap, 1420, OY + 24 * (1 - E(t, 22.8, 23.2)), { o: E(t, 22.8, 23.1), s: 1 + 0.16 * zeroLand });
 
-  // ================= SCENE 5: lockup =================
-  // the line under the 0 stretches into the lockup hairline
-  const zx = 1420 + cC.w / 2, zy = OY + 262, LY = 640;
-  const uDraw = E(t, 23.75, 24.1), uMove = E(t, 25.0, 25.6, easeInOut);
-  if (t >= 23.75 && t < 29.8) {
-    const half0 = cC.w * 0.62 * uDraw;
-    setLine(lockLine, mix(zx - half0, 400, uMove), mix(zy, LY, uMove), mix(zx + half0, 1520, uMove), mix(zy, LY, uMove), 1 - E(t, 29.0, 29.6), "#c4552e", 2);
-  } else lockLine.setAttribute("opacity", 0);
-  wordLetters.forEach((s, i) => {
-    const a = E(t, 25.5 + i * 0.07, 26.2 + i * 0.07);
-    s.style.transform = `translateY(${60 * (1 - a)}px)`; s.style.opacity = a;
-    s.style.filter = a < 0.98 ? `blur(${10 * (1 - a)}px)` : "none"; s.style.clipPath = `inset(0 0 ${(1 - a) * 100}% 0)`;
-  });
-  const lockOut = 1 - E(t, 29.3, 29.7);
-  place(word, 960 - M.word / 2, 300, { o: (t >= 25.45 ? 1 : 0) * lockOut });
-  const t1 = E(t, 26.5, 26.9), t2 = E(t, 27.0, 27.35), t3 = E(t, 27.5, 27.85);
-  place(tag1, 960, LY + 34 + 12 * (1 - t1), { ax: 0.5, o: t1 * lockOut, blur: 6 * (1 - t1) });
-  place(tag2, 960, LY + 140 + 10 * (1 - t2), { ax: 0.5, o: t2 * lockOut });
-  place(repo, 960, LY + 196 + 10 * (1 - t3), { ax: 0.5, o: t3 * lockOut });
-  const cOn = (t >= 28.25 && t < 28.6) || (t >= 28.85 && t < 29.2);
-  place(cursorEnd, 960 + M.repo / 2 + 10, LY + 200, { o: cOn ? lockOut : 0 });
-  place(blackout, 0, 0, { o: t >= 29.8 ? 1 : 0 });
+  // ================= S3 =================
+  const s3on = t >= TL.inside - 0.1 && t < TL.ingest + 0.2;
+  show(S3, s3on);
+  if (s3on) {
+    place(inA, 960, 400, { ax: 0.5 }); maskAnim(inA, t, TL.inside, TL.map - 0.6);
+    place(inB, 960, 560 + 12 * (1 - E(t, TL.inside + 1.2, TL.inside + 1.8)), { ax: 0.5, o: E(t, TL.inside + 1.2, TL.inside + 1.8) * (1 - E(t, TL.map - 0.5, TL.map - 0.1, easeIn)) });
+    const m0 = TL.map, toRail = E(t, TL.ingest - 0.9, TL.ingest - 0.1, easeInOut);
+    const draw = E(t, m0, m0 + 0.9, easeInOut);
+    setLine(mapLine, MAP_X(0), MAP_Y, mix(MAP_X(0), MAP_X(5), draw), MAP_Y, t >= m0 ? 1 : 0);
+    const sig = E(t, m0 + 1.4, m0 + 3.0, easeInOut), sx = mix(MAP_X(0), MAP_X(5), sig);
+    setLine(mapTrail, MAP_X(0), MAP_Y, sx, MAP_Y, t >= m0 + 1.4 ? 1 : 0);
+    place(mapSignal, sx, MAP_Y, { ax: 0.5, ay: 0.5, r: 45, o: env(t, m0 + 1.3, m0 + 1.45, m0 + 3.1, m0 + 3.3) });
+    mapNodes.forEach((m, i) => {
+      const a = E(t, m0 + 0.15 + i * 0.12, m0 + 0.75 + i * 0.12), lit = sig * 5 >= i - 0.01 && t >= m0 + 1.4;
+      m.sq.setAttribute("transform", `translate(${MAP_X(i)} ${MAP_Y}) scale(${a})`);
+      m.sq.style.fill = lit ? "var(--ember)" : "var(--bg)"; m.sq.style.stroke = lit ? "var(--ember)" : "var(--muted)";
+      place(m.n, MAP_X(i) - 9, MAP_Y + 34 + 20 * (1 - a), { o: a });
+      m.n.children[1].style.color = lit ? "var(--ember-text)" : "";
+    });
+    mapLayer.style.transform = `translateY(${toRail * 380}px) scale(${1 - 0.45 * toRail})`; mapLayer.style.transformOrigin = "960px 560px";
+    mapLayer.style.opacity = 1 - Math.sqrt(toRail);
+  }
+
+  // ================= rail =================
+  const railO = E(t, TL.ingest - 0.4, TL.ingest + 0.2) * (1 - E(t, TL.light - 0.8, TL.light - 0.3, easeIn));
+  show(railLayer, railO > 0.001); railLayer.style.opacity = railO;
+  let ci = 0; CHAPTERS.forEach((c, i) => { if (t >= c.t0) ci = i; });
+  const slide = CHAPTERS[ci] ? E(t, CHAPTERS[ci].t0, CHAPTERS[ci].t0 + 0.6, easeInOut) : 1;
+  railLabels.forEach((n, i) => { place(n, RAIL_X(i), RAIL_Y, { ax: 0.5 }); n.style.color = i === ci ? "var(--ember-text)" : i < ci ? "var(--ink2)" : "var(--muted)"; });
+  railTicks.forEach((r, i) => { const on = i <= ci; r.style.fill = on ? "var(--ember)" : "var(--bg)"; r.style.stroke = on ? "var(--ember)" : "var(--muted)"; });
+  const prevX = RAIL_X(Math.max(0, ci - 1)), curX = RAIL_X(ci);
+  const lw = rect(railLabels[ci]).width || 100;
+  place(railMark, mix(ci ? prevX : curX, curX, slide) - lw / 2, RAIL_Y + 30); railMark.style.width = `${lw}px`;
+
+  // ================= chapters =================
+  let u;
+  // ---- 01 ingest ----
+  if ((u = runChapter(CI, t)) !== null) {
+    srcRows.forEach((n, i) => place(n, 140, SRC_Y(i) + 14 * (1 - E(u, 1.0 + i * 0.1, 1.5 + i * 0.1)), { o: E(u, 1.0 + i * 0.1, 1.5 + i * 0.1) * (i === 5 ? 1 - 0.5 * E(u, 6.6, 7.0) : 1) }));
+    srcRows[5].querySelector(".sans").style.textDecoration = u > 6.6 ? "line-through" : "none";
+    place(rejectMark, 258, SRC_Y(5) + 34, { o: E(u, 6.7, 7.0) });
+    srcRows[5].querySelector(".mono").style.opacity = 1 - E(u, 6.6, 6.8);
+    const exA = E(u, 1.6, 2.1);
+    exBox.style.opacity = exA; exBox.setAttribute("transform", `translate(${EX.x + EX.w / 2} ${EX.y + EX.h / 2}) scale(${0.9 + 0.1 * exA}) translate(${-(EX.x + EX.w / 2)} ${-(EX.y + EX.h / 2)})`);
+    place(exLbl, EX.x + 28, EX.y + 28, { o: exA });
+    let pulse = 0;
+    SOURCES.forEach((_, i) => {
+      const y0 = SRC_Y(i) + 18, x0 = 640, x1 = EX.x, y1 = EX.y + EX.h / 2 + (i - 2.5) * 22;
+      paths[i].setAttribute("d", `M${x0} ${y0} C ${x0 + 120} ${y0}, ${x1 - 120} ${y1}, ${x1} ${y1}`);
+      paths[i].style.opacity = E(u, 1.6 + i * 0.08, 2.1 + i * 0.08) * 0.9;
+      const t0 = 2.2 + i * 0.42 + (i === 5 ? 0.9 : 0), tt = lin(u, t0, t0 + 0.85), e = easeInOut(tt);
+      const bez = (p, a, b, c, d) => (1 - p) ** 3 * a + 3 * (1 - p) ** 2 * p * b + 3 * (1 - p) * p * p * c + p ** 3 * d;
+      let px = bez(e, x0, x0 + 120, x1 - 120, x1), py = bez(e, y0, y0, y1, y1), po = tt > 0 && tt < 1 ? 1 : 0;
+      if (i === 5 && u >= t0 + 0.85) { // bounces off the extractor and falls away
+        const k = u - (t0 + 0.85); px = x1 - 140 * Math.min(1, k * 1.6); py = y1 + 380 * k * k; po = 1 - clamp(k / 0.8);
+      }
+      place(packets[i], px, py, { ax: 0.5, ay: 0.5, o: po * E(u, 1.8, 2.0), r: i === 5 ? 45 + 200 * clamp(u - t0 - 0.85) : 0 });
+      packets[i].style.background = i === 5 ? "var(--muted)" : "var(--ember)";
+      if (i < 5) pulse = Math.max(pulse, env(u, t0 + 0.8, t0 + 0.85, t0 + 0.9, t0 + 1.2));
+    });
+    exBox.style.stroke = pulse > 0.3 ? "var(--ember)" : "var(--hair2)";
+    exBars.forEach((r, k) => {
+      const busy = u > 2.9 && u < 5.0 ? (Math.sin(u * 9 + k * 1.7) * 0.5 + 0.5) : 0.35;
+      r.setAttribute("x", EX.x + 28); r.setAttribute("y", EX.y + 140 + k * 26); r.setAttribute("width", (EX.w - 56) * (0.35 + 0.65 * busy) * exA);
+      r.style.fill = u > 2.9 && u < 5.0 && k === Math.floor(u * 6) % 4 ? "var(--ember)" : "var(--s3)";
+    });
+    outPath.style.opacity = E(u, 3.0, 3.3);
+    const jA = E(u, 3.1, 3.6, snap);
+    place(jsonCard, 1260 + 40 * (1 - jA), 432, { o: jA });
+    jsonLines.forEach((l, k) => { l.style.opacity = E(u, 3.4 + k * 0.22, 3.6 + k * 0.22); });
+    jsonStack.forEach((n) => { const a = E(u, 7.4 + (2 - n.k) * 0.15, 7.9 + (2 - n.k) * 0.15, snap); place(n, 1260 + 14 * n.k * a, 432 - 14 * n.k * a, { o: jA * a }); });
+    place(batchLbl, 1260, 812, { o: E(u, 7.8, 8.2) });
+  }
+
+  // ---- 02 analyze ----
+  if ((u = runChapter(CA, t)) !== null) {
+    const pSplit = E(u, 2.2, 2.8, easeInOut), pLow = E(u, 3.4, 3.8, easeInOut), pStop = E(u, 4.6, 5.2, easeInOut), pStem = E(u, 5.8, 6.4, easeInOut), pTerm = E(u, 6.8, 7.2);
+    const stepI = u < 3.3 ? 0 : u < 4.5 ? 1 : u < 5.7 ? 2 : 3;
+    const stepA = E(u, 1.8, 2.2) * (1 - E(u, 7.6, 8.0));
+    let sx0 = 0; const stepW = stepEls.map((n) => rect(n).width), gapS = 64, totS = stepW.reduce((a, b) => a + b, 0) + gapS * 3;
+    stepEls.forEach((n, i) => { place(n, 960 - totS / 2 + sx0, 380, { o: stepA * (i === stepI ? 1 : i < stepI ? 0.6 : 0.35) }); n.style.color = i === stepI && u > 2.0 ? "var(--ember-text)" : ""; n.sx = 960 - totS / 2 + sx0; sx0 += stepW[i] + gapS; });
+    const markX = stepEls[stepI].sx, markW = stepW[stepI];
+    place(stepMark, markX, 416, { o: stepA }); stepMark.style.width = `${markW}px`;
+    // chip layout: plain sentence, then boxed chips; the stopword collapses, suffixes drop
+    const pad = 16 * pSplit, gap = mix(M.cw, 26, pSplit);
+    const widths = AN.map((a) => (a.word.length - a.cut * pStem) * M.cw + 2 * pad + 3 * pSplit);
+    const pres = AN.map((a) => (a.stop ? 1 - pStop : 1));
+    let total = 0; AN.forEach((a, i) => { total += widths[i] * pres[i] + (i ? gap * pres[i] : 0); });
+    total += (1 - pSplit) * M.cw;
+    let x = 960 - total / 2;
+    const rowA = E(u, 1.0, 1.6), Y = 470;
+    AN.forEach((a, i) => {
+      if (i) x += gap * pres[i];
+      const drop = a.stop ? E(u, 4.6, 5.3, easeIn) : 0;
+      a.chip.style.width = `${widths[i]}px`; a.chip.style.paddingLeft = `${pad}px`;
+      a.chip.style.background = a.stop && pStop > 0 ? "transparent" : `rgba(${TOK.ember.join(",")},${0.14 * Math.max(pSplit * 0.5, pTerm)})`;
+      a.chip.style.borderColor = a.stop && u > 4.5 ? rgba("muted", pSplit) : rgba("ember", pSplit * (0.45 + 0.55 * pTerm));
+      a.chip.style.borderStyle = a.stop && u > 4.5 ? "dashed" : "solid";
+      a.chip.style.color = a.stop && u > 4.5 ? "var(--muted)" : pTerm > 0.5 ? "var(--ember-text)" : "var(--ink)";
+      place(a.chip, x, Y + 120 * drop, { o: rowA * (1 - drop), r: 8 * drop });
+      if (a.word[0] !== a.lower[0]) a.fA.style.transform = a.fB.style.transform = `translateY(${-100 * pLow}%)`;
+      a.tail.style.color = a.cut && u > 5.6 ? "var(--ember-text)" : "";
+      a.tail.style.transform = `translateY(${-60 * pStem}px)`; a.tail.style.opacity = 1 - pStem;
+      x += widths[i] * pres[i];
+    });
+    const last = AN[AN.length - 1];
+    place(period, x - pad - 1.5 * pSplit, Y + 12 + 140 * E(u, 2.2, 2.8, easeIn), { o: rowA * (1 - E(u, 2.3, 2.8)) });
+    place(termsLbl, 960, Y + 110, { ax: 0.5, o: E(u, 7.0, 7.4) });
+    // identifier
+    const idA = E(u, 8.0, 8.5), idSplit = E(u, 8.7, 9.2, easeInOut);
+    place(idLbl, 960, 650, { ax: 0.5, o: idA });
+    place(idRow, 960, 686, { ax: 0.5, o: idA });
+    idSpans.forEach((s, k) => { s.style.marginLeft = k ? `${22 * idSplit}px` : "0"; s.style.color = k && idSplit > 0.5 ? "var(--ember-text)" : ""; });
+    let ix = 0; const iw = idChips.map((c) => rect(c).width), itot = iw.reduce((a, b) => a + b, 0) + 20 * (iw.length - 1);
+    idChips.forEach((c, k) => { const a = E(u, 9.3 + k * 0.14, 9.8 + k * 0.14); place(c, 960 - itot / 2 + ix, 790 + 16 * (1 - a), { o: a }); ix += iw[k] + 20; });
+    place(idCap, 960, 900, { ax: 0.5, o: E(u, 10.0, 10.5) });
+    place(CA.sub, 142, 262, { o: E(u, 0.7, 1.2) * (1 - E(u, 7.6, 8.0)) });
+  }
+
+  // ---- 03 index ----
+  if ((u = runChapter(CX, t)) !== null) {
+    const toyO = 1 - E(u, 6.6, 7.0, easeIn);
+    show(toyLayer, toyO > 0.001); toyLayer.style.opacity = toyO;
+    toyDocs.forEach((d, i) => place(d.n, 140, 380 + i * 160 + 16 * (1 - E(u, 1.0 + i * 0.12, 1.5 + i * 0.12)), { o: E(u, 1.0 + i * 0.12, 1.5 + i * 0.12) }));
+    place(dictHead, DICT_X, 350, { o: E(u, 1.4, 1.8) }); place(postHead, POST_X, 350, { o: E(u, 1.4, 1.8) });
+    const FL0 = 1.9, FLS = 0.32;
+    const arrived = (k) => u >= FL0 + k * FLS + 0.5;
+    DICT.forEach((term, k) => {
+      const first = FLIGHTS.findIndex((f) => f[2] === term);
+      const a = E(u, FL0 + first * FLS + 0.45, FL0 + first * FLS + 0.8);
+      const hl = u > 5.0 && DATA.queryTerms.includes(term);
+      place(dictRows[k], DICT_X, DICT_Y(k), { o: a * (u > 5.0 && !hl ? 0.35 : 1) });
+      dictRows[k].style.color = hl ? "var(--ember-text)" : "";
+      setLine(dictRules[k], DICT_X, DICT_Y(k) + 58, 1780, DICT_Y(k) + 58, E(u, 1.4, 1.9) * 0.9);
+    });
+    postChips.forEach((p) => {
+      const flights = FLIGHTS.map((f, k) => [f, k]).filter(([f]) => f[2] === p.term && f[0] === p.d);
+      const tf = flights.filter(([, k]) => arrived(k)).length, a = tf ? E(u, FL0 + flights[0][1] * FLS + 0.5, FL0 + flights[0][1] * FLS + 0.8, snap) : 0;
+      p.tf.textContent = `× ${tf}`;
+      const hl = u > 5.0 && DATA.queryTerms.includes(p.term);
+      p.n.style.borderColor = hl ? "var(--ember)" : "var(--hair2)"; p.n.style.color = hl ? "var(--ember-text)" : "";
+      place(p.n, POST_X + p.j * 150, DICT_Y(p.k) - 4, { o: a * (u > 5.0 && !hl ? 0.35 : 1), s: 0.9 + 0.1 * a });
+    });
+    FLIGHTS.forEach(([d, wi, term], k) => {
+      const tt = lin(u, FL0 + k * FLS, FL0 + k * FLS + 0.5), e = easeInOut(tt);
+      const wr = rect(toyDocs[d].words[wi]), tx = DICT_X - 26, ty = DICT_Y(DICT.indexOf(term)) + 18;
+      const x0 = wr.left + wr.width / 2, y0 = wr.top + wr.height / 2;
+      place(flyers[k], mix(x0, tx, e), mix(y0, ty, e) - 70 * Math.sin(Math.PI * e), { ax: 0.5, ay: 0.5, o: tt > 0 && tt < 1 ? 1 : 0, r: 45 });
+      const lit = u >= FL0 + k * FLS - 0.05 && u < FL0 + k * FLS + 0.6;
+      toyDocs[d].words[wi].style.color = lit ? "var(--ember-text)" : "";
+    });
+    toyDocs[1].words[2].style.color = u > 3.0 ? "var(--muted)" : ""; toyDocs[1].words[2].style.textDecoration = u > 3.0 ? "line-through" : "none";
+    place(toyQuery, 1780, 300, { ax: 1, o: E(u, 4.9, 5.3) });
+    place(toyCap, 140, 880, { o: E(u, 5.4, 5.8) });
+    place(CX.sub, 142, 262, { o: E(u, 0.7, 1.2) * (1 - E(u, 6.6, 7.0)) });
+    // ---- the real corpus ----
+    const scOn = u > 6.8; show(scaleLayer, scOn);
+    if (scOn) {
+      const gIn = (c) => E(u, 7.0 + c * 0.006, 7.4 + c * 0.006);
+      const scan = lin(u, 8.4, 10.8), scanCol = scan * GCOLS, reset = E(u, 11.0, 11.3), hit = u >= 11.6;
+      dctx.clearRect(0, 0, W, H);
+      for (let d = 0; d < NDOC; d++) {
+        const c = d % GCOLS, r = Math.floor(d / GCOLS), x = GX + c * GPITCH, y = GY + r * GPITCH;
+        const a = gIn(c); if (a <= 0) continue;
+        let fill = rgba("s3", a), size = 8;
+        if (scan > 0 && reset < 1) {
+          const since = scanCol - c;
+          if (since > 0) fill = since < 2.5 ? rgba("ember", 1 - reset) : rgba("muted", 0.9 * (1 - reset) + 0.0);
+          if (since > 0 && reset > 0) fill = rgba(since < 2.5 ? "ember" : "muted", 0.9 * (1 - reset));
+          if (since > 0 && reset >= 1) fill = rgba("s3", a);
+        }
+        const k = candKind.get(d);
+        if (hit && k) { const ap = E(u, 11.6 + (d % 17) * 0.012, 11.8 + (d % 17) * 0.012, snap); fill = rgba("ember", (k === "both" ? 1 : 0.6) * ap + (1 - ap) * 0.2); size = 8 + (k === "both" ? 6 : 3) * ap; }
+        dctx.fillStyle = fill; dctx.fillRect(x - size / 2 + 4, y - size / 2 + 4, size, size);
+      }
+      place(scanHead, GX + scanCol * GPITCH - 4, GY - 12, { o: scan > 0 && scan < 1 ? 1 : 0 });
+      place(scanTitle, 140, 252); maskAnim(scanTitle, u, 8.0, 10.9);
+      place(idxTitle, 140, 252); maskAnim(idxTitle, u, 11.1);
+      const read = Math.round(clamp(scan) * NDOC);
+      scanCount.innerHTML = `documents opened and tokenized <span class="em">${fmtInt(read)}</span> of ${fmtInt(NDOC)}`;
+      place(scanCount, 140, GY + GROWS * GPITCH + 30, { o: E(u, 8.2, 8.5) * (1 - reset) });
+      place(idxCount, 140, GY + GROWS * GPITCH + 30, { o: E(u, 11.9, 12.3) });
+    }
+  }
+
+  // ---- 04 rank ----
+  if ((u = runChapter(CR4, t)) !== null) {
+    const panelsO = 1 - E(u, 11.0, 11.5, easeIn);
+    place(formula, 140, 350, { o: E(u, 0.9, 1.4) * panelsO });
+    const active = u < 1.6 ? -1 : u < 4.8 ? 0 : u < 8.0 ? 1 : u < 11.0 ? 2 : -1;
+    fParts.forEach((ps, k) => ps.forEach((p) => { p.style.color = active === k ? "var(--ember-text)" : ""; p.style.background = active === k ? "var(--ember-soft)" : "transparent"; }));
+    panels.forEach((p, i) => {
+      const a = E(u, 1.6 + i * 3.2, 2.1 + i * 3.2);
+      place(p.n, PANEL_X[i], PANEL_Y + 16 * (1 - a), { o: a * panelsO * (active === i || u > 11 ? 1 : 0.55) });
+      place(p.box, PANEL_X[i], PANEL_Y - 18, { o: a * panelsO }); p.box.style.background = active === i ? "var(--ember)" : "var(--hair2)";
+    });
+    idfRows.forEach((r, i) => {
+      const a = E(u, 2.3 + i * 0.35, 2.7 + i * 0.35), g = E(u, 2.5 + i * 0.35, 3.3 + i * 0.35, snap), y = 600 + i * 66;
+      place(r.t, PANEL_X[0], y, { o: a * panelsO });
+      place(r.bar, PANEL_X[0], y + 36, { o: a * panelsO }); r.bar.style.width = `${Math.max(2, (r.idf / 5) * 400 * g)}px`;
+      r.v.textContent = fmt(r.idf * g); place(r.v, PANEL_X[0] + Math.max(2, (r.idf / 5) * 400 * g) + 14, y + 33, { o: a * panelsO });
+    });
+    const pa = E(u, 5.0, 5.4) * panelsO;
+    plotSvg.style.opacity = pa;
+    const cd = E(u, 5.3, 6.6, easeInOut); curve.setAttribute("stroke-dashoffset", curveLen * (1 - cd));
+    linePath.style.opacity = E(u, 6.4, 6.8) * 0.8; asym.style.opacity = E(u, 6.8, 7.2);
+    const tfDot = 10 * E(u, 5.3, 7.6, easeInOut); plotDot.setAttribute("transform", `translate(${pX(tfDot)} ${pY(satur(tfDot))}) rotate(45)`);
+    place(plotLbls[0], PL.x + PL.w + 12, PL.y - 10, { o: pa }); place(plotLbls[1], PL.x - 4, PL.y - PL.h - 40, { o: pa });
+    place(plotLbls[2], pX(1.95), pY(Y_MAX) - 6, { o: E(u, 6.5, 6.9) * panelsO }); place(plotLbls[3], PL.x + PL.w - 110, pY(K1 + 1) + 8, { o: E(u, 6.9, 7.3) * panelsO });
+    plotLbls[4].textContent = `tf ${Math.max(1, Math.round(tfDot))}`; place(plotLbls[4], pX(tfDot) + 12, pY(satur(tfDot)) + 10, { o: E(u, 5.4, 5.6) * panelsO });
+    LEN.forEach((l, i) => {
+      const a = E(u, 8.4 + i * 0.3, 8.8 + i * 0.3), g = E(u, 9.0 + i * 0.3, 9.8 + i * 0.3, snap), y = 600 + i * 104;
+      place(l.t, PANEL_X[2], y, { o: a * panelsO });
+      l.doc.style.width = `${Math.min(500, (l.len / 900) * 500) * a}px`; place(l.doc, PANEL_X[2], y + 38, { o: a * panelsO * 0.9 });
+      l.bar.style.width = `${(l.score / 8) * 380 * g}px`; place(l.bar, PANEL_X[2], y + 62, { o: a * panelsO });
+      l.v.textContent = fmt(l.score * g); place(l.v, PANEL_X[2] + (l.score / 8) * 380 * g + 14, y + 59, { o: a * panelsO });
+    });
+    // the real breakdown for the top hit, then the ranking re-sorts
+    const sA = E(u, 11.4, 11.9);
+    place(sumTitle, 140, 360 + 14 * (1 - sA), { o: sA });
+    let sx = 140; const SCALE = 1000 / bd.score;
+    sumSegs.forEach((s, k) => {
+      const g = E(u, 11.9 + k * 0.5, 12.5 + k * 0.5, snap), w = s.contribution * SCALE * g;
+      s.bar.style.width = `${w}px`; place(s.bar, sx, 520, { o: sA });
+      place(s.l, sx, 590, { o: E(u, 12.1 + k * 0.5, 12.5 + k * 0.5) });
+      place(s.v, sx + 16, 532, { o: g > 0.5 ? 1 : 0 });
+      sx += s.contribution * SCALE * g + 4;
+    });
+    const tot = E(u, 12.9, 13.3);
+    sumTotal.innerHTML = `= ${fmt(bd.score * E(u, 12.9, 13.5))}`;
+    place(sumTotal, sx + 30, 516, { o: tot });
+    const sortP = E(u, 13.8, 14.5, easeInOut), START = [2, 0, 3, 1], maxS = Math.max(...ranked.map((r) => r.score));
+    ranked.forEach((r, i) => {
+      const a = E(u, 13.3 + i * 0.08, 13.7 + i * 0.08), y = 680 + mix(START.indexOf(i), i, sortP) * 50;
+      place(r.t, 140, y, { o: a }); r.bar.style.width = `${(r.score / maxS) * 700 * a}px`; place(r.bar, 520, y + 6, { o: a });
+      place(r.v, 520 + (r.score / maxS) * 700 * a + 16, y + 2, { o: a });
+      r.t.style.color = sortP > 0.9 && i === 0 ? "var(--ember-text)" : ""; r.bar.style.opacity = sortP > 0.9 && i > 0 ? 0.45 : 1;
+    });
+    place(rankCap, 140, 900, { o: E(u, 14.6, 15.0) });
+    place(CR4.sub, 142, 262, { o: E(u, 0.7, 1.2) * panelsO });
+  }
+
+  // ---- 05 store ----
+  if ((u = runChapter(CS, t)) !== null) {
+    const tapeA = E(u, 1.0, 1.4);
+    tapeOutline.style.opacity = tapeA; place(tapeLbl, TAPE.x, TAPE.y - 36, { o: tapeA });
+    const head = E(u, 1.2, 3.2, bezier(0.4, 0, 0.6, 1)) * TAPE_BYTES;
+    blocks.forEach((b) => {
+      const on = b.b1 <= head + 1;
+      const lit = b.real === hit0 && u > 6.0, dead = b === tomb && u > 9.0;
+      b.r.style.opacity = on ? 1 : 0;
+      b.r.style.fill = lit ? "var(--ember)" : dead ? "url(#hatch)" : b.real && u > 4.4 && u < 6.0 ? "var(--ink2)" : "var(--s3)";
+    });
+    ruler.forEach((r) => { if (r.b !== undefined) place(r, bx(r.b), TAPE.y + TAPE.h + 22, { ax: 0.5, o: tapeA }); else r.style.opacity = tapeA; });
+    place(writeHead, bx(head) - 1, TAPE.y - 14, { o: env(u, 1.1, 1.3, 3.3, 3.6) });
+    place(appendLbl, bx(head) + 10, TAPE.y - 40, { o: env(u, 1.2, 1.4, 3.2, 3.5) });
+    // offset map
+    const TY = 380;
+    tblHead.forEach((n) => place(n, n.x, TY - 40, { o: E(u, 3.6, 4.0) }));
+    tblRows.forEach((r, i) => {
+      const a = E(u, 3.8 + i * 0.12, 4.3 + i * 0.12);
+      r.cells.forEach((c) => place(c, c.x, TY + i * 52 + 8 * (1 - a), { o: a * (u > 6.0 && i > 0 ? 0.45 : 1) }));
+      setLine(tblRules[i], 140, TY + i * 52 + 42, 1780, TY + i * 52 + 42, a);
+      if (i === 0) r.cells.forEach((c, k) => { c.style.color = u > 5.4 && (k === 0 || u > 5.8 + (k - 1) * 0.6) ? "var(--ember-text)" : "var(--ink2)"; });
+    });
+    setLine(tblRules[4], 140, TY - 10, 1780, TY - 10, E(u, 3.6, 4.0));
+    const hiA = E(u, 5.2, 5.5);
+    rowHi.setAttribute("x", 130); rowHi.setAttribute("y", TY - 6); rowHi.setAttribute("width", 1660 * hiA); rowHi.style.opacity = hiA;
+    // the lookup: offset cell down to the byte position on the tape
+    const offCell = tblRows[0].cells[2], oc = rect(offCell);
+    const tx = bx(hit0.byteOffset + hit0.length / 2), dp = E(u, 5.8, 6.3, easeInOut);
+    const ox = COLS[2][1] - 34, oy = TY + 20;
+    const pts = [[ox, oy], [ox, 600], [tx, 600], [tx, TAPE.y + 4]];
+    const segLen = pts.slice(1).map((p, k) => Math.hypot(p[0] - pts[k][0], p[1] - pts[k][1])), tot = segLen.reduce((a, b) => a + b, 0);
+    let rem = tot * dp, poly = [pts[0]];
+    for (let k = 0; k < segLen.length && rem > 0; k++) { const f = Math.min(1, rem / segLen[k]); poly.push([mix(pts[k][0], pts[k + 1][0], f), mix(pts[k][1], pts[k + 1][1], f)]); rem -= segLen[k]; }
+    seekPath.setAttribute("points", poly.map((p) => p.join(",")).join(" ")); seekPath.style.opacity = dp > 0 ? 1 : 0;
+    const zA = E(u, 6.6, 7.1, snap), bl = bx(hit0.byteOffset), br = bx(hit0.byteOffset + hit0.length);
+    const zx = 1060, zy = 800;
+    place(zoomBox, zx, zy, { o: zA, ax: 0.5 });
+    const zr = rect(zoomBox);
+    setLine(zoomLines[0], bl, TAPE.y + TAPE.h, mix(bl, zr.left, zA), mix(TAPE.y + TAPE.h, zr.top, zA), zA);
+    setLine(zoomLines[1], br, TAPE.y + TAPE.h, mix(br, zr.right, zA), mix(TAPE.y + TAPE.h, zr.top, zA), zA);
+    lookSteps.forEach((n, i) => {
+      const a = E(u, 5.3 + i * 0.6, 5.6 + i * 0.6);
+      place(n, 140 + i * 420, 880, { o: a * (1 - E(u, 8.8, 9.1)) });
+    });
+    const tA = E(u, 9.1, 9.5), tcx = bx((tomb.b0 + tomb.b1) / 2);
+    setLine(tombLine, tcx, TAPE.y - 4, tcx, TAPE.y - 4 - 34 * tA, tA);
+    place(tombLbl, tcx, TAPE.y - 70, { ax: 0.5, o: tA });
+  }
+
+  // ---- 06 recover ----
+  if ((u = runChapter(CV, t)) !== null) {
+    const kill = TL.kill - CV.t0, dead0 = kill + 0.35, back = TL.restart - CV.t0, proofU = TL.proof - CV.t0;
+    const diagO = 1 - E(u, proofU - 0.5, proofU, easeIn);
+    show(cvLayer, diagO > 0.001); cvLayer.style.opacity = diagO;
+    const lanes = E(u, 0.9, 1.5, easeInOut);
+    setLine(walLane, LANE_X0, WAL_Y, mix(LANE_X0, LANE_X1, lanes), WAL_Y, 1);
+    setLine(segLane, LANE_X0, SEG_Y + SEG_H / 2 + 14, mix(LANE_X0, LANE_X1, lanes), SEG_Y + SEG_H / 2 + 14, 1);
+    place(laneLbls[0], 140, WAL_Y - 10, { o: lanes }); place(laneLbls[1], 140, SEG_Y - 10, { o: lanes });
+    const T = { p1: 1.6, r1: 2.4, c1: 3.2, ack: 3.8, p2: 4.6, r2: 5.1 };
+    const nodeState = (n, appear, fillAt, x, keep = 1) => {
+      const a = E(u, appear, appear + 0.3);
+      n.g.setAttribute("transform", `translate(${x} ${WAL_Y}) scale(${0.4 + 0.6 * a})`); n.g.style.opacity = a * keep;
+      const f = fillAt == null ? 0 : E(u, fillAt, fillAt + 0.12);
+      n.fill.style.opacity = f; n.fill.setAttribute("transform", `scale(${f})`);
+      const pp = fillAt == null ? 0 : lin(u, fillAt, fillAt + 0.5);
+      n.pulse.style.opacity = pp > 0 && pp < 1 ? 1 - pp : 0; n.pulse.setAttribute("transform", `scale(${1 + 1.5 * ease(pp)})`);
+      n.ring.style.stroke = f > 0.5 ? "var(--ember)" : "var(--muted)";
+    };
+    const scanP = E(u, back + 0.9, back + 2.6, easeInOut), scanX = mix(LANE_X0 - 40, LANE_X1 + 40, scanP);
+    const passed = (x) => scanX > x && u > back + 0.9;
+    const drop2 = E(u, back + 2.1, back + 2.9);
+    nodeState(nP1, T.p1 - 0.2, T.p1, N_X.P1); nodeState(nC1, T.c1 - 0.2, T.c1, N_X.C1); nodeState(nP2, T.p2 - 0.2, T.p2, N_X.P2, 1 - 0.8 * drop2); nodeState(nC2, kill + 0.6, null, N_X.C2, (u > back ? 1 : 0) * (1 - drop2));
+    [[N_X.P1, T.p1], [N_X.C1, T.c1], [N_X.P2, T.p2], [N_X.C2, back + 0.2]].forEach(([x, at], k) => place(nodeLbl[k], x, WAL_Y + 32, { ax: 0.5, o: E(u, at, at + 0.3) * (k >= 2 ? 1 - drop2 : 1) }));
+    const cn = [E(u, T.p1 + 0.15, T.p1 + 0.4), E(u, T.c1 - 0.25, T.c1), E(u, T.p2 + 0.15, T.p2 + 0.4)];
+    setLine(conns[0], N_X.P1, WAL_Y + 15, mix(N_X.P1, RC1[0] + 40, cn[0]), mix(WAL_Y + 15, SEG_Y - SEG_H / 2, cn[0]), cn[0] > 0 ? 1 : 0);
+    setLine(conns[1], RC1[1] - 2, SEG_Y - SEG_H / 2, mix(RC1[1] - 2, N_X.C1, cn[1]), mix(SEG_Y - SEG_H / 2, WAL_Y + 15, cn[1]), cn[1] > 0 ? 1 : 0);
+    setLine(conns[2], N_X.P2, WAL_Y + 15, mix(N_X.P2, RC2[0] + 40, cn[2]), mix(WAL_Y + 15, SEG_Y - SEG_H / 2, cn[2]), cn[2] > 0 ? 1 - 0.8 * drop2 : 0);
+    rec1.outline.style.opacity = E(u, 1.2, 1.5); rec2.outline.style.opacity = E(u, 1.3, 1.6) * (1 - 0.6 * drop2);
+    rec2.outline.setAttribute("stroke-dasharray", drop2 > 0.1 ? "6 6" : "none");
+    const f1 = E(u, T.r1, T.r1 + 0.45, easeInOut) * (RC1[1] - RC1[0]);
+    rec1.fill.setAttribute("width", f1); rec1.txt.style.width = `${Math.max(0, f1 - 30)}px`; place(rec1.txt, RC1[0] + 18, SEG_Y - 13);
+    const f2 = u >= T.r2 ? (RC2[1] - RC2[0]) * 0.62 * bezier(0.2, 0.6, 0.35, 1)(lin(u, T.r2, kill)) : 0;
+    rec2.fill.setAttribute("width", f2); rec2.txt.style.width = `${Math.max(0, f2 - 30)}px`; place(rec2.txt, RC2[0] + 18, SEG_Y - 13);
+    rec2.fill.style.opacity = rec2.txt.style.opacity = 1 - drop2;
+    const fx = RC2[0] + f2, yTop = SEG_Y - SEG_H / 2;
+    if (u >= kill) { let d = `M${fx + 1} ${yTop - 1}`; for (let i = 0; i <= 8; i++) d += ` L${fx - (i % 2 ? 16 : 2)} ${yTop + (SEG_H / 8) * i}`; tornEdge.setAttribute("d", d + ` L${fx + 1} ${yTop + SEG_H + 1} Z`); }
+    tornEdge.style.opacity = (u >= kill ? 1 : 0) * (1 - drop2);
+    // shards: the torn record dissolves during replay
+    shards.forEach((s, k) => {
+      const r = rng(k + 3), sx0 = RC2[0] + r() * f2, sy0 = yTop + r() * SEG_H, p = lin(u, back + 2.1 + r() * 0.3, back + 3.1 + r() * 0.3);
+      s.setAttribute("x", sx0 + (r() - 0.5) * 80 * p); s.setAttribute("y", sy0 + 160 * p * p); s.setAttribute("width", 6 + r() * 10); s.setAttribute("height", 6 + r() * 10);
+      s.style.opacity = p > 0 && p < 1 ? 1 - p : 0;
+    });
+    // step captions for the first write
+    const tagPos = [[N_X.P1 + 16, WAL_Y - 64], [RC1[0], SEG_Y + SEG_H / 2 + 34], [N_X.C1 - 16, WAL_Y - 64], [N_X.C1 - 16, WAL_Y - 104]];
+    const stAt = [T.p1, T.r1, T.c1, T.ack];
+    stepTags.forEach((n, i) => place(n, tagPos[i][0], tagPos[i][1] + 8 * (1 - E(u, stAt[i], stAt[i] + 0.3)), { ax: i === 0 ? 1 : 0, o: E(u, stAt[i], stAt[i] + 0.3) * (1 - E(u, T.p2 - 0.2, T.p2 + 0.1)) }));
+    const walTxt = u < T.c1 ? WAL_JSON("pending") : WAL_JSON("committed");
+    if (u < kill) { typeOn(walLine, walTxt, u, u < T.c1 ? T.p1 : T.c1, 90); place(walLine, 140, 370, { o: E(u, T.p1, T.p1 + 0.2) * (1 - E(u, T.p2 - 0.3, T.p2)) }); }
+    else walLine.style.visibility = "hidden";
+    // kill
+    const glitching = u >= kill && u < dead0;
+    place(killTag, RC2[1], SEG_Y - SEG_H / 2 - 90, { ax: 1, o: env(u, kill - 0.02, kill + 0.03, dead0 - 0.05, dead0), s: 1 + 0.18 * (1 - E(u, kill, kill + 0.3)) });
+    cvLayer.style.transform = glitching ? `translate(${Math.round(Math.sin(u * 2300) * 14)}px, ${Math.round(Math.cos(u * 1700) * 6)}px)` : "none";
+    // restart: a terminal line, then the replay scan
+    const termTxt = `$ shardly open ./data\n  replaying wal.log … ${u > back + 2.9 ? "1 kept, 1 discarded" : ""}`;
+    typeOn(term, termTxt, u, back + 0.1, 60); place(term, 140, 350, { o: u >= back ? 1 : 0 });
+    const scanOn = u > back + 0.9 && u < back + 2.7;
+    setLine(scanLn, scanX, WAL_Y - 80, scanX, SEG_Y + SEG_H / 2 + 80, scanOn ? 1 : 0);
+    scanBand.setAttribute("x", Math.max(LANE_X0 - 40, scanX - 200)); scanBand.setAttribute("width", Math.max(0, Math.min(200, scanX - LANE_X0 + 40))); scanBand.style.opacity = scanOn ? 1 : 0;
+    const v1 = passed(RC1[1]) ? E(u, back + 1.5, back + 1.8) : 0;
+    place(verdict1, RC1[0], SEG_Y + SEG_H / 2 + 34, { o: v1 });
+    place(verdict2, RC2[1], SEG_Y + SEG_H / 2 + 34, { ax: 1, o: passed(RC2[0] + 200) ? E(u, back + 2.1, back + 2.4) : 0 });
+    rec1.fill.style.filter = v1 > 0 && u < back + 2.2 ? `drop-shadow(0 0 ${12 * v1}px var(--ember))` : "none";
+    place(cvCap, 140, 896, { o: E(u, back + 3.0, back + 3.4) });
+    place(CV.sub, 142, 262, { o: E(u, 0.7, 1.2) * (1 - E(u, kill - 0.4, kill)) });
+    // the proof
+    const pf = u - proofU, out = E(u, 14.4, 14.9, easeIn);
+    show(proof, pf > -0.1);
+    const roll = (c, start, dur, spins) => c.cols.forEach((col, i) => {
+      const s = start + i * 0.06, p = bezier(0.2, 0.7, 0.2, 1)(lin(pf, s, s + dur));
+      col.strip.style.transform = `translateY(${-p * (spins * 10 + col.d) * c.size * 1.05}px)`;
+    });
+    roll(cA, 0.2, 1.3, 1); roll(cB, 0.45, 1.1, 1); roll(cC, 0.7, 1.0, 2);
+    const PY = 470, zl = E(pf, 1.8, 2.1);
+    place(cA.wrap, 140, PY + 30 * (1 - E(pf, 0.1, 0.6)), { o: E(pf, 0.1, 0.5) * (1 - out) });
+    place(cB.wrap, 1010, PY + 30 * (1 - E(pf, 0.35, 0.85)), { o: E(pf, 0.35, 0.75) * (1 - out) });
+    cC.num.style.color = zl > 0.05 ? "var(--ember-text)" : ""; cC.lab.style.color = zl > 0.05 ? "var(--ember-text)" : "";
+    place(cC.wrap, 1400, PY + 30 * (1 - E(pf, 0.6, 1.1)), { o: E(pf, 0.6, 1.0), s: 1 + 0.08 * zl });
+    cC.lab.style.opacity = 1 - out;
+    place(proofCap, 140, PY + 310, { o: E(pf, 1.3, 1.7) * (1 - out) });
+  }
+  // glitch overlay and the blackout sit above every chapter
+  const gk = t >= TL.kill && t < TL.kill + 0.35, gr2 = rng(frame * 7 + 3);
+  show(glitchSvg, gk);
+  if (gk) glitchBars.forEach((b, k) => { b.setAttribute("x", gr2() * 1500 - 100); b.setAttribute("y", gr2() * 1080); b.setAttribute("width", 200 + gr2() * 900); b.setAttribute("height", 2 + gr2() * 26); b.style.fill = k % 3 ? rgba("ember", 0.85) : k % 2 ? rgba("ink", 0.9) : rgba("bg", 1); });
+  stage.style.filter = t >= TL.kill + 0.12 && t < TL.kill + 0.18 ? "invert(1)" : "none";
+  const blk = t >= TL.kill + 0.35 && t < TL.restart;
+  show(blackout, blk);
+  if (blk) { typeOn(deadA, "process killed by signal 9\n\n$ shardly open ./data", t, TL.kill + 0.4, 55); place(deadA, 140, 470); }
+
+  // ================= S7 finale =================
+  const s7on = t >= TL.recap - 0.1;
+  show(S7, s7on);
+  if (s7on) {
+    const r0 = TL.recap, conv = E(t, TL.lockup - 0.9, TL.lockup - 0.1, easeInOut);
+    place(recapHead, 960, 300, { ax: 0.5 }); maskAnim(recapHead, t, r0 + 0.1, TL.lockup - 1.1);
+    const draw = E(t, r0 + 0.4, r0 + 1.4, easeInOut), LY = 601;
+    MAP.forEach((_, i) => {
+      const a = E(t, r0 + 0.5 + i * 0.16, r0 + 1.0 + i * 0.16);
+      const x = mix(MAP_X(i), 960, conv);
+      place(recapNodes[i], x - 9, 626 + 16 * (1 - a), { o: a * (1 - E(t, TL.lockup - 1.0, TL.lockup - 0.6)) });
+      recapSq[i].setAttribute("transform", `translate(${x} ${LY - 1}) rotate(45) scale(${a * (1 - conv)})`);
+    });
+    if (t < TL.lockup) setLine(recapLine, MAP_X(0) + (960 - MAP_X(0)) * conv, LY - 1, mix(MAP_X(0), MAP_X(5), draw) - (MAP_X(5) - 960) * conv, LY - 1, 1);
+    else recapLine.style.opacity = 0;
+    // lockup
+    const lk = TL.lockup, LKY = 600;
+    const uDraw = E(t, lk - 0.1, lk + 0.7, easeInOut);
+    setLine(lockLine, 960 - 560 * uDraw, LKY, 960 + 560 * uDraw, LKY, t >= lk - 0.1 ? 1 - E(t, DURATION - 1.2, DURATION - 0.6) : 0);
+    wordLetters.forEach((s, i) => {
+      const a = E(t, lk + 0.2 + i * 0.07, lk + 1.0 + i * 0.07);
+      s.style.transform = `translateY(${70 * (1 - a)}px)`; s.style.opacity = a;
+      s.style.filter = a < 0.98 ? `blur(${10 * (1 - a)}px)` : "none";
+    });
+    const outO = 1 - E(t, DURATION - 1.3, DURATION - 0.5);
+    place(word, 960 - M.word / 2, 262, { o: (t >= lk ? 1 : 0) * outO });
+    place(tag1, 960, LKY + 36, { ax: 0.5, o: outO }); maskAnim(tag1, t, lk + 1.3);
+    place(tag2, 960, LKY + 150 + 10 * (1 - E(t, lk + 2.1, lk + 2.5)), { ax: 0.5, o: E(t, lk + 2.1, lk + 2.5) * outO });
+    place(repo, 960, LKY + 214 + 10 * (1 - E(t, lk + 2.7, lk + 3.1)), { ax: 0.5, o: E(t, lk + 2.7, lk + 3.1) * outO });
+    const cOn = t > lk + 3.2 && Math.floor((t - lk) * 1.6) % 2 === 0;
+    place(cursorEnd, 960 + M.repo / 2 + 12, LKY + 214, { o: cOn ? outO : 0 });
+  }
 }
 
 window.seek = seek;
 window.DURATION = DURATION; window.FPS = FPS;
-window.ready = document.fonts.ready.then(() => { measure(); seek(0); return true; });
+window.ready = document.fonts.ready.then(() => { setTheme(0); measure(); seek(0); return true; });
 if (location.search.includes("play")) window.ready.then(() => { const t0 = performance.now(); const f = () => { seek(((performance.now() - t0) / 1000) % DURATION); requestAnimationFrame(f); }; f(); });
 </script>
 </body>
