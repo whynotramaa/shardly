@@ -9,13 +9,13 @@
     --bg: #0b0b0c; --surface: #141416; --surface-2: #1b1b1e; --surface-3: #242428;
     --ink: #ededec; --ink-2: #b9b9bd; --ink-muted: #87878c; --hair: #2a2a2e;
     --ember: #c4552e; --ember-text: #e27950; --ember-soft: rgba(196, 85, 46, 0.16);
-    --serif: "Fraunces", serif; --sans: "Syne", sans-serif; --mono: "Geist Mono", monospace;
+    --serif: "Instrument Serif", serif; --sans: "Syne", sans-serif; --mono: "Geist Mono", monospace;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html, body { width: 1920px; height: 1080px; overflow: hidden; background: var(--bg); }
   #stage { position: relative; width: 1920px; height: 1080px; overflow: hidden; background: var(--bg); color: var(--ink); }
   .abs { position: absolute; left: 0; top: 0; will-change: transform, opacity; }
-  .serif { font-family: var(--serif); font-weight: 400; font-variation-settings: "opsz" 144; letter-spacing: -0.02em; }
+  .serif { font-family: var(--serif); font-weight: 400; letter-spacing: -0.01em; }
   .mono { font-family: var(--mono); }
   .sans { font-family: var(--sans); }
   .label { font-family: var(--mono); font-size: 17px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-muted); white-space: nowrap; }
@@ -101,9 +101,9 @@ const cursor1 = el("div", "abs");
 cursor1.style.cssText += "width:24px;height:52px;background:var(--ember);";
 
 const a1l1 = el("div", "abs serif", "Mid-write. 3,000 documents in.");
-a1l1.style.cssText += "font-size:92px;white-space:nowrap;color:var(--ink);";
+a1l1.style.cssText += "font-size:108px;white-space:nowrap;color:var(--ink);";
 const a1l2 = el("div", "abs serif", "What survived?");
-a1l2.style.cssText += "font-size:92px;white-space:nowrap;color:var(--ember-text);font-style:italic;";
+a1l2.style.cssText += "font-size:108px;white-space:nowrap;color:var(--ember-text);font-style:italic;";
 
 // The rust hairline: one continuous thread through the whole film.
 const threadSvg = svgEl("svg", { width: W, height: H }, stage);
@@ -161,7 +161,7 @@ odo.style.cssText += "width:1920px;height:300px;";
 function mkCounter(value, x, label, size, color) {
   const wrap = el("div", "abs", "", odo);
   const num = el("div", "serif", "", wrap);
-  num.style.cssText = `font-size:${size}px;line-height:1;height:${size * 1.02}px;white-space:nowrap;color:${color};font-variation-settings:"opsz" 144;letter-spacing:-0.01em;`;
+  num.style.cssText = `font-size:${size}px;line-height:1;height:${size * 1.02}px;white-space:nowrap;color:${color};letter-spacing:0;`;
   const cols = [];
   for (const ch of value) {
     if (ch === ",") { const c = el("span", "", ",", num); c.style.cssText = "display:inline-block;vertical-align:top;"; continue; }
@@ -174,9 +174,9 @@ function mkCounter(value, x, label, size, color) {
   const lab = el("div", "label", label, wrap); lab.style.marginTop = "26px"; lab.style.textAlign = "center";
   return { wrap, num, cols, lab, x, size };
 }
-const cA = mkCounter("225,141", 560, "acknowledged writes", 150, "#ededec");
-const cB = mkCounter("8", 1080, "kill -9 rounds", 150, "#ededec");
-const cC = mkCounter("0", 1430, "lost", 150, "#ededec");
+const cA = mkCounter("225,141", 560, "acknowledged writes", 190, "#ededec");
+const cB = mkCounter("8", 1080, "kill -9 rounds", 190, "#ededec");
+const cC = mkCounter("0", 1430, "lost", 190, "#ededec");
 
 // ================= ACT 3: search =================
 const BOX = { x: 360, y: 250, w: 1200, h: 96 };
@@ -250,12 +250,12 @@ const sumLine = svgEl("line", { stroke: "#87878c", "stroke-width": 1 }, bdSvg);
 const totalVal = el("div", "abs mono", ""); totalVal.style.cssText += "font-size:40px;color:var(--ember-text);font-weight:500;";
 const totalLbl = el("div", "abs label", "bm25 score");
 const explained = el("div", "abs serif", "Every score, explained.");
-explained.style.cssText += "font-size:84px;white-space:nowrap;";
+explained.style.cssText += "font-size:100px;white-space:nowrap;";
 const perfTag = el("div", "abs label", `${DATA.total} matches &nbsp;·&nbsp; ${DATA.documents} files &nbsp;·&nbsp; ${DATA.tookMs.toFixed(1)} ms`);
 
 // ================= LOCKUP =================
 const word = el("div", "abs serif");
-word.style.cssText += "font-size:240px;white-space:nowrap;line-height:1;letter-spacing:-0.035em;";
+word.style.cssText += "font-size:290px;white-space:nowrap;line-height:1;letter-spacing:-0.015em;";
 const WORD = "Shardly";
 const wordLetters = Array.from(WORD, (ch) => { const s = el("span", "", ch, word); s.style.cssText = "display:inline-block;will-change:transform,opacity;"; return s; });
 const tagline = el("div", "abs mono");
@@ -281,6 +281,7 @@ function measure() {
   M.wordW = w(word); M.tagW = w(tagline);
   M.tagWordX = []; { let x = 0; for (const s of tagWords) { M.tagWordX.push(x); x += w(s); } }
   M.letterX = []; { let x = 0; for (const s of wordLetters) { M.letterX.push(x); x += w(s); } }
+  for (const c of [cA, cB, cC]) { const probe = el("span", "serif", "0", c.num); probe.style.fontSize = `${c.size}px`; const dw = probe.getBoundingClientRect().width; probe.remove(); c.num.querySelectorAll(".digit-col").forEach((col) => { col.style.width = `${dw}px`; }); }
   M.cA = w(cA.num); M.cB = w(cB.num); M.cC = w(cC.num);
   M.lab = [cA, cB, cC].map((c) => w(c.lab));
   M.explW = w(explained);
@@ -595,8 +596,8 @@ function seek(t) {
   place(totalVal, BX + 820 + 30, yS - 2, { o: tot * (1 - bdOut) });
   place(totalLbl, ROW_X + 60, yS + 6, { o: tot * (1 - bdOut) });
   const exA = E(t, 15.55, 16.0);
-  place(explained, W / 2, 790 + 24 * (1 - exA), { ax: 0.5, o: exA * (1 - bdOut), blur: 8 * (1 - exA) });
-  place(perfTag, W / 2, 900, { ax: 0.5, o: E(t, 15.75, 16.0) * (1 - bdOut) });
+  place(explained, W / 2, 760 + 24 * (1 - exA), { ax: 0.5, o: exA * (1 - bdOut), blur: 8 * (1 - exA) });
+  place(perfTag, W / 2, 930, { ax: 0.5, o: E(t, 15.75, 16.0) * (1 - bdOut) });
 
   // ---- lockup: the total bar collapses to the final hairline ----
   {
@@ -608,7 +609,7 @@ function seek(t) {
       const w = mix(40, 2, col);
       setLine(thread, x1, y, x2, y, 1 - E(t, 19.0, 19.6), "#c4552e", w);
     }
-    const wx = W / 2 - M.wordW / 2, wy = 380;
+    const wx = W / 2 - M.wordW / 2, wy = 300;
     wordLetters.forEach((s, i) => {
       const a = E(t, 16.75 + i * 0.07, 17.45 + i * 0.07);
       s.style.transform = `translateY(${60 * (1 - a)}px)`;

@@ -1,6 +1,6 @@
 # Shardly film
 
-A 20 second motion piece (1920x1080, 30fps, stereo AAC) built in the product's own design language: Fraunces / Syne / Geist Mono, one rust accent, hairlines, the `cubic-bezier(0.16, 1, 0.3, 1)` curve.
+A 20 second motion piece (1920x1080, 30fps, stereo AAC) built in the product's own design language: Instrument Serif / Syne / Geist Mono, one rust accent, hairlines, the `cubic-bezier(0.16, 1, 0.3, 1)` curve.
 
 Output: `out/shardly-20s.mp4`
 
