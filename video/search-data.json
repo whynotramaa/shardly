@@ -1,0 +1,142 @@
+{
+  "query": "replayWalRecord",
+  "documents": 43,
+  "tokens": [
+    "replaywalrecord",
+    "replay",
+    "wal",
+    "record"
+  ],
+  "tookMs": 11.525228999999968,
+  "total": 25,
+  "hits": [
+    {
+      "title": "wal.ts",
+      "path": "src/storage/wal.ts",
+      "score": 14.508715498629966,
+      "breakdown": [
+        {
+          "term": "wal",
+          "contribution": 12.964376498147637
+        },
+        {
+          "term": "record",
+          "contribution": 1.54433900048233
+        }
+      ],
+      "snippet": {
+        "text": "wal.ts",
+        "matches": [
+          {
+            "start": 0,
+            "end": 3
+          }
+        ]
+      }
+    },
+    {
+      "title": "storage.ts",
+      "path": "src/storage/storage.ts",
+      "score": 6.827637511684053,
+      "breakdown": [
+        {
+          "term": "wal",
+          "contribution": 3.0484946282876253
+        },
+        {
+          "term": "replay",
+          "contribution": 2.24194134283202
+        },
+        {
+          "term": "record",
+          "contribution": 1.537201540564407
+        }
+      ],
+      "snippet": {
+        "text": " parsed.version ?? 0;\n    } catch { throw new Error(\"offset snapshot is invalid\"); }\n  }\n\n  private replayWal(): void {\n    const records = this.wal.readAll();\n    const committed = new Set(records.filter((r) => r.op === \"write\" && r.status === \"committed\").map(walKey));\n    for (const record of records) {\n      if (record.op === \"delete\" && record.status ==",
+        "matches": [
+          {
+            "start": 14035,
+            "end": 14044
+          },
+          {
+            "start": 14065,
+            "end": 14072
+          },
+          {
+            "start": 14080,
+            "end": 14083
+          },
+          {
+            "start": 14125,
+            "end": 14132
+          },
+          {
+            "start": 14197,
+            "end": 14203
+          },
+          {
+            "start": 14222,
+            "end": 14228
+          },
+          {
+            "start": 14232,
+            "end": 14239
+          },
+          {
+            "start": 14253,
+            "end": 14259
+          },
+          {
+            "start": 14279,
+            "end": 14285
+          }
+        ]
+      }
+    },
+    {
+      "title": "demo.ts",
+      "path": "src/runtime/demo.ts",
+      "score": 5.2348803183129275,
+      "breakdown": [
+        {
+          "term": "replay",
+          "contribution": 2.24194134283202
+        },
+        {
+          "term": "wal",
+          "contribution": 1.5072359050319633
+        },
+        {
+          "term": "record",
+          "contribution": 1.4857030704489445
+        }
+      ],
+      "snippet": {
+        "text": "ered: AsyncEngine | undefined;\n      try {\n        const acknowledged = await this.killWriter(root, records);\n        recovered = await startWorker(root);\n        let verified = acknowledged.length === records.length;\n        for (const record of records) {\n          const doc = await recovered.getDocument(record.id);\n          if (!acknowledged.includes(rec",
+        "matches": [
+          {
+            "start": 2501,
+            "end": 2508
+          },
+          {
+            "start": 2603,
+            "end": 2610
+          },
+          {
+            "start": 2638,
+            "end": 2644
+          },
+          {
+            "start": 2648,
+            "end": 2655
+          },
+          {
+            "start": 2709,
+            "end": 2715
+          }
+        ]
+      }
+    }
+  ]
+}

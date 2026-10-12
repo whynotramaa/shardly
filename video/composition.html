@@ -1,0 +1,639 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Shardly film</title>
+<link rel="stylesheet" href="fonts/fonts.css">
+<style>
+  :root {
+    --bg: #0b0b0c; --surface: #141416; --surface-2: #1b1b1e; --surface-3: #242428;
+    --ink: #ededec; --ink-2: #b9b9bd; --ink-muted: #87878c; --hair: #2a2a2e;
+    --ember: #c4552e; --ember-text: #e27950; --ember-soft: rgba(196, 85, 46, 0.16);
+    --serif: "Fraunces", serif; --sans: "Syne", sans-serif; --mono: "Geist Mono", monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 1920px; height: 1080px; overflow: hidden; background: var(--bg); }
+  #stage { position: relative; width: 1920px; height: 1080px; overflow: hidden; background: var(--bg); color: var(--ink); }
+  .abs { position: absolute; left: 0; top: 0; will-change: transform, opacity; }
+  .serif { font-family: var(--serif); font-weight: 400; font-variation-settings: "opsz" 144; letter-spacing: -0.02em; }
+  .mono { font-family: var(--mono); }
+  .sans { font-family: var(--sans); }
+  .label { font-family: var(--mono); font-size: 17px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-muted); white-space: nowrap; }
+  svg { position: absolute; left: 0; top: 0; overflow: visible; }
+  .digit-col { display: inline-block; overflow: hidden; -webkit-mask-image: linear-gradient(transparent 0%, #000 22%, #000 78%, transparent 100%); vertical-align: top; position: relative; text-align: center; }
+  .digit-strip { display: block; will-change: transform; }
+  .digit-strip span { display: block; }
+  .hl { background: var(--ember-soft); color: var(--ember-text); }
+</style>
+</head>
+<body>
+<div id="stage"></div>
+<script>
+// Every visual is a pure function of t (seconds). seek(t) renders one frame.
+const W = 1920, H = 1080, FPS = 30, DURATION = 20;
+const DATA = __SEARCH_DATA__;
+
+// ---------- easing ----------
+function bezier(x1, y1, x2, y2) {
+  const cx = 3 * x1, bx = 3 * (x2 - x1) - cx, ax = 1 - cx - bx;
+  const cy = 3 * y1, by = 3 * (y2 - y1) - cy, ay = 1 - cy - by;
+  const sx = (t) => ((ax * t + bx) * t + cx) * t;
+  const sy = (t) => ((ay * t + by) * t + cy) * t;
+  const dx = (t) => (3 * ax * t + 2 * bx) * t + cx;
+  return (x) => {
+    if (x <= 0) return 0; if (x >= 1) return 1;
+    let t = x;
+    for (let i = 0; i < 8; i++) { const e = sx(t) - x; const d = dx(t); if (Math.abs(e) < 1e-6 || !d) break; t -= e / d; }
+    return sy(Math.min(1, Math.max(0, t)));
+  };
+}
+const ease = bezier(0.16, 1, 0.3, 1);            // the product's motion curve
+const easeIn = bezier(0.7, 0, 0.84, 0);
+const easeInOut = bezier(0.65, 0, 0.35, 1);
+const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
+const lin = (t, a, b) => clamp((t - a) / (b - a));
+const E = (t, a, b, f = ease) => f(lin(t, a, b));
+const mix = (a, b, p) => a + (b - a) * p;
+// enter then exit envelope
+const env = (t, inA, inB, outA, outB) => Math.min(E(t, inA, inB), 1 - E(t, outA, outB, easeIn));
+
+// ---------- tiny DOM helpers ----------
+const stage = document.getElementById("stage");
+function el(tag, cls, html, parent = stage) { const n = document.createElement(tag); if (cls) n.className = cls; if (html !== undefined) n.innerHTML = html; parent.appendChild(n); return n; }
+const SVGNS = "http://www.w3.org/2000/svg";
+function svgEl(tag, attrs, parent) { const n = document.createElementNS(SVGNS, tag); for (const k in attrs) n.setAttribute(k, attrs[k]); parent.appendChild(n); return n; }
+function place(n, x, y, { o = 1, s = 1, blur = 0, ax = 0, ay = 0, r = 0 } = {}) {
+  n.style.transform = `translate(${x}px, ${y}px) translate(${-ax * 100}%, ${-ay * 100}%) scale(${s}) rotate(${r}deg)`;
+  n.style.opacity = o; n.style.filter = blur > 0.05 ? `blur(${blur}px)` : "none";
+  n.style.visibility = o <= 0.001 ? "hidden" : "visible";
+}
+function line(svg, cls = {}) { return svgEl("line", { stroke: "#2a2a2e", "stroke-width": 1, ...cls }, svg); }
+function setLine(l, x1, y1, x2, y2, o = 1, color, width) {
+  l.setAttribute("x1", x1); l.setAttribute("y1", y1); l.setAttribute("x2", x2); l.setAttribute("y2", y2);
+  l.setAttribute("opacity", o); if (color) l.setAttribute("stroke", color); if (width) l.setAttribute("stroke-width", width);
+}
+const fmt = (n, d = 2) => n.toFixed(d);
+
+// ================= persistent chrome: a technical-drawing frame =================
+const grid = svgEl("svg", { width: W, height: H }, stage);
+for (let x = 120; x < W; x += 120) svgEl("line", { x1: x, y1: 0, x2: x, y2: H, stroke: "#ededec", "stroke-width": 1, opacity: 0.028 }, grid);
+for (let y = 120; y < H; y += 120) svgEl("line", { x1: 0, y1: y, x2: W, y2: y, stroke: "#ededec", "stroke-width": 1, opacity: 0.028 }, grid);
+const chromeSvg = svgEl("svg", { width: W, height: H }, stage);
+const marks = [];
+for (const [cx, cy, sx, sy] of [[64, 64, 1, 1], [W - 64, 64, -1, 1], [64, H - 64, 1, -1], [W - 64, H - 64, -1, -1]]) {
+  marks.push(svgEl("path", { d: `M${cx} ${cy + 28 * sy} L${cx} ${cy} L${cx + 28 * sx} ${cy}`, stroke: "#87878c", fill: "none", "stroke-width": 1 }, chromeSvg));
+}
+const secLabel = el("div", "abs label");
+const secLabelNext = el("div", "abs label");
+const timecode = el("div", "abs label");
+const footLeft = el("div", "abs label", "shardly &nbsp;·&nbsp; hand-built storage + search");
+const footRight = el("div", "abs label");
+const SECTIONS = [[0, "01 &nbsp;/&nbsp; kill"], [4.0, "02 &nbsp;/&nbsp; recovery"], [10.0, "03 &nbsp;/&nbsp; search"], [16.4, "04 &nbsp;/&nbsp; shardly"]];
+
+// ================= ACT 1: the kill =================
+const prompt = el("div", "abs mono", "");
+prompt.style.cssText += "font-size:46px;color:var(--ink);white-space:pre;";
+const CMD = "kill -9 48213";
+// hand-timed keystrokes: uneven on purpose
+const KEY_T = [0.62, 0.70, 0.77, 0.86, 1.0, 1.07, 1.14, 1.30, 1.38, 1.45, 1.55, 1.62, 1.71];
+const ENTER_T = 1.86;
+const cursor1 = el("div", "abs");
+cursor1.style.cssText += "width:24px;height:52px;background:var(--ember);";
+
+const a1l1 = el("div", "abs serif", "Mid-write. 3,000 documents in.");
+a1l1.style.cssText += "font-size:92px;white-space:nowrap;color:var(--ink);";
+const a1l2 = el("div", "abs serif", "What survived?");
+a1l2.style.cssText += "font-size:92px;white-space:nowrap;color:var(--ember-text);font-style:italic;";
+
+// The rust hairline: one continuous thread through the whole film.
+const threadSvg = svgEl("svg", { width: W, height: H }, stage);
+
+// ================= ACT 2: the write path and the crash =================
+const diag = svgEl("svg", { width: W, height: H }, stage);
+const laneWal = line(diag); const laneSeg = line(diag);
+const segFrameTop = line(diag), segFrameBot = line(diag);
+const lblWal = el("div", "abs label", "wal.log"); const lblSeg = el("div", "abs label", "segment-0000.log");
+const WAL_Y = 400, SEG_Y = 640, SEG_H = 56;
+const NODES = { P1: 640, C1: 900, P2: 1160, C2: 1420 };
+const R1 = [560, 1010], R2 = [1030, 1500];
+function mkNode(dashed) {
+  const g = svgEl("g", {}, diag);
+  const ring = svgEl("rect", { width: 26, height: 26, x: -13, y: -13, fill: "#0b0b0c", stroke: "#87878c", "stroke-width": 1.2, "stroke-dasharray": dashed ? "4 4" : "none" }, g);
+  const fill = svgEl("rect", { width: 14, height: 14, x: -7, y: -7, fill: "#c4552e" }, g);
+  const pulse = svgEl("rect", { width: 26, height: 26, x: -13, y: -13, fill: "none", stroke: "#c4552e", "stroke-width": 2 }, g);
+  return { g, ring, fill, pulse };
+}
+const nP1 = mkNode(), nC1 = mkNode(), nP2 = mkNode(), nC2 = mkNode(true);
+const lP1 = el("div", "abs label", "pending"), lC1 = el("div", "abs label", "committed"), lP2 = el("div", "abs label", "pending"), lC2 = el("div", "abs label", "no commit");
+const conn = { p1: line(diag), c1: line(diag), p2: line(diag) };
+// segment records: outline + rust fill clipped by width
+function mkRecord(x0, x1, text) {
+  const outline = svgEl("rect", { x: x0, y: SEG_Y - SEG_H / 2, width: x1 - x0, height: SEG_H, fill: "none", stroke: "#3a3a3f", "stroke-width": 1 }, diag);
+  const fill = svgEl("rect", { x: x0, y: SEG_Y - SEG_H / 2, height: SEG_H, width: 0, fill: "#c4552e" }, diag);
+  const txt = el("div", "abs mono", text);
+  txt.style.cssText += "font-size:19px;color:#0b0b0c;white-space:nowrap;overflow:hidden;font-weight:500;";
+  return { outline, fill, txt, x0, x1 };
+}
+const rec1 = mkRecord(R1[0], R1[1], '{"id":"9f2c41","doc":{"title":"wal.ts"}}');
+const rec2 = mkRecord(R2[0], R2[1], '{"id":"b7e0d3","doc":{"title":"storage.ts"}}');
+// torn edge + glitch slices on rec2
+const tornEdge = svgEl("path", { fill: "#0b0b0c", stroke: "none" }, diag);
+const glitchA = svgEl("rect", { fill: "#ededec" }, diag), glitchB = svgEl("rect", { fill: "#c4552e" }, diag), cutLine = svgEl("line", { stroke: "#ededec", "stroke-width": 2 }, diag);
+const fsyncTags = [0, 1, 2, 3].map(() => el("div", "abs label", "fsync"));
+const ackTag = el("div", "abs mono", "ack &rarr; client");
+ackTag.style.cssText += "font-size:18px;color:var(--ember-text);border:1px solid var(--ember);padding:6px 10px;border-radius:2px;letter-spacing:0.04em;";
+const sigTag = el("div", "abs mono", "SIGKILL");
+sigTag.style.cssText += "font-size:22px;color:#0b0b0c;background:var(--ember);padding:6px 12px;border-radius:2px;letter-spacing:0.16em;font-weight:600;";
+const flash = el("div", "abs"); flash.style.cssText += "width:1920px;height:1080px;background:#ededec;";
+// recovery scan
+const scanBand = svgEl("rect", { y: 300, height: 440, fill: "rgba(196,85,46,0.10)" }, diag);
+const scanLine = svgEl("line", { stroke: "#c4552e", "stroke-width": 2 }, diag);
+const recLbl = el("div", "abs label", "replay wal &nbsp;·&nbsp; verify sha-256");
+const cap1 = el("div", "abs mono", "committed &nbsp;·&nbsp; verified &nbsp;·&nbsp; kept");
+const cap2 = el("div", "abs mono", "torn &nbsp;·&nbsp; unacked &nbsp;·&nbsp; discarded");
+for (const c of [cap1, cap2]) c.style.cssText += "font-size:22px;white-space:nowrap;letter-spacing:0.02em;";
+cap1.style.color = "var(--ember-text)"; cap2.style.color = "var(--ink-muted)";
+const tick1 = svgEl("g", {}, diag);
+
+// ---------- odometer ----------
+const odo = el("div", "abs");
+odo.style.cssText += "width:1920px;height:300px;";
+function mkCounter(value, x, label, size, color) {
+  const wrap = el("div", "abs", "", odo);
+  const num = el("div", "serif", "", wrap);
+  num.style.cssText = `font-size:${size}px;line-height:1;height:${size * 1.02}px;white-space:nowrap;color:${color};font-variation-settings:"opsz" 144;letter-spacing:-0.01em;`;
+  const cols = [];
+  for (const ch of value) {
+    if (ch === ",") { const c = el("span", "", ",", num); c.style.cssText = "display:inline-block;vertical-align:top;"; continue; }
+    const col = el("span", "digit-col", "", num);
+    col.style.cssText += `width:${size * 0.6}px;height:${size * 1.02}px;`;
+    const strip = el("span", "digit-strip", "", col);
+    for (let i = 0; i < 30; i++) el("span", "", String(i % 10), strip).style.height = `${size * 1.02}px`;
+    cols.push({ strip, d: Number(ch) });
+  }
+  const lab = el("div", "label", label, wrap); lab.style.marginTop = "26px"; lab.style.textAlign = "center";
+  return { wrap, num, cols, lab, x, size };
+}
+const cA = mkCounter("225,141", 560, "acknowledged writes", 150, "#ededec");
+const cB = mkCounter("8", 1080, "kill -9 rounds", 150, "#ededec");
+const cC = mkCounter("0", 1430, "lost", 150, "#ededec");
+
+// ================= ACT 3: search =================
+const BOX = { x: 360, y: 250, w: 1200, h: 96 };
+const boxSvg = svgEl("svg", { width: W, height: H }, stage);
+const boxPath = svgEl("path", { fill: "none", stroke: "#3a3a3f", "stroke-width": 1.2 }, boxSvg);
+const boxBottom = svgEl("line", { stroke: "#c4552e", "stroke-width": 2 }, boxSvg);
+const searchBtn = el("div", "abs mono", "Search");
+searchBtn.style.cssText += "font-size:22px;color:#0b0b0c;background:var(--ember);height:64px;width:150px;display:flex;align-items:center;justify-content:center;border-radius:3px;font-weight:600;letter-spacing:0.04em;";
+const glyph = el("div", "abs mono", "&#9906;"); glyph.style.display = "none";
+const qText = el("div", "abs mono", ""); qText.style.cssText += "font-size:44px;white-space:pre;color:var(--ink);";
+const qChars = Array.from(DATA.query, (ch) => { const s = el("span", "", "", qText); s.textContent = ch; return s; });
+const cursor3 = el("div", "abs"); cursor3.style.cssText += "width:3px;height:50px;background:var(--ember);";
+const QUERY = DATA.query; // replayWalRecord
+const Q_T = Array.from(QUERY, (_, i) => 10.86 + i * 0.062 + (i % 4 === 3 ? 0.03 : 0) + (i > 6 ? 0.04 : 0));
+// tokenizer crack: letters fly to chips
+const parts = DATA.tokens.slice(1);                       // replay, wal, record
+const whole = DATA.tokens[0];                            // replaywalrecord
+const tokLbl = el("div", "abs label", "tokenizer &nbsp;·&nbsp; camelCase split");
+const treeSvg = svgEl("svg", { width: W, height: H }, stage);
+const branches = parts.map(() => svgEl("path", { fill: "none", stroke: "#3a3a3f", "stroke-width": 1.2 }, treeSvg));
+const wholeChip = el("div", "abs mono", whole);
+wholeChip.style.cssText += "font-size:26px;color:var(--ink-muted);border:1px solid #3a3a3f;padding:8px 14px;border-radius:2px;white-space:nowrap;";
+const chipEls = parts.map((p) => {
+  const c = el("div", "abs mono", "");
+  c.style.cssText += "font-size:30px;color:var(--ember-text);background:var(--ember-soft);border:1px solid rgba(196,85,46,0.55);padding:10px 18px;border-radius:2px;white-space:nowrap;";
+  c.textContent = p; return c;
+});
+const flyLetters = []; // letters of the query that fly into chips
+{
+  let i = 0;
+  for (const p of parts) {
+    for (const ch of p) { const n = el("div", "abs mono", ""); n.textContent = QUERY[i]; n.style.cssText += "font-size:44px;color:var(--ember-text);"; flyLetters.push({ n, i, part: parts.indexOf(p), k: ch }); i++; }
+  }
+}
+// results
+const ROW_X = 360, ROW_W = 1200, ROW_Y0 = 560, ROW_H = 132;
+const snippets = [
+  { pre: "", hit: "readAll", post: "(): WalRecord[] {   // wal.ts", words: ["WalRecord"] },
+  { code: "private replayWal(): void {" },
+  { code: "const acknowledged = await this.killWriter(root, records);" },
+];
+const rows = DATA.hits.map((h, i) => {
+  const row = el("div", "abs");
+  row.style.cssText += `width:${ROW_W}px;height:${ROW_H}px;`;
+  const rank = el("div", "abs mono", String(i + 1).padStart(2, "0"), row); rank.style.cssText += "font-size:20px;color:var(--ink-muted);left:0;top:8px;";
+  const title = el("div", "abs sans", h.title, row); title.style.cssText += "font-size:34px;font-weight:600;color:var(--ember-text);left:60px;top:0;";
+  const p = el("div", "abs mono", h.path, row); p.style.cssText += "font-size:19px;color:var(--ink-muted);left:60px;top:50px;";
+  const score = el("div", "abs mono", fmt(h.score), row); score.style.cssText += "font-size:26px;color:var(--ink);left:auto;right:0;top:6px;";
+  const code = ["readAll(): WalRecord[] {", "private replayWal(): void {", "const acknowledged = await this.killWriter(root, records);"][i];
+  const sn = el("div", "abs mono", "", row); sn.style.cssText += "font-size:21px;color:var(--ink-2);left:60px;top:86px;white-space:pre;";
+  const rule = el("div", "abs", "", row); rule.style.cssText += `left:0;top:${ROW_H - 1}px;width:${ROW_W}px;height:1px;background:#2a2a2e;transform-origin:left;`;
+  // highlight matched words (wal / replay / record) inside the code line, painted left to right
+  const segs = []; const re = /(replay|Wal|wal|record|Record)/g; let last = 0, m;
+  while ((m = re.exec(code))) { segs.push([code.slice(last, m.index), false]); segs.push([m[0], true]); last = m.index + m[0].length; }
+  segs.push([code.slice(last), false]);
+  const marks = [];
+  for (const [txt, hit] of segs) { const s = el("span", hit ? "" : "", "", sn); s.textContent = txt; if (hit) marks.push(s); }
+  return { row, rank, title, p, score, sn, rule, marks };
+});
+// breakdown
+const bdSvg = svgEl("svg", { width: W, height: H }, stage);
+const TOP = DATA.hits[0];
+const BARS = TOP.breakdown.map((b) => ({ ...b }));
+const SCALE = 820 / TOP.score; // px per score unit
+const barTrack = BARS.map(() => svgEl("rect", { height: 40, fill: "#1b1b1e" }, bdSvg));
+const barRects = BARS.map(() => svgEl("rect", { height: 40, fill: "#c4552e" }, bdSvg));
+const barTerm = BARS.map((b) => { const n = el("div", "abs mono", b.term); n.style.cssText += "font-size:26px;color:var(--ink);"; return n; });
+const barVal = BARS.map((b) => { const n = el("div", "abs mono", fmt(b.contribution)); n.style.cssText += "font-size:26px;color:var(--ink);"; return n; });
+const barWhy = el("div", "abs label", "title match &nbsp;&times;3");
+const sumLine = svgEl("line", { stroke: "#87878c", "stroke-width": 1 }, bdSvg);
+const totalVal = el("div", "abs mono", ""); totalVal.style.cssText += "font-size:40px;color:var(--ember-text);font-weight:500;";
+const totalLbl = el("div", "abs label", "bm25 score");
+const explained = el("div", "abs serif", "Every score, explained.");
+explained.style.cssText += "font-size:84px;white-space:nowrap;";
+const perfTag = el("div", "abs label", `${DATA.total} matches &nbsp;·&nbsp; ${DATA.documents} files &nbsp;·&nbsp; ${DATA.tookMs.toFixed(1)} ms`);
+
+// ================= LOCKUP =================
+const word = el("div", "abs serif");
+word.style.cssText += "font-size:240px;white-space:nowrap;line-height:1;letter-spacing:-0.035em;";
+const WORD = "Shardly";
+const wordLetters = Array.from(WORD, (ch) => { const s = el("span", "", ch, word); s.style.cssText = "display:inline-block;will-change:transform,opacity;"; return s; });
+const tagline = el("div", "abs mono");
+tagline.style.cssText += "font-size:28px;color:var(--ink-2);white-space:pre;letter-spacing:0.01em;";
+const TAG = "storage · index · ranking. hand-built. no database underneath.";
+const tagWords = TAG.split(/(\s+)/).map((w) => { const s = el("span", "", "", tagline); s.textContent = w; s.style.cssText = "display:inline-block;white-space:pre;"; return s; });
+const cursorEnd = el("div", "abs"); cursorEnd.style.cssText += "width:16px;height:34px;background:var(--ember);";
+const blackout = el("div", "abs"); blackout.style.cssText += "width:1920px;height:1080px;background:#0b0b0c;";
+
+// thread lines (the rust line that morphs across acts)
+const thread = svgEl("line", { stroke: "#c4552e", "stroke-width": 2, "stroke-linecap": "butt" }, threadSvg);
+
+// measure once fonts are in
+let M = {};
+function measure() {
+  const w = (n) => n.getBoundingClientRect().width;
+  place(prompt, 0, 0); prompt.textContent = "$ " + CMD; M.cmdW = w(prompt);
+  prompt.textContent = "$ "; M.promptW = w(prompt);
+  M.charW = (M.cmdW - M.promptW) / CMD.length;
+  place(a1l1, 0, 0); M.l1W = w(a1l1); place(a1l2, 0, 0); M.l2W = w(a1l2);
+  place(qText, 0, 0); M.qCharW = w(qText) / qChars.length;
+  M.chipW = chipEls.map(w); M.wholeW = w(wholeChip);
+  M.wordW = w(word); M.tagW = w(tagline);
+  M.tagWordX = []; { let x = 0; for (const s of tagWords) { M.tagWordX.push(x); x += w(s); } }
+  M.letterX = []; { let x = 0; for (const s of wordLetters) { M.letterX.push(x); x += w(s); } }
+  M.cA = w(cA.num); M.cB = w(cB.num); M.cC = w(cC.num);
+  M.lab = [cA, cB, cC].map((c) => w(c.lab));
+  M.explW = w(explained);
+  M.sigW = w(sigTag);
+}
+
+// ================= render =================
+function seek(t) {
+  // ---- chrome ----
+  const chromeO = E(t, 2.05, 2.6) * (1 - E(t, 18.7, 19.3, easeIn));
+  grid.style.opacity = chromeO; chromeSvg.style.opacity = chromeO;
+  let si = 0; for (let i = 0; i < SECTIONS.length; i++) if (t >= SECTIONS[i][0]) si = i;
+  const secStart = SECTIONS[si][0];
+  const sp = E(t, secStart, secStart + 0.5);
+  secLabel.innerHTML = SECTIONS[si][1];
+  place(secLabel, 100, 92 - 14 * (1 - sp), { o: chromeO * (si === 0 ? 1 : sp) });
+  secLabelNext.innerHTML = si > 0 ? SECTIONS[si - 1][1] : "";
+  place(secLabelNext, 100, 92 + 14 * sp, { o: si > 0 ? chromeO * (1 - sp) : 0 });
+  timecode.textContent = `t+ ${t.toFixed(2).padStart(5, "0")} s`;
+  place(timecode, W - 100, 92, { ax: 1, o: chromeO });
+  footRight.textContent = `frame ${String(Math.round(t * FPS)).padStart(4, "0")} / 0600`;
+  place(footLeft, 100, H - 112, { o: chromeO }); place(footRight, W - 100, H - 112, { ax: 1, o: chromeO });
+
+  // ---- ACT 1: terminal ----
+  const typed = KEY_T.filter((k) => t >= k).length;
+  prompt.innerHTML = `<span style="color:#87878c">$ </span>${CMD.slice(0, typed)}`;
+  const termO = t < ENTER_T + 0.06 ? 1 : 0;
+  const PX = 640, PY = 512;
+  place(prompt, PX, PY, { o: termO });
+  const blinkOn = t < 0.62 ? (Math.floor(t * 2.4) % 2 === 0) : (t < ENTER_T ? (t - KEY_T[Math.max(0, typed - 1)] < 0.25 || Math.floor(t * 2.4) % 2 === 0) : false);
+  place(cursor1, PX + M.promptW + typed * M.charW + 4, PY + 2, { o: blinkOn && termO ? 1 : 0 });
+
+  // statement lines
+  const L1Y = 410, L2Y = 530;
+  const l1In = E(t, 2.12, 2.75), l2In = E(t, 3.15, 3.75);
+  const a1Out = E(t, 3.95, 4.3, easeIn);
+  place(a1l1, 300 + 0, L1Y + 22 * (1 - l1In) - 30 * a1Out, { o: l1In * (1 - a1Out), blur: 10 * (1 - l1In) + 8 * a1Out });
+  place(a1l2, 300, L2Y + 22 * (1 - l2In) - 30 * a1Out, { o: l2In * (1 - a1Out), blur: 10 * (1 - l2In) + 8 * a1Out });
+
+  // ---- the thread ----
+  // 2.2-4.0 fuse draws under the statements; 4.0-4.6 it lifts into the WAL lane
+  {
+    let x1 = 300, y = 680, x2 = 300, o = 1, color = "#c4552e", width = 2;
+    if (t < 2.2) { o = 0; }
+    else if (t < 4.0) { x2 = mix(300, 1620, E(t, 2.25, 4.0, easeInOut)); }
+    else if (t < 4.7) { const p = E(t, 4.0, 4.7, easeInOut); x1 = mix(300, 470, p); x2 = mix(1620, 1560, p); y = mix(680, WAL_Y, p); color = p > 0.85 ? "#c4552e" : "#c4552e"; }
+    else if (t < 8.5) { x1 = 470; x2 = 1560; y = WAL_Y; o = 1 - E(t, 4.9, 5.4) * 0.82; }
+    else o = 0;
+    setLine(thread, x1, y, x2, y, o, color, width);
+  }
+
+  // ---- ACT 2 diagram ----
+  const dIn = E(t, 4.35, 4.85), dOut = E(t, 8.45, 8.85, easeIn);
+  const dO = dIn * (1 - dOut);
+  diag.style.opacity = dO; diag.style.transform = `scale(${1 - 0.02 * dOut})`; diag.style.transformOrigin = "960px 540px";
+  diag.style.filter = dOut > 0.02 ? `blur(${6 * dOut}px)` : "none";
+  setLine(laneWal, 470, WAL_Y, 1560, WAL_Y, 1, "#3a3a3f");
+  setLine(segFrameTop, 470, SEG_Y - SEG_H / 2 - 18, 1560, SEG_Y - SEG_H / 2 - 18, 0.0);
+  setLine(laneSeg, 470, SEG_Y + SEG_H / 2 + 18, 1560, SEG_Y + SEG_H / 2 + 18, 1, "#2a2a2e");
+  place(lblWal, 470, WAL_Y - 64, { o: dO * E(t, 4.5, 4.9) });
+  place(lblSeg, 470, SEG_Y + SEG_H / 2 + 34, { o: dO * E(t, 4.55, 4.95) });
+
+  // fsync rhythm: 4.75, 5.25, 5.75 (write 1) and 6.15 (pending of write 2)
+  const TICKS = [4.75, 5.25, 5.75, 6.2];
+  const nodeState = (n, appearT, fillT, x) => {
+    const a = E(t, appearT, appearT + 0.3);
+    n.g.setAttribute("transform", `translate(${x} ${WAL_Y}) scale(${0.4 + 0.6 * a})`);
+    n.g.setAttribute("opacity", a);
+    const f = fillT == null ? 0 : E(t, fillT, fillT + 0.12);
+    n.fill.setAttribute("opacity", f); n.fill.setAttribute("transform", `scale(${f})`);
+    const pp = fillT == null ? 0 : lin(t, fillT, fillT + 0.45);
+    n.pulse.setAttribute("opacity", pp > 0 && pp < 1 ? (1 - pp) : 0);
+    n.pulse.setAttribute("transform", `scale(${1 + 1.4 * ease(pp)})`);
+    n.ring.setAttribute("stroke", f > 0.5 ? "#c4552e" : "#87878c");
+  };
+  nodeState(nP1, 4.55, TICKS[0], NODES.P1);
+  nodeState(nC1, 4.62, TICKS[2], NODES.C1);
+  nodeState(nP2, 6.0, TICKS[3], NODES.P2);
+  nodeState(nC2, 6.08, null, NODES.C2);
+  place(lP1, NODES.P1, WAL_Y + 30, { ax: 0.5, o: dO * E(t, 4.75, 5.0) });
+  place(lC1, NODES.C1, WAL_Y + 30, { ax: 0.5, o: dO * E(t, 5.75, 6.0) });
+  place(lP2, NODES.P2, WAL_Y + 30, { ax: 0.5, o: dO * E(t, 6.2, 6.45) * (1 - E(t, 8.0, 8.3)) });
+  place(lC2, NODES.C2, WAL_Y + 30, { ax: 0.5, o: dO * E(t, 7.25, 7.5) * (1 - E(t, 8.0, 8.3)) });
+
+  // connectors: node -> record start, record end -> commit node
+  const cp1 = E(t, 4.8, 5.0);
+  setLine(conn.p1, NODES.P1, WAL_Y + 13, mix(NODES.P1, R1[0] + 2, cp1), mix(WAL_Y + 13, SEG_Y - SEG_H / 2, cp1), cp1 > 0 ? 1 : 0, "#87878c");
+  const cc1 = E(t, 5.3, 5.7);
+  setLine(conn.c1, R1[1] - 2, SEG_Y - SEG_H / 2, mix(R1[1] - 2, NODES.C1, cc1), mix(SEG_Y - SEG_H / 2, WAL_Y + 13, cc1), cc1 > 0 ? 1 : 0, "#87878c");
+  const cp2 = E(t, 6.25, 6.45);
+  setLine(conn.p2, NODES.P2, WAL_Y + 13, mix(NODES.P2, R2[0] + 2, cp2), mix(WAL_Y + 13, SEG_Y - SEG_H / 2, cp2), cp2 > 0 ? 1 : 0, "#87878c");
+
+  // record fills
+  const r1o = E(t, 4.5, 4.9);
+  rec1.outline.setAttribute("opacity", r1o); rec2.outline.setAttribute("opacity", E(t, 4.6, 5.0));
+  const f1 = E(t, 4.88, 5.25, easeInOut) * (R1[1] - R1[0]);
+  rec1.fill.setAttribute("width", f1);
+  rec1.txt.style.width = `${Math.max(0, f1 - 28)}px`; place(rec1.txt, R1[0] + 18, SEG_Y - 13, { o: dO });
+  // write 2 decelerates and dies at 60%
+  const KILL = 7.0;
+  let f2 = 0;
+  if (t >= 6.4) f2 = (R2[1] - R2[0]) * 0.6 * bezier(0.2, 0.6, 0.35, 1)(lin(t, 6.4, KILL));
+  rec2.fill.setAttribute("width", f2);
+  rec2.txt.style.width = `${Math.max(0, f2 - 28)}px`; place(rec2.txt, R2[0] + 18, SEG_Y - 13, { o: dO });
+
+  // fsync tags
+  const tagPos = [[NODES.P1, WAL_Y - 58], [R1[1], SEG_Y - SEG_H / 2 - 50], [NODES.C1, WAL_Y - 58], [NODES.P2, WAL_Y - 58]];
+  fsyncTags.forEach((n, i) => {
+    const a = env(t, TICKS[i], TICKS[i] + 0.15, TICKS[i] + 0.55, TICKS[i] + 0.8);
+    n.style.color = "#e27950";
+    place(n, tagPos[i][0], tagPos[i][1] - 8 * E(t, TICKS[i], TICKS[i] + 0.4), { ax: 0.5, o: dO * a });
+  });
+  // ack
+  const ackA = E(t, 5.85, 6.15) * (1 - E(t, 6.8, 7.0));
+  place(ackTag, NODES.C1, WAL_Y - 150 + 10 * (1 - ackA), { ax: 0.5, o: dO * ackA });
+
+  // KILL: flash + glitch + torn edge
+  const kp = lin(t, KILL, KILL + 0.22);
+  const glitching = t >= KILL && t < KILL + 0.22;
+  const fx = R2[0] + f2;
+  const yTop = SEG_Y - SEG_H / 2;
+  if (glitching) {
+    const j = Math.sin(t * 900) * 18, k = Math.cos(t * 700) * 12;
+    glitchA.setAttribute("x", R2[0] + j); glitchA.setAttribute("y", yTop + 8); glitchA.setAttribute("width", f2 * 0.5); glitchA.setAttribute("height", 6); glitchA.setAttribute("opacity", 0.9);
+    glitchB.setAttribute("x", R2[0] + f2 * 0.3 + k); glitchB.setAttribute("y", yTop + 34); glitchB.setAttribute("width", f2 * 0.8); glitchB.setAttribute("height", 9); glitchB.setAttribute("opacity", 0.9);
+    rec2.fill.setAttribute("transform", `translate(${Math.round(Math.sin(t * 1300) * 7)} 0)`);
+  } else { glitchA.setAttribute("opacity", 0); glitchB.setAttribute("opacity", 0); rec2.fill.setAttribute("transform", ""); }
+  setLine(cutLine, 470, SEG_Y + 2, 1560, SEG_Y + 2, glitching ? (1 - kp) : 0, "#ededec", 2);
+  // jagged torn right edge
+  if (t >= KILL) {
+    let d = `M${fx + 1} ${yTop - 1}`;
+    for (let i = 0; i <= 7; i++) d += ` L${fx - (i % 2 ? 14 : 2)} ${yTop + (SEG_H / 7) * i}`;
+    d += ` L${fx + 1} ${yTop + SEG_H + 1} Z`;
+    tornEdge.setAttribute("d", d); tornEdge.setAttribute("opacity", 1);
+  } else tornEdge.setAttribute("opacity", 0);
+  flash.style.opacity = t >= KILL && t < KILL + 0.1 ? 0.14 * (1 - lin(t, KILL, KILL + 0.1)) : 0; flash.style.visibility = "visible";
+  place(flash, 0, 0, { o: t >= KILL && t < KILL + 0.07 ? 0.07 : 0 });
+  const sigA = env(t, KILL, KILL + 0.05, 7.55, 7.75);
+  place(sigTag, 1560, 236, { ax: 1, o: dO * sigA, s: 1 + 0.08 * (1 - E(t, KILL, KILL + 0.3)) });
+
+  // recovery scan 7.55 -> 8.35
+  const sp2 = E(t, 7.55, 8.35, easeInOut);
+  const sx = mix(440, 1600, sp2);
+  const scanOn = t >= 7.55 && t <= 8.45;
+  setLine(scanLine, sx, 300, sx, 740, scanOn ? 1 : 0, "#c4552e", 2);
+  scanBand.setAttribute("x", Math.max(440, sx - 180)); scanBand.setAttribute("width", Math.min(180, sx - 440)); scanBand.setAttribute("opacity", scanOn ? 1 : 0);
+  place(recLbl, 1560, 236, { ax: 1, o: dO * E(t, 7.6, 7.85) });
+  // torn write falls away once the scan passes it
+  const passed2 = E(t, 7.95, 8.3);
+  const dropO = 1 - 0.85 * passed2;
+  for (const n of [rec2.fill, tornEdge]) n.setAttribute("opacity", (n === tornEdge ? (t >= KILL ? 1 : 0) : 1) * dropO);
+  rec2.outline.setAttribute("stroke-dasharray", passed2 > 0.1 ? "6 6" : "none");
+  rec2.txt.style.opacity = dO * dropO;
+  nP2.g.setAttribute("opacity", Number(nP2.g.getAttribute("opacity")) * (1 - 0.8 * passed2));
+  conn.p2.setAttribute("opacity", Number(conn.p2.getAttribute("opacity")) * (1 - 0.8 * passed2));
+  const kept = E(t, 7.75, 8.0);
+  place(cap1, R1[0], SEG_Y + SEG_H / 2 + 80, { o: dO * kept });
+  place(cap2, R2[1], SEG_Y + SEG_H / 2 + 80, { ax: 1, o: dO * E(t, 8.05, 8.3) });
+  lblSeg.style.opacity = dO * E(t, 4.55, 4.95) * (1 - kept);
+
+  // ---- odometer 8.6 -> 10.0 ----
+  const odoO = E(t, 8.55, 8.8) * (1 - E(t, 10.0, 10.3, easeIn));
+  place(odo, 0, 0, { o: odoO });
+  const roll = (c, start, dur, spins) => c.cols.forEach((col, i) => {
+    const s = start + i * 0.05, p = bezier(0.2, 0.7, 0.2, 1)(lin(t, s, s + dur));
+    const pos = p * (spins * 10 + col.d);
+    col.strip.style.transform = `translateY(${-pos * c.size * 1.02}px)`;
+  });
+  roll(cA, 8.62, 0.85, 1); roll(cB, 8.77, 0.8, 1); roll(cC, 8.92, 0.75, 2);
+  const OY = 400;
+  const dim = E(t, 9.75, 10.0);
+  place(cA.wrap, 330, OY + 24 * (1 - E(t, 8.6, 9.0)), { o: E(t, 8.6, 8.9) * (1 - 0.65 * dim) });
+  place(cB.wrap, 1060, OY + 24 * (1 - E(t, 8.75, 9.15)), { o: E(t, 8.75, 9.05) * (1 - 0.65 * dim) });
+  const zeroLand = E(t, 9.62, 9.9);
+  cC.num.style.color = zeroLand > 0.05 ? "#e27950" : "#ededec";
+  place(cC.wrap, 1440, OY + 24 * (1 - E(t, 8.9, 9.3)), { o: E(t, 8.9, 9.2), s: 1 + 0.16 * zeroLand });
+  cC.wrap.style.transformOrigin = "50% 40%";
+  for (const [c, w, li] of [[cA, M.cA, 0], [cB, M.cB, 1], [cC, M.cC, 2]]) { c.lab.style.width = "max-content"; c.lab.style.transform = `translateX(${(w - M.lab[li]) / 2}px)`; }
+  cC.lab.style.color = zeroLand > 0.05 ? "#e27950" : "";
+
+  // ---- underline under the 0 morphs into the search box ----
+  const zx = 1440 + M.cC / 2, zy = OY + 196;
+  const uDraw = E(t, 9.7, 10.0);
+  const uMove = E(t, 10.0, 10.65, easeInOut);
+  const by = BOX.y + BOX.h;
+  {
+    let x1 = zx - (M.cC * 1.16 / 2) * uDraw, x2 = zx + (M.cC * 1.16 / 2) * uDraw, y = zy + 30;
+    x1 = mix(x1, BOX.x, uMove); x2 = mix(x2, BOX.x + BOX.w, uMove); y = mix(y, by, uMove);
+    const o = t < 9.7 ? 0 : 1 - E(t, 14.35, 14.7);
+    setLine(boxBottom, x1, y, x2, y, o, "#c4552e", 2);
+  }
+  // remaining box sides draw up from the bottom corners and meet at the top
+  const sides = E(t, 10.45, 10.95, easeInOut);
+  if (sides > 0) {
+    const r = 6, L = BOX.x, R = BOX.x + BOX.w, T = BOX.y, B = by;
+    const half = BOX.w / 2;
+    const up = Math.min(1, sides * 2) * (B - T - r), across = Math.max(0, sides * 2 - 1) * half;
+    let d = `M${L} ${B} L${L} ${B - up}`;
+    if (sides > 0.5) d += ` L${L} ${T + r} Q${L} ${T} ${L + r} ${T} L${L + r + across} ${T}`;
+    d += ` M${R} ${B} L${R} ${B - up}`;
+    if (sides > 0.5) d += ` L${R} ${T + r} Q${R} ${T} ${R - r} ${T} L${R - r - across} ${T}`;
+    boxPath.setAttribute("d", d);
+  } else boxPath.setAttribute("d", "");
+  const boxOut = E(t, 14.35, 14.75, easeIn);
+  boxSvg.style.opacity = 1 - boxOut;
+  const btnIn = E(t, 10.75, 11.1);
+  place(searchBtn, BOX.x + BOX.w - 16, BOX.y + BOX.h / 2, { ax: 1, ay: 0.5, o: btnIn * (1 - boxOut), s: 0.94 + 0.06 * btnIn });
+  // typing
+  const qn = Q_T.filter((k) => t >= k).length;
+  qChars.forEach((c, i) => { c.style.visibility = i < qn ? "visible" : "hidden"; });
+  const QX = BOX.x + 40, QY = BOX.y + 22;
+  const crack = E(t, 12.05, 12.75);
+  place(qText, QX, QY, { o: (t >= 10.8 ? 1 : 0) * (1 - boxOut) });
+  const caretOn = t >= 10.6 && t < 12.05 && (qn < QUERY.length ? true : Math.floor(t * 2.4) % 2 === 0);
+  place(cursor3, QX + qn * M.qCharW + 2, QY + 2, { o: caretOn ? 1 : 0 });
+
+  // tokenizer crack: letters for each part lift out of the query and settle into chips
+  const CHIP_Y = 430, gap = 26;
+  const totalChipW = M.wholeW + gap + M.chipW.reduce((a, b) => a + b, 0) + gap * (parts.length - 1);
+  let cx0 = W / 2 - totalChipW / 2;
+  const wholeX = cx0; cx0 += M.wholeW + gap * 2.2;
+  const chipX = []; for (const cw of M.chipW) { chipX.push(cx0); cx0 += cw + gap; }
+  const tokOut = E(t, 14.3, 14.65, easeIn);
+  place(tokLbl, W / 2, CHIP_Y + 74, { ax: 0.5, o: E(t, 12.1, 12.4) * (1 - tokOut) });
+  place(wholeChip, wholeX, CHIP_Y + 4, { o: E(t, 12.5, 12.8) * (1 - tokOut) * 0.9 });
+  let li = 0;
+  for (const f of flyLetters) {
+    const sxp = QX + f.i * M.qCharW, syp = QY;
+    const off = f.i - parts.slice(0, f.part).reduce((a, p) => a + p.length, 0);
+    const land = 12.62 + f.part * 0.09;
+    const dx = chipX[f.part] + 19 + off * M.qCharW * 30 / 44;
+    const dy = CHIP_Y + 9;
+    const p = E(t, 12.05 + f.part * 0.09, 12.62 + f.part * 0.09, bezier(0.6, 0, 0.15, 1));
+    qChars[f.i].style.opacity = p > 0 ? 0.22 : 1;
+    const show = p > 0 && t < land + 0.034;
+    const sz = mix(44, 30, p);
+    f.n.style.fontSize = `${sz}px`;
+    f.n.textContent = p > 0.6 ? QUERY[f.i].toLowerCase() : QUERY[f.i];
+    f.n.style.color = p > 0.35 ? "#e27950" : "#ededec";
+    place(f.n, mix(sxp, dx, p), mix(syp, dy, p), { o: show ? 1 : 0 });
+    li++;
+  }
+  chipEls.forEach((c, i) => {
+    const a = E(t, 12.5 + i * 0.07, 12.78 + i * 0.07);
+    const land = 12.62 + i * 0.09;
+    c.style.color = t >= land + 0.033 ? "#e27950" : "transparent";
+    place(c, chipX[i], CHIP_Y, { o: a * (1 - tokOut), s: 0.96 + 0.04 * a });
+  });
+  // query letters dim to show they were consumed
+  // branches from the query to chips
+  branches.forEach((b, i) => {
+    const p = E(t, 12.1 + i * 0.07, 12.6 + i * 0.07);
+    const sx1 = QX + (parts.slice(0, i).reduce((a, q) => a + q.length, 0) + parts[i].length / 2) * M.qCharW;
+    const sy1 = BOX.y + BOX.h + 2, ex = chipX[i] + M.chipW[i] / 2, ey = CHIP_Y - 2;
+    const my = (sy1 + ey) / 2;
+    b.setAttribute("d", `M${sx1} ${sy1} L${sx1} ${my} L${ex} ${my} L${ex} ${ey}`);
+    const len = Math.abs(ey - sy1) + Math.abs(ex - sx1) + 10;
+    b.setAttribute("stroke-dasharray", `${len}`); b.setAttribute("stroke-dashoffset", `${len * (1 - p)}`);
+    b.setAttribute("opacity", 1 - tokOut);
+  });
+
+  // results rise in, 32ms stagger (product motion), matched words paint left to right
+  rows.forEach((r, i) => {
+    const s = 13.15 + i * 0.032 * 3;
+    const a = E(t, s, s + 0.52);
+    let x = ROW_X, y = ROW_Y0 + i * ROW_H + 26 * (1 - a), o = a;
+    if (i === 0) {
+      const mv = E(t, 14.35, 14.95, easeInOut);
+      y = mix(y, 200, mv);
+    } else {
+      const out = E(t, 14.3 + i * 0.05, 14.65 + i * 0.05, easeIn);
+      o *= 1 - out; y += 30 * out;
+    }
+    place(r.row, x, y, { o: o * (1 - E(t, 16.05, 16.4, easeIn)) });
+    r.rule.style.transform = `scaleX(${E(t, s + 0.1, s + 0.7)})`;
+    const typedSn = ["readAll(): WalRecord[] {", "private replayWal(): void {", "const acknowledged = await this.killWriter(root, records);"][i];
+    r.marks.forEach((m, k) => {
+      const p = E(t, s + 0.35 + k * 0.09, s + 0.6 + k * 0.09);
+      m.style.background = `linear-gradient(90deg, rgba(196,85,46,0.22) ${p * 100}%, transparent ${p * 100}%)`;
+      m.style.color = p > 0.4 ? "#e27950" : "";
+    });
+    r.sn.style.opacity = E(t, s + 0.15, s + 0.5);
+  });
+
+  // ---- breakdown: bars draw, then slide end to end into the total ----
+  const BX = ROW_X + 260, BY0 = 420, BGAP = 84;
+  const stack = E(t, 15.3, 15.8, easeInOut);
+  const bdOut = E(t, 16.05, 16.4, easeIn);
+  let accX = BX;
+  BARS.forEach((b, i) => {
+    const w = b.contribution * SCALE;
+    const grow = E(t, 14.85 + i * 0.12, 15.35 + i * 0.12);
+    const y0 = BY0 + i * BGAP, yS = BY0 + BARS.length * BGAP + 20;
+    const x = mix(BX, accX, stack), y = mix(y0, yS, stack);
+    barRects[i].setAttribute("x", x); barRects[i].setAttribute("y", y);
+    barRects[i].setAttribute("width", w * grow);
+    barRects[i].setAttribute("fill", i === 0 ? "#c4552e" : "#e27950");
+    barRects[i].setAttribute("opacity", (t >= 14.85 ? 1 : 0) * (1 - bdOut));
+    barTrack[i].setAttribute("x", BX); barTrack[i].setAttribute("y", y0); barTrack[i].setAttribute("width", 820);
+    barTrack[i].setAttribute("opacity", E(t, 14.8, 15.1) * (1 - stack) * 0.9);
+    const lo = E(t, 14.85 + i * 0.12, 15.2 + i * 0.12) * (1 - stack);
+    place(barTerm[i], ROW_X + 60, y0 + 2, { o: lo });
+    barVal[i].textContent = fmt(b.contribution * grow);
+    place(barVal[i], BX + 820 + 30, y0 + 2, { o: lo });
+    accX += w;
+  });
+  place(barWhy, BX + BARS[0].contribution * SCALE - 14, BY0 + 52, { ax: 1, o: E(t, 15.15, 15.35) * (1 - stack) });
+  const yS = BY0 + BARS.length * BGAP + 20;
+  const tot = E(t, 15.45, 15.85);
+  setLine(sumLine, BX, yS - 26, BX + 820, yS - 26, stack * 0, "#87878c");
+  totalVal.textContent = "= " + fmt(TOP.score * tot);
+  place(totalVal, BX + 820 + 30, yS - 2, { o: tot * (1 - bdOut) });
+  place(totalLbl, ROW_X + 60, yS + 6, { o: tot * (1 - bdOut) });
+  const exA = E(t, 15.55, 16.0);
+  place(explained, W / 2, 790 + 24 * (1 - exA), { ax: 0.5, o: exA * (1 - bdOut), blur: 8 * (1 - exA) });
+  place(perfTag, W / 2, 900, { ax: 0.5, o: E(t, 15.75, 16.0) * (1 - bdOut) });
+
+  // ---- lockup: the total bar collapses to the final hairline ----
+  {
+    const totalW = TOP.score * SCALE;
+    const col = E(t, 16.15, 16.75, easeInOut);
+    const LY = 650;
+    if (t >= 16.1 && t < 19.8) {
+      const x1 = mix(BX, W / 2 - 520, col), x2 = mix(BX + totalW, W / 2 + 520, col), y = mix(yS + 20, LY, col);
+      const w = mix(40, 2, col);
+      setLine(thread, x1, y, x2, y, 1 - E(t, 19.0, 19.6), "#c4552e", w);
+    }
+    const wx = W / 2 - M.wordW / 2, wy = 380;
+    wordLetters.forEach((s, i) => {
+      const a = E(t, 16.75 + i * 0.07, 17.45 + i * 0.07);
+      s.style.transform = `translateY(${60 * (1 - a)}px)`;
+      s.style.opacity = a; s.style.filter = a < 0.98 ? `blur(${10 * (1 - a)}px)` : "none";
+      s.style.clipPath = `inset(0 0 ${(1 - a) * 100}% 0)`;
+    });
+    place(word, wx, wy, { o: t >= 16.7 ? 1 - E(t, 19.4, 19.75) : 0 });
+    const tx = W / 2 - M.tagW / 2, ty = LY + 40;
+    tagWords.forEach((s, i) => {
+      const a = E(t, 17.75 + i * 0.035, 18.2 + i * 0.035);
+      s.style.opacity = a; s.style.transform = `translateY(${12 * (1 - a)}px)`;
+    });
+    place(tagline, tx, ty, { o: t >= 17.7 ? 1 - E(t, 19.4, 19.75) : 0 });
+    // the cursor from second zero returns and blinks once
+    const cOn = (t >= 18.75 && t < 19.05) || (t >= 19.3 && t < 19.6);
+    place(cursorEnd, tx + M.tagW + 10, ty + 2, { o: cOn ? 1 : 0 });
+  }
+  place(blackout, 0, 0, { o: t >= 19.8 ? 1 : 0 });
+}
+
+window.seek = seek;
+window.DURATION = DURATION; window.FPS = FPS;
+window.ready = document.fonts.ready.then(() => { measure(); seek(0); return true; });
+// preview mode: open with ?play to watch in a browser
+if (location.search.includes("play")) window.ready.then(() => { const t0 = performance.now(); const f = () => { const t = ((performance.now() - t0) / 1000) % DURATION; seek(t); requestAnimationFrame(f); }; f(); });
+</script>
+</body>
+</html>
