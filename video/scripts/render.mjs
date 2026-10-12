@@ -31,7 +31,7 @@ if (stills) {
     await page.screenshot({ path: path.join(dir, "stills", `t${t.toFixed(2)}.png`) });
   }
 } else {
-  const fps = 30, frames = 20 * fps;
+  const fps = 30, frames = Math.round((await page.evaluate(() => window.DURATION)) * fps);
   fs.mkdirSync(path.dirname(out), { recursive: true });
   const ff = spawn("ffmpeg", ["-y", "-loglevel", "error", "-f", "image2pipe", "-framerate", String(fps), "-i", "-",
     "-c:v", "libx264", "-preset", "slow", "-crf", "14", "-pix_fmt", "yuv420p", "-tune", "animation", "-movflags", "+faststart", out], { stdio: ["pipe", "inherit", "inherit"] });

@@ -1,142 +1,197 @@
 {
-  "query": "replayWalRecord",
-  "documents": 43,
-  "tokens": [
-    "replaywalrecord",
-    "replay",
-    "wal",
-    "record"
+  "query": "crash recovery",
+  "documents": 2447,
+  "mix": {
+    "code": 54,
+    "docs": 7,
+    "wikipedia": 2386
+  },
+  "queryTerms": [
+    "crash",
+    "recovery"
   ],
-  "tookMs": 11.525228999999968,
-  "total": 25,
+  "identifier": {
+    "text": "replayWalRecord",
+    "tokens": [
+      "replaywalrecord",
+      "replay",
+      "wal",
+      "record"
+    ]
+  },
+  "tookMs": 7.187930000000051,
+  "total": 10,
+  "candidates": 32,
+  "postingReads": 42,
   "hits": [
     {
-      "title": "wal.ts",
-      "path": "src/storage/wal.ts",
-      "score": 14.508715498629966,
-      "breakdown": [
-        {
-          "term": "wal",
-          "contribution": 12.964376498147637
-        },
-        {
-          "term": "record",
-          "contribution": 1.54433900048233
-        }
-      ],
-      "snippet": {
-        "text": "wal.ts",
-        "matches": [
-          {
-            "start": 0,
-            "end": 3
-          }
-        ]
-      }
+      "title": "demo.ts",
+      "path": "src/ingest/demo.ts",
+      "type": "code",
+      "score": 15.036809307020569,
+      "line": "…, sourceId: \"demo:recovery\", title: \"Crash recovery guide\", file…"
     },
     {
-      "title": "storage.ts",
-      "path": "src/storage/storage.ts",
-      "score": 6.827637511684053,
-      "breakdown": [
-        {
-          "term": "wal",
-          "contribution": 3.0484946282876253
-        },
-        {
-          "term": "replay",
-          "contribution": 2.24194134283202
-        },
-        {
-          "term": "record",
-          "contribution": 1.537201540564407
-        }
-      ],
-      "snippet": {
-        "text": " parsed.version ?? 0;\n    } catch { throw new Error(\"offset snapshot is invalid\"); }\n  }\n\n  private replayWal(): void {\n    const records = this.wal.readAll();\n    const committed = new Set(records.filter((r) => r.op === \"write\" && r.status === \"committed\").map(walKey));\n    for (const record of records) {\n      if (record.op === \"delete\" && record.status ==",
-        "matches": [
-          {
-            "start": 14035,
-            "end": 14044
-          },
-          {
-            "start": 14065,
-            "end": 14072
-          },
-          {
-            "start": 14080,
-            "end": 14083
-          },
-          {
-            "start": 14125,
-            "end": 14132
-          },
-          {
-            "start": 14197,
-            "end": 14203
-          },
-          {
-            "start": 14222,
-            "end": 14228
-          },
-          {
-            "start": 14232,
-            "end": 14239
-          },
-          {
-            "start": 14253,
-            "end": 14259
-          },
-          {
-            "start": 14279,
-            "end": 14285
-          }
-        ]
-      }
+      "title": "VERIFICATION.md",
+      "path": "VERIFICATION.md",
+      "type": "markdown",
+      "score": 10.469942699169188,
+      "line": "…earch and SIGKILL recovery, with the normal backup unchanged."
     },
+    {
+      "title": "PRODUCT.md",
+      "path": "PRODUCT.md",
+      "type": "markdown",
+      "score": 10.32435676451283,
+      "line": "…ing, storage, and recovery work with reproducible evidence."
+    },
+    {
+      "title": "compare-fts.ts",
+      "path": "scripts/compare-fts.ts",
+      "type": "code",
+      "score": 9.326686277863828,
+      "line": "…ksum integrity\", \"crash recovery latency\", \"vector ranking\", \"st…"
+    }
+  ],
+  "baseline": [
     {
       "title": "demo.ts",
-      "path": "src/runtime/demo.ts",
-      "score": 5.2348803183129275,
+      "score": 10.501683705302622,
       "breakdown": [
         {
-          "term": "replay",
-          "contribution": 2.24194134283202
+          "term": "recovery",
+          "tf": 7,
+          "idf": 4.782601757487854,
+          "contribution": 6.520825273510128
         },
         {
-          "term": "wal",
-          "contribution": 1.5072359050319633
-        },
-        {
-          "term": "record",
-          "contribution": 1.4857030704489445
+          "term": "crash",
+          "tf": 3,
+          "idf": 4.689511334421843,
+          "contribution": 3.980858431792494
         }
-      ],
-      "snippet": {
-        "text": "ered: AsyncEngine | undefined;\n      try {\n        const acknowledged = await this.killWriter(root, records);\n        recovered = await startWorker(root);\n        let verified = acknowledged.length === records.length;\n        for (const record of records) {\n          const doc = await recovered.getDocument(record.id);\n          if (!acknowledged.includes(rec",
-        "matches": [
-          {
-            "start": 2501,
-            "end": 2508
-          },
-          {
-            "start": 2603,
-            "end": 2610
-          },
-          {
-            "start": 2638,
-            "end": 2644
-          },
-          {
-            "start": 2648,
-            "end": 2655
-          },
-          {
-            "start": 2709,
-            "end": 2715
-          }
-        ]
-      }
+      ]
+    },
+    {
+      "title": "PRODUCT.md",
+      "score": 9.335749988722702,
+      "breakdown": [
+        {
+          "term": "recovery",
+          "tf": 2,
+          "idf": 4.782601757487854,
+          "contribution": 5.6819119168387475
+        },
+        {
+          "term": "crash",
+          "tf": 1,
+          "idf": 4.689511334421843,
+          "contribution": 3.6538380718839543
+        }
+      ]
+    },
+    {
+      "title": "bench.ts",
+      "score": 6.177342815436014,
+      "breakdown": [
+        {
+          "term": "recovery",
+          "tf": 1,
+          "idf": 4.782601757487854,
+          "contribution": 3.1190263797571336
+        },
+        {
+          "term": "crash",
+          "tf": 1,
+          "idf": 4.689511334421843,
+          "contribution": 3.0583164356788806
+        }
+      ]
+    },
+    {
+      "title": "seed.ts",
+      "score": 5.745839331058283,
+      "breakdown": [
+        {
+          "term": "recovery",
+          "tf": 2,
+          "idf": 4.782601757487854,
+          "contribution": 2.901154263712645
+        },
+        {
+          "term": "crash",
+          "tf": 2,
+          "idf": 4.689511334421843,
+          "contribution": 2.8446850673456385
+        }
+      ]
     }
-  ]
+  ],
+  "postings": [
+    {
+      "term": "crash",
+      "df": 22,
+      "top": [
+        {
+          "title": "crash-test.ts",
+          "tf": 8
+        },
+        {
+          "title": "README.md",
+          "tf": 8
+        },
+        {
+          "title": "crash-writer.ts",
+          "tf": 4
+        },
+        {
+          "title": "VERIFICATION.md",
+          "tf": 4
+        },
+        {
+          "title": "demo.ts",
+          "tf": 3
+        },
+        {
+          "title": "Crashing the Gates (play)",
+          "tf": 3
+        }
+      ]
+    },
+    {
+      "term": "recovery",
+      "df": 20,
+      "top": [
+        {
+          "title": "demo.ts",
+          "tf": 9
+        },
+        {
+          "title": "demo.ts",
+          "tf": 7
+        },
+        {
+          "title": "README.md",
+          "tf": 6
+        },
+        {
+          "title": "workspace.test.ts",
+          "tf": 4
+        },
+        {
+          "title": "ENGINEERING.md",
+          "tf": 4
+        },
+        {
+          "title": "VERIFICATION.md",
+          "tf": 3
+        }
+      ]
+    }
+  ],
+  "storage": {
+    "segment": "segment-0000.log",
+    "byteOffset": 122996,
+    "length": 3304
+  }
 }
