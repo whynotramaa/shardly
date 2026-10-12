@@ -1,6 +1,6 @@
 # Shardly film
 
-A 128 second explainer (1920x1080, 30fps, stereo AAC at -14 LUFS) for someone seeing Shardly for the first time. It opens in light mode as the product, wipes into dark mode to go inside the engine, and returns to daylight once the crash is survived.
+An 85 second explainer (1920x1080, 30fps, stereo AAC, loudness-normalized) for someone seeing Shardly for the first time. It opens in light mode as the product, wipes into dark mode to go inside the engine, and returns to daylight once the crash is survived.
 
 Type: Zarathustra for display (Coconat covers the glyphs Zarathustra lacks, such as `&`, `+` and `·`), Syne for interface text, Geist Mono for code and data. One rust accent, hairlines, and the product's `cubic-bezier(0.16, 1, 0.3, 1)` curve.
 
@@ -34,6 +34,10 @@ ffmpeg -i video/out/silent.mp4 -i video/out/sound.wav -c:v libx264 -preset slow 
 `timeline.json` holds every scene start. The composition and the score both read it, so moving a cue moves picture and sound together.
 
 `node video/scripts/render.mjs --stills 3.6,10.5` writes single frames to `video/stills/` for review. Needs Playwright's Chromium and ffmpeg. Every frame is a pure function of time (`seek(t)` in `composition.html`), so renders are deterministic.
+
+Scene times in the table and in `timeline.json` are film seconds. `speed` in `timeline.json` (currently 1.5) plays the whole film faster: the renderer samples the timeline further along each frame, and the score moves every cue earlier while each sound keeps its own length and pitch, so the music simply plays at a faster tempo. Divide a scene time by `speed` to get playback time.
+
+Music and effects are mixed on separate buses. The music sits about 11 dB under the effects (drums a further 6 dB down) and ducks automatically whenever an effect plays.
 
 The mix is high-passed at 55 Hz with most energy between 120 Hz and 2 kHz so it carries on phone and laptop speakers.
 

@@ -13,12 +13,26 @@ import numpy as np
 HERE = os.path.dirname(os.path.abspath(__file__))
 TL = json.load(open(os.path.join(HERE, "..", "timeline.json")))
 SR = 48000
+SPEED = float(TL.get("speed", 1.0))     # cue times are film seconds; playback is SPEED times faster
 DUR = float(TL["duration"])
-N = int(SR * DUR)
+N = int(SR * DUR / SPEED)
 BEAT = 0.6                      # 100 BPM
 rng = np.random.default_rng(11)
-DL = np.zeros(N); DR = np.zeros(N)   # dry bus
-WL = np.zeros(N); WR = np.zeros(N)   # reverb send
+# Two buses so the music can sit well under the sound effects.
+BUSES = {b: [np.zeros(N) for _ in range(4)] for b in ("music", "sfx")}   # dry L, dry R, reverb L, reverb R
+CUR = "sfx"
+MUSIC_GAIN = 0.28      # about -11 dB under the effects
+DRUM_GAIN = 0.5        # kick, hats and bass sit a further -6 dB inside the music
+
+
+def music(fn):
+    """Route everything an instrument plays to the music bus."""
+    def wrapped(*a, **kw):
+        global CUR
+        prev, CUR = CUR, "music"
+        try: return fn(*a, **kw)
+        finally: CUR = prev
+    return wrapped
 
 
 def ta(d): return np.arange(int(d * SR)) / SR
@@ -32,10 +46,11 @@ def band(x, lo, hi):
 
 
 def add(at, sig, gain=1.0, pan=0.0, rev=0.2):
-    i = int(at * SR); j = min(N, i + len(sig))
+    i = int(at / SPEED * SR); j = min(N, i + len(sig))
     if at < 0 or i >= N or j <= i: return
     s = sig[: j - i] * gain
     l, r = np.sqrt((1 - pan) / 2) * 1.414, np.sqrt((1 + pan) / 2) * 1.414
+    DL, DR, WL, WR = BUSES[CUR]
     DL[i:j] += s * l; DR[i:j] += s * r
     if rev: WL[i:j] += s * l * rev; WR[i:j] += s * r * rev
 
@@ -53,6 +68,7 @@ def saw(f, d, harmonics=10, detune=0.0):
 
 
 # ---------------- instruments ----------------
+@music
 def piano(at, n, gain=0.16, pan=0.0, d=3.2, rev=0.5):
     f = hz(n); t = ta(d); sig = np.zeros_like(t)
     for k, amp in enumerate([1, 0.45, 0.22, 0.12, 0.07, 0.04], 1):
@@ -62,18 +78,21 @@ def piano(at, n, gain=0.16, pan=0.0, d=3.2, rev=0.5):
     add(at, sig * np.clip(t / 0.004, 0, 1), gain, pan, rev)
 
 
+@music
 def chord(at, notes, gain=0.1, spread=0.0, **kw):
     for k, n in enumerate(notes): piano(at + k * spread, n, gain, pan=-0.4 + 0.8 * k / max(1, len(notes) - 1), **kw)
 
 
+@music
 def pluck(at, n, gain=0.1, pan=0.0, d=0.35, rev=0.15):
     f = hz(n)
     sig = saw(f, d, 8) * decay(d, 0.08) + 0.5 * np.sin(2 * np.pi * f * 2 * ta(d)) * decay(d, 0.035)
     add(at, sig, gain, pan, rev)
 
 
+@music
 def pad(t0, t1, notes, gain=0.04, fade_in=0.8, fade_out=1.2, bright=7, rev=0.4):
-    d = t1 - t0
+    d = (t1 - t0) / SPEED
     if d <= 0: return
     sig = sum(saw(hz(n), d, bright, detune=0.003 * ((k % 2) * 2 - 1)) for k, n in enumerate(notes))
     t = ta(d); env = np.clip(t / fade_in, 0, 1) * np.clip((d - t) / fade_out, 0, 1)
@@ -81,30 +100,34 @@ def pad(t0, t1, notes, gain=0.04, fade_in=0.8, fade_out=1.2, bright=7, rev=0.4):
     add(t0, sig, gain, rev=rev)
 
 
+@music
 def drone(t0, t1, n, gain=0.08, rev=0.3):
-    d = t1 - t0; t = ta(d); f = hz(n)
+    d = (t1 - t0) / SPEED; t = ta(d); f = hz(n)
     sig = 0.35 * np.sin(2 * np.pi * f * t) + 0.7 * np.sin(2 * np.pi * f * 2.003 * t) + 0.45 * np.sin(2 * np.pi * f * 3 * t) + 0.2 * np.sin(2 * np.pi * f * 4.01 * t)
     env = np.clip(t / 1.5, 0, 1) * np.clip((d - t) / 1.5, 0, 1)
     add(t0, sig * env, gain, rev=rev)
 
 
+@music
 def kick(at, gain=0.4):
     d = 0.35; t = ta(d)
     f = 50 + 110 * np.exp(-t / 0.03)
     body = np.tanh(2.4 * np.sin(2 * np.pi * np.cumsum(f) / SR) * decay(d, 0.12, 0.001))
     click = band(rng.standard_normal(len(t)), 1500, 6000) * decay(d, 0.003, 0.0005)
     knock = np.sin(2 * np.pi * 170 * t) * decay(d, 0.03)
-    add(at, 0.7 * body + 0.35 * click + 0.6 * knock, gain, rev=0.05)
+    add(at, 0.7 * body + 0.35 * click + 0.6 * knock, gain * DRUM_GAIN, rev=0.05)
 
 
+@music
 def hat(at, gain=0.04, pan=0.3):
-    d = 0.06; add(at, band(rng.standard_normal(int(d * SR)), 6500, 12000) * decay(d, 0.012), gain, pan, 0.05)
+    d = 0.06; add(at, band(rng.standard_normal(int(d * SR)), 6500, 12000) * decay(d, 0.012), gain * DRUM_GAIN, pan, 0.05)
 
 
+@music
 def bass(at, n, d=0.55, gain=0.16):
     f = hz(n); t = ta(d)
     sig = np.tanh(1.6 * (np.sin(2 * np.pi * f * t) + 0.35 * np.sin(2 * np.pi * f * 2 * t))) * decay(d, 0.25, 0.004)
-    add(at, sig, gain, rev=0.05)
+    add(at, sig, gain * DRUM_GAIN, rev=0.05)
 
 
 def key(at, heavy=False, gain=0.22, pan=None):
@@ -149,6 +172,7 @@ def impact(at, gain=0.6, d=3.0, f0=42, rev=0.5):
 
 
 def whoosh(at, d, lo, hi, gain=0.12, rise=True, pan_sweep=0.0, rev=0.25):
+    d /= SPEED
     n = rng.standard_normal(int(d * SR)); t = ta(d)
     chunks = 32; out = np.zeros_like(n); seg = len(n) // chunks
     for k in range(chunks):
@@ -157,19 +181,21 @@ def whoosh(at, d, lo, hi, gain=0.12, rise=True, pan_sweep=0.0, rev=0.25):
         out[k * seg:(k + 1) * seg] = band(n[k * seg:(k + 2) * seg], c * 0.7, c * 1.4)[:seg]
     sig = out * np.sin(np.pi * np.clip(t / d, 0, 1)) ** 1.4
     if pan_sweep:
-        i = int(at * SR); j = min(N, i + len(sig)); pn = np.linspace(-pan_sweep, pan_sweep, j - i)
+        i = int(at / SPEED * SR); j = min(N, i + len(sig)); pn = np.linspace(-pan_sweep, pan_sweep, j - i)
+        DL, DR, WL, WR = BUSES[CUR]
         for B, w in ((DL, 1), (WL, rev)): B[i:j] += sig[: j - i] * gain * w * np.sqrt((1 - pn) / 2) * 1.414
         for B, w in ((DR, 1), (WR, rev)): B[i:j] += sig[: j - i] * gain * w * np.sqrt((1 + pn) / 2) * 1.414
     else: add(at, sig, gain, rev=rev)
 
 
 def riser(at, d, gain=0.1, f0=180, oct=2.0):
-    t = ta(d)
+    t = ta(d / SPEED); d_film = d; d = d / SPEED
     ph = 2 * np.pi * np.cumsum(f0 * 2 ** (oct * t / d)) / SR
     sig = (np.sin(ph) + 0.4 * np.sin(2 * ph) + 0.2 * np.sin(3 * ph)) * (t / d) ** 2
-    add(at, sig, gain, rev=0.3); whoosh(at, d, 400, 7000, gain * 0.8)
+    add(at, sig, gain, rev=0.3); whoosh(at, d_film, 400, 7000, gain * 0.8)
 
 
+@music
 def reverse_swell(end, d=1.4, notes=(62, 69, 74), gain=0.08):
     """A reversed piano chord swelling into `end`."""
     t = ta(d); sig = np.zeros_like(t)
@@ -177,7 +203,7 @@ def reverse_swell(end, d=1.4, notes=(62, 69, 74), gain=0.08):
         f = hz(n)
         sig += sum(a * np.sin(2 * np.pi * f * k * t) for k, a in [(1, 1), (2, 0.4), (3, 0.15)]) * np.exp(-t / 0.7)
     sig = sig[::-1] * np.clip((d - t[::-1]) / 0.02, 0, 1)
-    add(end - d, sig, gain, rev=0.6)
+    add(end - d * SPEED, sig, gain, rev=0.6)
 
 
 def tear(at):
@@ -194,17 +220,19 @@ def glitch_chatter(t0, t1, gain=0.12):
     while at < t1:
         d = r.uniform(0.01, 0.04); f = r.choice([180, 420, 900, 1700, 3100])
         sig = np.sign(np.sin(2 * np.pi * f * ta(d))) * 0.6 + 0.4 * r.standard_normal(int(d * SR))
-        add(at, sig, gain, pan=r.uniform(-0.8, 0.8), rev=0.0); at += d + r.uniform(0.0, 0.03)
+        add(at, sig, gain, pan=r.uniform(-0.8, 0.8), rev=0.0); at += (d + r.uniform(0.0, 0.03)) * SPEED
 
 
+@music
 def air(t0, t1, gain=0.012):
-    d = t1 - t0; t = ta(d)
+    d = (t1 - t0) / SPEED; t = ta(d)
     sig = band(rng.standard_normal(len(t)), 300, 3000) * np.clip(t / 2, 0, 1) * np.clip((d - t) / 2, 0, 1)
     add(t0, sig, gain, rev=0.3)
 
 
 # ---------------- the music bed ----------------
 DM, BB, F_, C_, GM, A_ = [50, 57, 62, 65], [46, 53, 58, 62], [41, 53, 57, 60], [48, 55, 60, 64], [43, 55, 58, 62], [45, 52, 57, 61]
+@music
 def groove(t0, t1, prog, gain=0.08, kick_g=0.0, hats=False, bass_g=0.0, pattern=(0, 2, 1, 3, 2, 1, 3, 2)):
     """Eighth-note plucks over a chord progression (one chord per bar of 4 beats)."""
     at = t0; step = 0
@@ -381,8 +409,24 @@ def convolve(x, h):
     n = 1 << int(np.ceil(np.log2(len(x) + len(h))))
     return np.fft.irfft(np.fft.rfft(x, n) * np.fft.rfft(h, n), n)[: len(x)]
 
-L = DL + 0.9 * convolve(WL, reverb_ir(seed=1)); R = DR + 0.9 * convolve(WR, reverb_ir(seed=2))
-end = int((DUR - 0.05) * SR); L[end:] = 0; R[end:] = 0
+def bus(name):
+    dl, dr, wl, wr = BUSES[name]
+    return dl + 0.9 * convolve(wl, reverb_ir(seed=1)), dr + 0.9 * convolve(wr, reverb_ir(seed=2))
+
+def follower(x, attack=0.01, release=0.35):
+    """Peak envelope of x, sampled every 5 ms."""
+    hop = int(0.005 * SR); frames = np.abs(x[: len(x) // hop * hop]).reshape(-1, hop).max(1)
+    a, r = np.exp(-0.005 / attack), np.exp(-0.005 / release); env = np.zeros_like(frames); e = 0.0
+    for k, v in enumerate(frames): e = v + (e - v) * (a if v > e else r); env[k] = e
+    return np.interp(np.arange(len(x)), np.arange(len(env)) * hop, env)
+
+ML, MR = bus("music"); SL, SR_ = bus("sfx")
+key_env = follower(np.abs(SL) + np.abs(SR_))
+duck = 1 / (1 + 6.0 * key_env / max(1e-9, key_env.max()))          # up to about -17 dB under the loudest hit
+L = SL + MUSIC_GAIN * duck * ML; R = SR_ + MUSIC_GAIN * duck * MR
+rms = lambda x: float(np.sqrt(np.mean(x ** 2)))
+print(f"music vs sfx: {20 * np.log10(rms(MUSIC_GAIN * duck * ML) / rms(SL)):+.1f} dB (before the change it was {20 * np.log10(rms(ML) / rms(SL)):+.1f} dB)")
+end = int((DUR / SPEED - 0.05) * SR); L[end:] = 0; R[end:] = 0
 fade = int(2.0 * SR); w = np.linspace(1, 0, fade); L[end - fade:end] *= w; R[end - fade:end] *= w
 
 def highpass(x, fc=55.0):

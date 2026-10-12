@@ -21,7 +21,8 @@ const range = arg("--range", null);
 const workers = Number(arg("--workers", Math.min(4, os.cpus().length)));
 
 const timeline = JSON.parse(fs.readFileSync(path.join(dir, "timeline.json"), "utf8"));
-const fps = timeline.fps, total = Math.round(timeline.duration * fps);
+// speed > 1 plays the film faster: fewer output frames, each one sampling the timeline further along.
+const fps = timeline.fps, speed = timeline.speed ?? 1, total = Math.round((timeline.duration / speed) * fps);
 
 function build(tag) {
   const built = path.join(dir, `composition.built.${tag}.html`);
@@ -58,7 +59,7 @@ if (stills) {
   const { browser, page } = await open(built);
   const ff = spawn("ffmpeg", ["-y", "-loglevel", "error", "-f", "image2pipe", "-c:v", "mjpeg", "-framerate", String(fps), "-i", "-", ...encodeArgs, out], { stdio: ["pipe", "inherit", "inherit"] });
   for (let f = a; f < b; f++) {
-    await page.evaluate((t) => window.seek(t), f / fps);
+    await page.evaluate((t) => window.seek(t), (f / fps) * speed);
     const buf = await page.screenshot({ type: "jpeg", quality: 96 });
     if (!ff.stdin.write(buf)) await new Promise((r) => ff.stdin.once("drain", r));
     if ((f - a) % 150 === 0) process.stdout.write(`[${a}:${b}] frame ${f}\n`);

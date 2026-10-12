@@ -623,7 +623,7 @@ function seek(t) {
   // ---- chrome ----
   const chromeO = E(t, 0.2, 1.0) * (1 - E(t, DURATION - 1.2, DURATION - 0.5, easeIn));
   gridSvg.style.opacity = chromeO; frameSvg.style.opacity = chromeO;
-  timecode.textContent = `t+ ${t.toFixed(2).padStart(6, "0")} s`; place(timecode, W - 100, 92, { ax: 1, o: chromeO });
+  timecode.textContent = `t+ ${(t / (TL.speed ?? 1)).toFixed(2).padStart(6, "0")} s`; place(timecode, W - 100, 92, { ax: 1, o: chromeO });
   const inChapter = t >= TL.ingest && t < TL.light;
   place(brandTag, 100, 92, { o: chromeO * (1 - E(t, TL.ingest - 0.4, TL.ingest)) + chromeO * E(t, TL.recap, TL.recap + 0.6) });
 
