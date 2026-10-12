@@ -27,8 +27,8 @@ Every number is real. `scripts/capture-search.ts` indexes this repository's code
 npm ci                                     # repo root
 npx tsx video/scripts/capture-search.ts    # real search data
 python3 video/scripts/sound.py             # numpy score, writes out/sound.wav
-node video/scripts/render.mjs --out video/out/silent.mp4
-ffmpeg -i video/out/silent.mp4 -i video/out/sound.wav -c:v copy -af "loudnorm=I=-14:TP=-1:LRA=11" -c:a aac -b:a 256k -shortest video/out/shardly.mp4
+node video/scripts/render.mjs --out video/out/silent.mp4   # 4 parallel workers, near-lossless master
+ffmpeg -i video/out/silent.mp4 -i video/out/sound.wav -c:v libx264 -preset slow -crf 20 -tune grain -pix_fmt yuv420p -af "loudnorm=I=-14:TP=-1:LRA=11" -ar 48000 -c:a aac -b:a 256k -shortest -movflags +faststart video/out/shardly.mp4
 ```
 
 `timeline.json` holds every scene start. The composition and the score both read it, so moving a cue moves picture and sound together.
