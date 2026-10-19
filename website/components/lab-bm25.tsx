@@ -192,7 +192,7 @@ export default function LabBm25() {
   const score = termIdf * factor;
 
   return (
-    <div className="cut panel">
+    <div className="cut panel bm25-lab">
       <div
         style={{
           display: "flex",
@@ -282,8 +282,8 @@ export default function LabBm25() {
                 ]}
               />
               <p className="label" style={{ marginTop: 8 }}>
-                Raw frequency would be a straight line climbing forever. k1 bends it
-                flat. Set k1 to 0 and every repeat past the first counts for nothing.
+                Increasing k1 makes repeated terms contribute for longer. At k1 = 0,
+                a second occurrence adds no extra term-frequency weight.
               </p>
             </div>
 
@@ -307,14 +307,14 @@ export default function LabBm25() {
                 ]}
               />
               <p className="label" style={{ marginTop: 8 }}>
-                At b = 0 the line is flat and a 10,000-word page wins on volume. At
-                b = 1 depth is punished as padding. 0.75 sits between them.
+                At b = 0, document length does not affect this factor. At b = 1,
+                length normalization is strongest. The baseline default is 0.75.
               </p>
             </div>
 
             <div className="c-12" style={{ marginTop: 14 }}>
               <p className="label" style={{ marginBottom: 8 }}>
-                C · Rarity is everything · why the + 1 inside the logarithm is not decoration
+                C · Term rarity and the positive IDF formula
               </p>
               <Plot
                 w={720}
@@ -342,9 +342,8 @@ export default function LabBm25() {
                 ]}
               />
               <p className="label" style={{ marginTop: 8 }}>
-                Drag n past 10,000 and watch the dashed line cross zero. Under that
-                version, a document would lose points for containing a common query
-                word. The + 1 keeps every contribution positive.
+                Set n above 10,000. Without the + 1, the IDF becomes negative.
+                The baseline formula keeps the contribution positive.
               </p>
             </div>
           </div>

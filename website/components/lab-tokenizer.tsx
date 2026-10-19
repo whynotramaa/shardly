@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { traceTokens, tokenize, STOPWORDS } from "../lib/shardly";
+import { TableScroll } from "./guide";
 
 const PRESETS = [
   "Zürich cafés are running distributed queries",
@@ -59,7 +60,7 @@ export default function LabTokenizer() {
         ))}
       </div>
 
-      <div className="tbl-wrap" style={{ marginTop: 26 }}>
+      <TableScroll label="English tokenizer analysis">
         <table className="tbl">
           <thead>
             <tr>
@@ -97,7 +98,7 @@ export default function LabTokenizer() {
             ))}
           </tbody>
         </table>
-      </div>
+      </TableScroll>
 
       <div style={{ marginTop: 26 }}>
         <p className="label" style={{ marginBottom: 10 }}>

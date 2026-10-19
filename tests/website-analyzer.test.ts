@@ -8,4 +8,10 @@ describe("illustrated analyzer lab", () => {
       expect(labTokens(text)).toEqual(engineTokens(text));
     }
   });
+  it("uses the terms drawn in the engineering guide", () => {
+    const sentence = "The storage layer stores records.";
+    expect(labTokens(sentence)).toEqual(["storage", "layer", "stor", "record"]);
+    expect(labTokens(sentence)).toEqual(engineTokens(sentence));
+    expect("The WAL records each write.".slice(4, 7)).toBe("WAL");
+  });
 });

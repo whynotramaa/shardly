@@ -46,50 +46,22 @@ export default function LabSeek() {
         ))}
       </div>
 
-      <div className="lab-scroll">
-      <svg viewBox="0 0 1080 190" style={{ width: "100%", height: "auto" }}>
-        <text x="0" y="12" className="d-t-s">STEP 1 · OFFSET INDEX LOOKUP · O(1) HASH MAP</text>
-        <rect x="0" y="24" width="1080" height="34" className="d-box-2" />
-        <text x="14" y="46" className="d-t" style={{ fill: "var(--accent)" }}>
-          offsetIndex.get(&quot;{d.id}&quot;) → {"{"} segment: &quot;{d.seg}&quot;, byteOffset: {d.off}, length: {d.len}, deleted: {String(d.deleted)} {"}"}
-        </text>
-
-        <text x="0" y="88" className="d-t-s">STEP 2 · SEEK INTO THE SEGMENT FILE</text>
-        <rect x="0" y="100" width="1080" height="30" className="d-box-2" />
-        {DOCS.map((doc, i) => {
-          const x = (doc.off / TOTAL) * 1078 + 1;
-          const w = (doc.len / TOTAL) * 1078;
-          const active = i === sel;
-          return (
-            <rect
-              key={doc.id}
-              x={x}
-              y={101}
-              width={w}
-              height={28}
-              fill={active ? "var(--accent)" : doc.deleted ? "url(#hatch)" : "var(--wash-9)"}
-              stroke={active ? "var(--accent)" : "var(--hair-solid)"}
-            />
-          );
-        })}
-        <line
-          x1={(d.off / TOTAL) * 1078 + 1}
-          y1="94"
-          x2={(d.off / TOTAL) * 1078 + 1}
-          y2="146"
-          className="d-ac"
-          strokeDasharray="2 3"
-        />
-        <text x={(d.off / TOTAL) * 1078 + 8} y="160" className="d-t-ac">
-          byte {d.off}
-        </text>
-
-        <text x="0" y="186" className="d-t">
-          fs.readSync(fd, buf, 0, {d.len}, {d.off})
-          {d.deleted ? "   never reached, the tombstone short-circuits the read" : ""}
-        </text>
-      </svg>
+      <dl className="seek-address">
+        <div><dt>Segment</dt><dd>{d.seg}</dd></div>
+        <div><dt>Byte offset</dt><dd>{d.off}</dd></div>
+        <div><dt>Record length</dt><dd>{d.len} bytes</dd></div>
+      </dl>
+      <p className="diagram-pan-hint">Scroll horizontally to inspect every byte range.</p>
+      <div className="lab-scroll seek-drawing" role="region" aria-label="Illustrative segment byte ranges" tabIndex={0}>
+        <svg viewBox="0 0 640 110" role="img" aria-label={`Selected record begins at byte ${d.off} and occupies ${d.len} bytes`}>
+          <text x="0" y="17">Segment byte ranges</text>
+          <rect x="0" y="30" width="640" height="32" className="d-box-2" />
+          {DOCS.map((doc, i) => <rect key={doc.id} x={(doc.off / TOTAL) * 638 + 1} y="31" width={(doc.len / TOTAL) * 638} height="30" fill={i === sel ? "var(--accent)" : doc.deleted ? "url(#hatch)" : "var(--wash-9)"} stroke={i === sel ? "var(--accent)" : "var(--hair-solid)"} />)}
+          <line x1={(d.off / TOTAL) * 638 + 1} y1="25" x2={(d.off / TOTAL) * 638 + 1} y2="77" className="d-ac" />
+          <text x={(d.off / TOTAL) * 638 + 8} y="99">byte {d.off}</text>
+        </svg>
       </div>
+      <p className="seek-code"><code>{d.deleted ? "Deletion marker prevents this read." : `fs.readSync(fd, buffer, 0, ${d.len}, ${d.off})`}</code></p>
 
       <div
         className="cut"
@@ -111,8 +83,8 @@ export default function LabSeek() {
       </div>
 
       <p className="label" style={{ marginTop: 18 }}>
-        Not one neighbouring record was opened, parsed, or even touched. The cost
-        is identical whether the file holds five records or five million.
+        The offset map finds the record without scanning neighbouring records.
+        Reading and checking the bytes still takes work proportional to the record size.
       </p>
     </div>
   );

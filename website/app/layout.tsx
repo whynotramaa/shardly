@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Shardly, a search engine explained from the bytes up",
+  title: "How Shardly stores, searches, and verifies documents",
   description:
-    "A field manual for Shardly: append-only segments, a write-ahead log, an inverted index, and BM25 ranking, written from scratch in TypeScript and explained with working diagrams.",
+    "Follow a document through extraction, durable storage, lexical and hybrid retrieval, and revision-checked evidence. A source-backed engineering guide with interactive diagrams.",
 };
 
 export default function RootLayout({
@@ -15,6 +15,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
+        <link rel="preload" href="/fonts/Coconat-Regular.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link
           rel="preconnect"
@@ -23,7 +24,7 @@ export default function RootLayout({
         />
         <link
           rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Newsreader:opsz,wght@6..72,300;6..72,400;6..72,500;6..72,600&family=Geist+Mono:wght@400;500;600&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Geist+Mono:wght@400;500;600&display=swap"
         />
         <script
           dangerouslySetInnerHTML={{
@@ -93,12 +94,6 @@ export default function RootLayout({
           </defs>
         </svg>
 
-        <div className="underlay" aria-hidden />
-        <div className="underlay-cols" aria-hidden>
-          {Array.from({ length: 13 }, (_, i) => (
-            <i key={i} style={{ left: `calc(${(i / 12) * 100}% )` }} />
-          ))}
-        </div>
         {children}
       </body>
     </html>

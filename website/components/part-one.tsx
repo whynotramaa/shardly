@@ -1,714 +1,88 @@
-import { Section, Head, Figure, Marks, SECTIONS, Stat } from "./chrome";
-import {
-  TwoMaps,
-  RecordAnatomy,
-  AppendVsUpdate,
-  RecoveryTree,
-  FsyncMath,
-  CompactTimeline,
-  VersionGuard,
-} from "./diagrams-storage";
-import { Scale, CircleField } from "./lineart";
-import Reveal from "./reveal";
-import LabWal from "./lab-wal";
+import { Chapter, Drawing, TableScroll } from "./guide";
+import EngineeringScene from "./engineering-scene";
 import LabSeek from "./lab-seek";
-
-const S = Object.fromEntries(SECTIONS.map((s) => [s.id, s]));
+import LabTokenizer from "./lab-tokenizer";
+import LabBm25 from "./lab-bm25";
 
 export default function PartOne() {
-  return (
-    <>
-      {/* ============================================================ 01 */}
-      <Section meta={S.idea!}>
-        <Head
-          title={
-            <>
-              Everything below follows from{" "}
-              <em className="italic ac">one claim</em>
-            </>
-          }
-          lede={
-            <>
-              You can find the bytes of any document without reading any other
-              document. You can find every document containing a word without
-              reading any document at all.
-            </>
-          }
-        />
+  return <>
+    <Chapter id="ingest" title="Receive a document" files={["src/ingest/extract.ts", "src/ingest/formats.ts", "src/ingest/folders.ts"]}>
+      <p>A search engine needs text before it can build an index. Shardly accepts JSON documents directly, or extracts text and metadata from uploaded files. The original file and the searchable document are different things. A PDF becomes extracted fields, not a complete copy of its page layout.</p>
+      <p>Consider a note with the sentence “The WAL records each write.” We will follow that note through storage, search, and evidence retrieval. The examples use small, illustrative documents so you can inspect each step.</p>
+      <h3>What extraction preserves</h3>
+      <p>The parser depends on the file format. Keeping useful boundaries makes a search result easier to locate in its source.</p>
+      <TableScroll label="Supported extraction formats"><table><caption>Supported extraction paths and their boundaries.</caption><thead><tr><th>Input</th><th>Searchable representation</th><th>Boundary</th></tr></thead><tbody>
+        <tr><td>DOCX</td><td>Heading and table boundaries</td><td>No page-layout reconstruction</td></tr>
+        <tr><td>PPTX</td><td>Slide text and speaker notes</td><td>No visual slide interpretation</td></tr>
+        <tr><td>XLSX</td><td>Sheet, cell, value, and formula metadata</td><td>No workbook calculation engine</td></tr>
+        <tr><td>HTML, CSV, TSV</td><td>Visible HTML text and structured rows</td><td>CSV supports quoted multiline cells</td></tr>
+        <tr><td>RTF, EML, EPUB</td><td>Rich text, email fields, and book text</td><td>Email attachments need separate import</td></tr>
+        <tr><td>PDF</td><td>Embedded text, or optional OCR</td><td>No full complex-layout recovery</td></tr>
+      </tbody></table></TableScroll>
+      <p><strong>Optical character recognition</strong>, or OCR, extracts text from page images. It is optional and needs installed Poppler and Tesseract tools, plus <code>SHARDLY_OCR=1</code>. Shardly limits OCR to 50 pages. It does not return word coordinates or confidence scores. A scanned page may still need a better source or manual correction.</p>
+      <h3>Give the document a stable identity</h3>
+      <p>An import has a source namespace and stable record keys. These let an update replace the intended document instead of creating another copy. The workspace defaults to adding documents. The legacy upload API defaults to replacing matching records. Choose the mode explicitly when integrating a client.</p>
+      <p>Replacement has a precise boundary. An upload does not delete old rows that are missing from the new file. A managed folder source does reconcile missing files. Malformed newline-delimited JSON rejects extraction rather than silently dropping the bad line.</p>
+      <p>Folder sources inspect paths on the API server. They poll file metadata every two seconds, follow Git ignore rules, and skip symbolic links. A preflight failure preserves the last good source. The folder staging limits are 10,000 supported files and 256 MiB. One MiB is 1,048,576 bytes.</p>
+      <p>Secret-like paths and generated directories are skipped by default. A trusted local operator can explicitly include sensitive files. These rules reduce accidental intake. They do not replace access controls once a document enters the store.</p>
+    </Chapter>
 
-        <div className="cols">
-          <div className="c-7">
-            <div className="prose">
-              <p>
-                Two maps do the work. <code>OffsetIndex</code> takes a document
-                id and gives back a segment file, a byte offset, and a byte
-                length. <code>InvertedIndex</code> takes a term and gives back
-                the list of documents containing it, with how often each one
-                uses it.
-              </p>
-              <p>
-                Both maps live in memory. Neither is the source of truth. The
-                segment files on disk are, and both maps can be rebuilt from
-                them. Everything else in Shardly is the machinery that keeps the
-                maps honest when the power goes out.
-              </p>
-              <p>
-                A read is one <code>fs.readSync</code> call at a known offset. A
-                search walks posting lists and does not open a segment file
-                until it already knows which ten documents to return. If you
-                understand those two sentences, the rest of this page is detail.
-              </p>
-            </div>
-          </div>
+    <Chapter id="record" title="Put its bytes on disk" files={["src/storage/storage.ts", "src/types.ts", "src/config.ts"]}>
+      <p>The storage layer appends serialized records to segment files. A segment is a file containing a sequence of records. Segments rotate at 64 MiB, so one file does not grow without a normal rotation boundary.</p>
+      <p>An in-memory offset map connects each document ID to a segment, byte offset, and record length. The map tells the reader which range to load. Finding that range does not require scanning every document.</p>
+      <p>Choose a document below to inspect the offset lookup. These byte lengths are illustrative, not measurements of the current data directory.</p>
+      <Drawing caption="An illustrative segment and its offset entries. A deleted entry prevents a document read, even while old bytes remain on disk."><LabSeek /></Drawing>
+      <p>The map lookup takes constant expected time. Reading, decoding, and checking the record still costs time proportional to its bytes. A large document does not become free to read because its offset is easy to find.</p>
+      <p>Updates append another record and change the current offset. Deletion writes a deletion record and marks the document unavailable. Earlier bytes remain until compaction removes obsolete records. This avoids rewriting the segment for every small change.</p>
+      <p>Only one writer can own a data directory. The directory lock prevents another engine from independently changing the same storage files. Read-only tools use the running API instead of opening another writer.</p>
+    </Chapter>
 
-          <div className="c-5">
-            <div className="cut panel panel-2" style={{ position: "relative" }}>
-              <Marks />
-              <p className="label label-ac" style={{ marginBottom: 18 }}>
-                The two maps
-              </p>
-              <dl className="dl" style={{ margin: 0 }}>
-                <div className="dl-row">
-                  <dt>A · offset</dt>
-                  <dd className="mono" style={{ fontSize: 12 }}>
-                    Map&lt;string, {"{"} segment, byteOffset, length, deleted {"}"}&gt;
-                  </dd>
-                </div>
-                <div className="dl-row">
-                  <dt>B · inverted</dt>
-                  <dd className="mono" style={{ fontSize: 12 }}>
-                    Map&lt;string, Array&lt;{"{"} docId, termFrequency {"}"}&gt;&gt;
-                  </dd>
-                </div>
-                <div className="dl-row">
-                  <dt>Truth</dt>
-                  <dd>Neither. The segments are.</dd>
-                </div>
-                <div className="dl-row">
-                  <dt>On restart</dt>
-                  <dd>Load a snapshot, or rebuild from segments.</dd>
-                </div>
-              </dl>
-            </div>
-          </div>
-        </div>
+    <Chapter id="wal" title="Make the write durable" files={["src/storage/storage.ts", "src/storage/wal.ts", "tests/storage.test.ts"]}>
+      <p>Appending a record is not enough to promise durability. The process can stop between writing the bytes and updating its maps. Shardly needs enough information on disk to decide what happened when it opens again.</p>
+      <p>A <strong>write-ahead log</strong>, or WAL, records an intended write before the segment changes. The filesystem synchronization operation, <code>fsync</code>, asks the operating system to synchronize file data with storage. The engine uses it in a defined order.</p>
+      <p>The sequence below separates the three synchronization phases from the final acknowledgement.</p>
+      <Drawing caption="The write protocol, slowed for reading. The diagram shows ordering, not the relative duration of disk operations."><EngineeringScene kind="write" /></Drawing>
+      <p>A batch shares synchronization work within each phase. It still needs the pending log, segment data, and committed log to reach their required states. “One sync per batch” would describe the protocol incorrectly.</p>
+      <h3>Recovery follows the durable evidence</h3>
+      <p>If an intact pending record reached the segment, recovery can apply it even when the caller never received success. If the pending record is torn, recovery discards it. If a committed record is corrupt, the store fails closed rather than serving it as valid data.</p>
+      <p>New records carry checksums so recovery can detect byte changes. Older records can lack these checksums until they are rewritten. A checksum detects corruption. It does not create another healthy copy of the data.</p>
+      <p>A missing response therefore does not prove that a write failed. A client retry needs a stable identity and a deliberate replacement policy. This is especially relevant when a connection closes after the commit but before the response arrives.</p>
+      <p>The recorded process-kill drill tests abrupt process termination. It does not simulate every filesystem, drive, controller, or physical power-loss failure. Independent backups still matter.</p>
+    </Chapter>
 
-        <Reveal>
-          <div style={{ marginTop: 44 }}>
-            <Figure
-              n="01.1"
-              cap="Both maps in memory, and the one place they meet. Search resolves candidates from B, then asks A for the bytes of the winners only."
-            >
-              <TwoMaps />
-            </Figure>
-          </div>
-        </Reveal>
-      </Section>
+    <Chapter id="compact" title="Maintain the store" files={["src/storage/storage.ts", "src/engine.ts", "src/search/index.ts"]}>
+      <p>Append-only storage accumulates records that are no longer current. <strong>Compaction</strong> copies live records into new segments and builds a replacement offset snapshot. Publishing that snapshot is the commit point for the replacement storage view.</p>
+      <p>The implementation coordinates snapshot renaming, directory synchronization, and rollback around that point. It keeps the old view usable until the replacement can be published. Compaction yields after every 16 live records so other worker requests can run between batches.</p>
+      <p>A yield is a scheduling opportunity, not a maximum latency guarantee. Copying one large record and publishing a snapshot still contain synchronous work. Searches can proceed between batches, but a single worker does not execute all operations at once.</p>
+      <h3>Stored documents and derived indexes have different roles</h3>
+      <p>The stored records are the source for rebuilding search. A compatible lexical snapshot speeds startup by restoring a derived index. An incompatible snapshot is rebuilt from storage, rather than being treated as the only copy of the documents.</p>
+      <p>An explicit search rebuild constructs a shadow index while the published index remains available. Before publication, it checks that the storage generation still matches. A generation change prevents a stale rebuild from replacing a current index.</p>
+      <p>The tradeoff is memory. The old and replacement indexes coexist during a shadow rebuild. Postings and metadata also remain memory-resident during normal operation. The full-document cache has separate limits of 128 records and an 8 MiB serialized-text estimate. Those limits do not cap the engine’s total memory.</p>
+    </Chapter>
 
-      {/* ============================================================ 02 */}
-      <Section meta={S.record!}>
-        <Head
-          title={
-            <>
-              What a document <em className="italic">actually is</em> once it
-              lands
-            </>
-          }
-          lede="One line of JSON in a file called segment-0000.log, and four numbers in memory that say where to find it."
-        />
+    <Chapter id="token" title="Build the search index" files={["src/search/tokenizer.ts", "src/search/index.ts", "tests/website-analyzer.test.ts"]}>
+      <p>The stored sentence remains readable text. Search builds another representation from it. A <strong>token</strong> is an analyzed term that the index can match. English analysis normalizes Unicode text, removes common stopwords, applies simple suffix rules, and splits identifiers into useful parts.</p>
+      <p>The original sentence and the analyzed terms have different jobs. The sentence supplies evidence. The terms help find candidates. In the illustrative sequence below, “The” is removed and “records” becomes “record.”</p>
+      <Drawing caption="English analysis and a small inverted index. The example is simplified to one field and one document; positions and field metadata are retained by the real engine."><EngineeringScene kind="index" /></Drawing>
+      <p>An <strong>inverted index</strong> maps a term to its occurrences across documents. A posting identifies a document and its term information. Shardly keeps packed postings in memory, including information used by field and passage ranking.</p>
+      <p>Try the English analyzer below. Its browser implementation has a parity test against the engine tokenizer. The lab explains that path; it does not simulate every locale setting.</p>
+      <Drawing caption="The English analysis lab. Change the text to inspect which words survive and which suffix or identifier rules apply."><LabTokenizer /></Drawing>
+      <p>Removing common words makes the index smaller, but it also removes distinctions. Simple stemming is not a complete language model. For example, suffix rules cannot reliably recover every irregular word form.</p>
+      <p>The engine supports ten explicit content locales with platform segmentation for non-English text. It does not apply the English stemmer to every language. This is implementation support, not a measured claim about multilingual retrieval quality.</p>
+      <p>Search also keeps offsets in the original field. These use JavaScript UTF-16 positions, which can differ from byte positions and visible character counts. Evidence extraction uses those original offsets rather than trying to reconstruct text from stems.</p>
+    </Chapter>
 
-        <Reveal>
-          <Figure
-            n="02.1"
-            cap="The record, the byte range that describes it, and the newline that is deliberately outside that range."
-          >
-            <RecordAnatomy />
-          </Figure>
-        </Reveal>
-
-        <div className="cols" style={{ marginTop: 44 }}>
-          <div className="c-6">
-            <div className="prose">
-              <h4>The length stops at the closing brace</h4>
-              <p>
-                Records are separated by newlines, so the file is valid NDJSON
-                and you can read it with <code>tail</code>. But{" "}
-                <code>length</code> counts only the JSON itself. That way the
-                buffer handed to <code>JSON.parse</code> holds exactly one
-                object and nothing else, with no trimming step that could go
-                wrong on the last record in a file.
-              </p>
-              <h4>Many readers, one writer</h4>
-              <p>
-                <code>Storage</code> keeps a read-only file descriptor per
-                segment in <code>this.readFds</code>, so a hot read never pays
-                for <code>open</code>. It keeps exactly one write descriptor,
-                on the newest segment, in append mode. Reads use immutable
-                byte ranges. A directory lock separately rejects a second
-                process trying to write the same store.
-              </p>
-              <h4>An id carries no order, and that is a real cost</h4>
-              <p>
-                Every id comes from <code>randomUUID()</code>. Random ids spread
-                evenly and never collide, which is what you want. They also mean
-                two documents written a second apart sort next to each other by
-                pure accident. There is no way to ask for &quot;every document
-                after this one&quot; without a full pass, and{" "}
-                <code>liveDocIds()</code> returns insertion order because that
-                is what a JavaScript <code>Map</code> happens to preserve, not
-                because anything guarantees it. A monotonic id would buy range
-                scans and cursor pagination. Shardly does not need them, so it
-                does not have them.
-              </p>
-            </div>
-          </div>
-          <div className="c-6">
-            <pre className="code">
-{`// src/storage/storage.ts
-
-`}<span className="c">{`// The whole read path.`}</span>{`
-read(docId: string): Document | null {
-  `}<span className="k">const</span>{` entry = this.offsetIndex.get(docId);
-  `}<span className="k">if</span>{` (!entry || entry.deleted) `}<span className="k">return</span>{` null;
-
-  `}<span className="k">const</span>{` fd  = this.readFd(entry.segment);
-  `}<span className="k">const</span>{` buf = Buffer.allocUnsafe(entry.length);
-  fs.readSync(fd, buf, 0, entry.length, entry.byteOffset);
-
-  `}<span className="k">return</span>{` (JSON.parse(buf.toString(`}<span className="s">{`"utf8"`}</span>{`))
-    `}<span className="k">as</span>{` StoredDocument).doc;
-}`}
-            </pre>
-            <div className="cols" style={{ marginTop: 26 }}>
-              <div className="c-6">
-                <Stat v="1" u="syscall per read" />
-              </div>
-              <div className="c-6">
-                <Stat v="0" u="neighbours parsed" />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <Reveal>
-          <div style={{ marginTop: 44 }}>
-            <LabSeek />
-          </div>
-        </Reveal>
-      </Section>
-
-      {/* ============================================================ 03 */}
-      <Section meta={S.append!}>
-        <Head
-          title={
-            <>
-              Appending is the only write that is{" "}
-              <em className="italic ac">cheap and safe</em> at once
-            </>
-          }
-          lede="An in-place update has to fit, or move. Both paths need the old state and the new state to be consistent if the power fails between them."
-        />
-
-        <Reveal>
-          <Figure
-            n="03.1"
-            cap="The rejected design on the left, the chosen one on the right. Appending moves the problem from correctness to housekeeping."
-          >
-            <AppendVsUpdate />
-          </Figure>
-        </Reveal>
-
-        <div className="cols" style={{ marginTop: 44 }}>
-          <div className="c-4">
-            <div className="prose">
-              <h4>Why 64 MiB, and not any other number</h4>
-              <p>
-                <code>SEGMENT_MAX_BYTES</code> caps each file at 64 MiB. Nothing
-                in the read path cares how large a segment is, because reads
-                seek directly to an offset. The cap is not a performance knob.
-              </p>
-              <p>
-                It exists so compaction has units to work with, and so a
-                corrupted file loses a bounded amount of data instead of
-                everything. Pick 4 GiB and one bad sector takes the corpus. Pick
-                1 MiB and you drown in file descriptors.
-              </p>
-            </div>
-          </div>
-          <div className="c-4">
-            <div className="prose">
-              <h4>The file is the authority on its own size</h4>
-              <p>
-                <code>openCurrentSegment()</code> sets{" "}
-                <code>currentSegmentSize</code> from{" "}
-                <code>fs.statSync(p).size</code>, never from the snapshot. This
-                looks like a detail and is not.
-              </p>
-              <p>
-                Recovery can restore a write the snapshot never saw. If the next
-                append trusted the snapshot, it would place a new record on top
-                of a live one and silently destroy it. Asking the filesystem
-                costs one syscall at startup and removes the entire class of
-                bug.
-              </p>
-            </div>
-          </div>
-          <div className="c-4">
-            <div className="cut panel" style={{ position: "relative" }}>
-              <Marks />
-              <p className="label label-ac" style={{ marginBottom: 16 }}>
-                The bill for appending
-              </p>
-              <div className="prose">
-                <p>
-                  Space is never reclaimed until you compact. A store that
-                  deletes as much as it writes grows without bound.
-                </p>
-                <p>
-                  That is a real cost, paid in disk, on a schedule you choose.
-                  The alternative was a cost paid in correctness, on a schedule
-                  the power company chooses.
-                </p>
-              </div>
-              <div style={{ marginTop: 20, opacity: 0.6 }}>
-                <CircleField />
-              </div>
-            </div>
-          </div>
-        </div>
-      </Section>
-
-      {/* ============================================================ 04 */}
-      <Section meta={S.wal!}>
-        <Head
-          title={
-            <>
-              A single write to disk{" "}
-              <em className="italic">is not atomic</em>
-            </>
-          }
-          lede="The power can fail with half a JSON object on disk, and nothing about those bytes says they are half. That is the entire problem the write-ahead log solves."
-        />
-
-        <div className="cols">
-          <div className="c-5">
-            <pre className="code">
-{`// Storage.append(), in order.
-
-`}<span className="c">{`// 1 · Say where the record is about`}</span>{`
-`}<span className="c">{`//     to go, before any of it exists.`}</span>{`
-wal.logPending({ docId, segment,
-                 byteOffset, length });
-fsync(walFd);
-
-`}<span className="c">{`// 2 · Put it there.`}</span>{`
-fs.writeSync(segFd, record + `}<span className="s">{`"\\n"`}</span>{`);
-fsync(segFd);
-
-`}<span className="c">{`// 3 · Commit durably, then publish.`}</span>{`
-wal.logCommitted({ docId, segment,
-                   byteOffset, length });
-fsync(walFd);
-offsetIndex.set(docId, entry);
-
-`}<span className="c">{`// Only now does write() return.`}</span>{``}
-            </pre>
-          </div>
-          <div className="c-7">
-            <div className="prose">
-              <h4>Two records per write looks wasteful. It is not.</h4>
-              <p>
-                Ask what a single record would tell you. A lone &quot;I intend
-                to write 231 bytes at offset 4096&quot; leaves recovery unable
-                to separate a finished write from a torn one. A lone &quot;I
-                wrote 231 bytes at offset 4096&quot; is a lie if the process
-                dies before the segment <code>fsync</code> returns, because the
-                log entry is durable and the data is not.
-              </p>
-              <p>
-                You need the pair. The pending record bounds{" "}
-                <strong>where</strong> the damage can be. The committed record
-                proves the damage <strong>is not there</strong>. Neither one is
-                enough alone.
-              </p>
-              <h4>What Shardly actually promises</h4>
-              <p>
-                <code>write()</code> returns to the caller only after step 3. An
-                acknowledged write survives process crashes under the filesystem
-                sync contract. A write still
-                in flight might survive and might not, and both outcomes are
-                correct, because nobody was told it succeeded.
-              </p>
-              <p>
-                That is the whole contract. It is narrower than
-                &quot;nothing is ever lost&quot;, and it is the only kind of
-                promise a single machine can actually keep.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <Reveal>
-          <div style={{ marginTop: 48 }}>
-            <LabWal />
-          </div>
-        </Reveal>
-      </Section>
-
-      {/* ============================================================ 05 */}
-      <Section meta={S.recovery!}>
-        <Head
-          title={
-            <>
-              Recovery, and the case it{" "}
-              <em className="italic ac">deliberately drops</em>
-            </>
-          }
-          lede="Find matching commits, then replay records in their original order."
-        />
-
-        <Reveal>
-          <Figure
-            n="05.1"
-            cap="Committed data is verified and corruption fails loudly. An intact pending write without a commit can be recovered; a torn pending write is discarded."
-          >
-            <RecoveryTree />
-          </Figure>
-        </Reveal>
-
-        <div className="cols" style={{ marginTop: 44 }}>
-          <div className="c-7">
-            <div className="prose">
-              <h4>Why a tombstone is committed from birth</h4>
-              <p>
-                Delete records are written as <code>committed</code> straight
-                away, with no pending phase. A tombstone is a flag in memory,
-                and the WAL record is the only durable part of it. There is no
-                second file to keep in step, so there is nothing to be
-                half-done.
-              </p>
-              <h4>Where the honesty is</h4>
-              <p>
-                Structure alone cannot detect a flipped bit inside a valid
-                JSON string. New records carry SHA-256 checksums, checked both
-                during recovery and on direct document reads.
-              </p>
-              <p>
-                Legacy records without checksums retain structural validation.
-                Checksums detect damage; they do not repair it. Keep a portable
-                backup if the documents cannot be re-imported.
-              </p>
-              <h4>A torn tail should not condemn the file</h4>
-              <p>
-                <code>readAll()</code> discards only an unterminated malformed
-                final line. Malformed interior records and checksum failures
-                stop recovery instead of silently dropping acknowledged work.
-              </p>
-            </div>
-          </div>
-
-          <div className="c-5">
-            <div className="cut panel panel-2" style={{ position: "relative" }}>
-              <Marks />
-              <p className="label label-ac" style={{ marginBottom: 6 }}>
-                Historical crash run · npx tsx scripts/crash-test.ts 6
-              </p>
-              <p className="label" style={{ marginBottom: 24 }}>
-                The current script waits for the first acknowledgement before
-                timing SIGKILL, then verifies every acknowledged id after reopen.
-              </p>
-              <div className="cols">
-                <div className="c-6" style={{ marginBottom: 22 }}>
-                  <Stat v="125,719" u="acknowledged writes" />
-                </div>
-                <div className="c-6" style={{ marginBottom: 22 }}>
-                  <Stat v="6" u="hard kills" />
-                </div>
-                <div className="c-6">
-                  <Stat v="0" u="missing" />
-                </div>
-                <div className="c-6">
-                  <Stat v="0" u="corrupt" />
-                </div>
-              </div>
-            </div>
-
-            <div
-              className="cut"
-              style={{
-                marginTop: 20,
-                padding: "22px 24px",
-                background: "var(--acc-6)",
-                borderColor: "var(--acc-30)",
-              }}
-            >
-              <p className="label label-ac" style={{ marginBottom: 12 }}>
-                The bug that made the test lie
-              </p>
-              <div className="prose">
-                <p>
-                  The writer acknowledges each id over a pipe.{" "}
-                  <code>fs.writeSync</code> on a non-blocking pipe throws{" "}
-                  <code>EAGAIN</code> once the parent&apos;s buffer fills.
-                </p>
-                <p>
-                  A dropped acknowledgement does not fail the test. It quietly
-                  shrinks the set under test, which is worse, because it looks
-                  exactly like success.{" "}
-                  <code>scripts/crash-writer.ts</code> retries on{" "}
-                  <code>EAGAIN</code> instead of dropping the line. A harness you
-                  have not tried to break is a harness you are trusting on
-                  faith.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </Section>
-
-      {/* ============================================================ 06 */}
-      <Section meta={S.fsync!}>
-        <Head
-          title={
-            <>
-              <em className="italic">fsync</em> costs the same for 200 bytes and
-              200 kilobytes
-            </>
-          }
-          lede="Which means the number of fsync calls, not the number of bytes, sets the ingest ceiling."
-        />
-
-        <Reveal>
-          <Figure
-            n="06.1"
-            cap="Writing 1,000 documents one at a time against writing the same 1,000 through writeBatch(). Each block is one fsync."
-          >
-            <FsyncMath />
-          </Figure>
-        </Reveal>
-
-        <div className="cols" style={{ marginTop: 44 }}>
-          <div className="c-7">
-            <div className="prose">
-              <h4>The fiddly part is the arithmetic, not the protocol</h4>
-              <p>
-                <code>writeBatch()</code> builds the whole NDJSON blob in memory
-                first, assigning ids and computing offsets as it goes, rotating
-                segments where the 64 MiB cap demands. Every offset is measured
-                against <code>this.currentSegmentSize</code> plus{" "}
-                <code>Buffer.byteLength(chunk, &quot;utf8&quot;)</code>, which is
-                the committed size plus the bytes buffered but not yet flushed.
-              </p>
-              <p>
-                It has to be <code>Buffer.byteLength</code> and not{" "}
-                <code>String.length</code>. One multi-byte character puts every
-                later offset in the batch off by the difference. That bug is
-                invisible on ASCII test data and corrupts every read on real
-                text, which is the worst combination a bug can have.
-              </p>
-            </div>
-          </div>
-          <div className="c-5">
-            <div className="cut panel" style={{ position: "relative" }}>
-              <Marks />
-              <p className="label label-ac" style={{ marginBottom: 20 }}>
-                npx tsx scripts/seed.ts 20000 /tmp/shardly-demo
-              </p>
-              <div className="cols">
-                <div className="c-6" style={{ marginBottom: 20 }}>
-                  <Stat v="20,000" u="documents" />
-                </div>
-                <div className="c-6" style={{ marginBottom: 20 }}>
-                  <Stat v="6.4 s" u="wall clock" />
-                </div>
-                <div className="c-6">
-                  <Stat v="3,100" u="docs per second" />
-                </div>
-                <div className="c-6">
-                  <Stat v="1,000" u="batch size" />
-                </div>
-              </div>
-              <hr className="dot-rule" style={{ margin: "24px 0 18px" }} />
-              <p className="label">
-                The ordering guarantee never changed. The invariant was never
-                &quot;one document at a time&quot;, it was &quot;intent durable
-                before data, data durable before commit&quot;.
-              </p>
-            </div>
-          </div>
-        </div>
-      </Section>
-
-      {/* ============================================================ 07 */}
-      <Section meta={S.compact!}>
-        <Head
-          title={
-            <>
-              Compaction is four steps, and{" "}
-              <em className="italic ac">only one of them commits</em>
-            </>
-          }
-          lede="Deleting a document sets a flag. The bytes stay. Compaction is how the disk finds out."
-        />
-
-        <Reveal>
-          <Figure
-            n="07.1"
-            cap="Old files stay complete and readable until the snapshot lands. A crash on either side of step 3 leaves a consistent store."
-          >
-            <CompactTimeline />
-          </Figure>
-        </Reveal>
-
-        <div className="cols" style={{ marginTop: 44 }}>
-          <div className="c-6">
-            <div className="prose">
-              <h4>New segments are numbered past the current one</h4>
-              <p>
-                They start at <code>currentSegmentIndex + 1</code>, so a fresh
-                file can never collide with one that live offsets point at. The
-                old files are readable through the entire operation. Nothing is
-                unlinked until the new snapshot is durable.
-              </p>
-              <h4>Leaving the orphan is a decision, not an oversight</h4>
-              <p>
-                A crash before step 3 leaves a partial new segment that nothing
-                references. No startup sweep removes it, and that is a choice
-                rather than an omission.
-              </p>
-              <p>
-                A sweep that unlinks unreferenced segments is exactly the code
-                that deletes real data the day a snapshot goes missing for an
-                unrelated reason. Leaving the orphan costs disk. The next
-                compaction reclaims it anyway, because it reuses the same number
-                and opens with <code>&quot;w&quot;</code>. Even if a normal
-                rotation reaches that number first, it opens with{" "}
-                <code>&quot;a&quot;</code> and sizes itself from the file, so
-                new records land after the dead bytes and every offset stays
-                correct.
-              </p>
-              <p>
-                Wasted space, never corruption. I will take that trade every
-                time.
-              </p>
-            </div>
-          </div>
-          <div className="c-6">
-            <div className="cut panel panel-2" style={{ position: "relative" }}>
-              <Marks />
-              <p className="label label-ac" style={{ marginBottom: 20 }}>
-                Historical baseline · 20,000 seeded documents, half deleted
-              </p>
-              <div className="cols">
-                <div className="c-6" style={{ marginBottom: 20 }}>
-                  <Stat v="9.75 MB" u="reclaimed" />
-                </div>
-                <div className="c-6" style={{ marginBottom: 20 }}>
-                  <Stat v="141 ms" u="to rewrite" />
-                </div>
-              </div>
-              <hr className="dot-rule" style={{ margin: "6px 0 20px" }} />
-              <dl className="dl" style={{ margin: 0 }}>
-                <div className="dl-row">
-                  <dt>Trigger</dt>
-                  <dd>
-                    Manual, through <code style={{ color: "var(--accent-hi)" }}>POST /compact</code>. No
-                    background thread decides for you.
-                  </dd>
-                </div>
-                <div className="dl-row">
-                  <dt>Blocking</dt>
-                  <dd>
-                    Compaction blocks the engine worker. The HTTP thread can
-                    still serve health requests, but engine requests wait until
-                    that storage operation finishes.
-                  </dd>
-                </div>
-                <div className="dl-row">
-                  <dt>Commit point</dt>
-                  <dd style={{ color: "var(--accent)" }}>
-                    snapshot(), step 3 of 4
-                  </dd>
-                </div>
-              </dl>
-            </div>
-          </div>
-        </div>
-      </Section>
-
-      {/* ============================================================ 08 */}
-      <Section meta={S.snapshot!}>
-        <Head
-          title={
-            <>
-              Counting documents{" "}
-              <em className="italic">cannot</em> tell you a snapshot is current
-            </>
-          }
-          lede="Delete one document, add another, and the count matches while the contents do not. That case is not hypothetical, it is what a normal workload does all day."
-        />
-
-        <Reveal>
-          <Figure
-            n="08.1"
-            cap="The check that failed, above. The monotonic version counter that replaced it, below."
-          >
-            <VersionGuard />
-          </Figure>
-        </Reveal>
-
-        <div className="cols" style={{ marginTop: 44 }}>
-          <div className="c-6">
-            <div className="prose">
-              <h4>Renaming a file is atomic, and that is not the same as durable</h4>
-              <p>
-                <code>writeJsonAtomic()</code> writes to{" "}
-                <code>${"{"}target{"}"}.tmp</code>, calls <code>fsync</code> on
-                it, renames it over the target, and then calls{" "}
-                <code>fsync</code> on the parent directory. That last step is
-                easy to skip and it matters here more than usual.
-              </p>
-              <p>
-                A rename is atomic with respect to readers, but the directory
-                entry is not durable until the directory itself is flushed.{" "}
-                <code>snapshot()</code> truncates the write-ahead log
-                immediately afterward. Without the directory{" "}
-                <code>fsync</code>, a power failure in that gap loses the
-                snapshot <em>and</em> the log that would have rebuilt it. Two
-                durable-looking writes, zero durable state.
-              </p>
-            </div>
-          </div>
-          <div className="c-6">
-            <div className="prose">
-              <h4>Why the two snapshots are not written atomically together</h4>
-              <p>
-                The offset snapshot and the inverted-index snapshot are written
-                in sequence. A crash between them leaves a fresh offset file
-                next to a stale index file.
-              </p>
-              <p>
-                The version check catches that on the next start and rebuilds.
-                Making the pair atomic would need a two-phase write across two
-                files for no gain, because the inverted index is derived data.
-                Rebuilding it is always safe and never wrong. Spending
-                complexity to protect something you can always regenerate is how
-                storage layers get hard to read.
-              </p>
-              <h4>The rule</h4>
-              <p>
-                <code>SNAPSHOT_EVERY_N_WRITES</code> is 500. Anything other than
-                an exact version match rebuilds the index from the segments.
-                Equal counts no longer pass for equal state.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div style={{ marginTop: 56 }}>
-          <Scale label="END OF PART ONE · STORAGE AND DURABILITY" />
-        </div>
-      </Section>
-    </>
-  );
+    <Chapter id="bm25" title="Choose the results" files={["src/search/rank.ts", "src/search/index.ts", "src/engine.ts"]}>
+      <p>A query looks up its analyzed terms and collects matching candidates. Finding a match does not decide which result should come first. A document repeating one common word should not automatically outrank a concise passage that answers the query.</p>
+      <p><strong>BM25</strong> is a lexical ranking formula. It gives more weight to terms that appear in fewer documents. Repeated occurrences help, but their extra contribution decreases. Document length affects the normalization, so longer documents do not win simply by containing more words.</p>
+      <p>The baseline uses <code>k1 = 1.5</code> and <code>b = 0.75</code>. The first parameter controls term-frequency saturation. The second controls length normalization. Move the controls to see those effects separately.</p>
+      <Drawing caption="A baseline BM25 lab with illustrative inputs. These curves explain the formula; they are not a benchmark of the full tuned ranker."><LabBm25 /></Drawing>
+      <p>The tuned path also considers fields and passage windows. A title match and a body match can contribute differently. A local passage can be useful even when the full document covers several unrelated subjects.</p>
+      <p>A bounded heap retains the highest-scoring results without sorting every candidate into a complete result list. The ranker still visits matching candidates. Building explanations only for selected results saves explanation work, not the cost of scoring every possible match.</p>
+      <h3>Use the matching mode that fits the question</h3>
+      <p>Literal and substring search answer a different question from lexical ranking. They inspect scoped text directly and are bounded to 2,000 documents and 8 MiB of UTF-16 text. They are not backed by a dedicated substring index.</p>
+      <p>Queries also have execution budgets and work checks. A limit can reject a request instead of allowing unbounded work. A normal result list should not be interpreted as a promise that every search mode exhaustively scanned an arbitrarily large collection.</p>
+      <p>Ranking quality depends on the collection and the questions. The measurements at the end show an important example: the tuned path improves the authored repository tasks, while baseline BM25 performs better on SciFact.</p>
+    </Chapter>
+  </>;
 }
