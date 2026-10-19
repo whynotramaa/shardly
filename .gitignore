@@ -13,3 +13,13 @@ website/next-env.d.ts
 .DS_Store
 
 .cache/
+.impeccable/
+SEARCH_RESEARCH.html
+*.mp4
+
+*.md
+!README.md
+!ENGINEERING.md
+!VERIFICATION.md
+!IMPLEMENTATION.md
+!SEARCH_RESEARCH.md
