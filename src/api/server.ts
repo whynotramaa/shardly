@@ -1,6 +1,7 @@
 import Fastify from "fastify";
 import cors from "@fastify/cors";
 import multipart from "@fastify/multipart";
+import { randomUUID } from "node:crypto";
 import { Engine } from "../engine.js";
 import { registerRoutes } from "./routes.js";
 import { IngestJobs } from "../ingest/jobs.js";
@@ -9,11 +10,28 @@ import { FolderSources } from "../ingest/folders.js";
 import { startWorker, inlineExtraction, type AsyncEngine, type Extraction } from "../runtime/engine.js";
 import type { FastifyInstance } from "fastify";
 import { dataPaths } from "../config.js";
+import { registerAuth } from "./auth.js";
+import { registerRetrieval, Retrieval } from "./retrieval.js";
+import { extractIsolated } from "../runtime/extraction.js";
+import { SemanticIndex } from "../search/semantic.js";
+import { WorkspaceStore, registerWorkspace } from "./workspace.js";
+import { registerStreamBackup } from "./stream-backup.js";
 
 export function buildServer(dataDir: string | undefined, options: { worker: true }): Promise<{ app: FastifyInstance; engine: AsyncEngine & Extraction }>;
 export function buildServer(dataDir?: string, options?: { worker?: false }): Promise<{ app: FastifyInstance; engine: Engine }>;
 export async function buildServer(dataDir?: string, options: { worker?: boolean } = {}): Promise<{ app: FastifyInstance; engine: Engine | (AsyncEngine & Extraction) }> {
-  const app = Fastify({ logger: false, bodyLimit: 64 * 1024 * 1024 });
+  const app = Fastify({ logger: false, bodyLimit: 64 * 1024 * 1024, genReqId: () => randomUUID() });
+  registerAuth(app);
+  const timings: Array<{ route: string; status: number; ms: number }> = [];
+  app.addHook("onRequest", async (request, reply) => { reply.header("x-request-id", request.id); });
+  app.addHook("onResponse", async (request, reply) => {
+    timings.push({ route: request.routeOptions.url ?? "unmatched", status: reply.statusCode, ms: reply.elapsedTime });
+    if (timings.length > 1024) timings.shift();
+  });
+  app.get("/operations", async () => {
+    const sorted = timings.map(sample => sample.ms).sort((a, b) => a - b);
+    return { samples: timings.length, p50Ms: sorted[Math.floor(sorted.length * .5)] ?? 0, p95Ms: sorted[Math.floor(sorted.length * .95)] ?? 0, p99Ms: sorted[Math.floor(sorted.length * .99)] ?? 0, errors: timings.filter(sample => sample.status >= 500).length, memory: process.memoryUsage(), recent: timings.slice(-20) };
+  });
   await app.register(cors, { origin: (origin, callback) => callback(null, !origin || allowedOrigin(origin)) });
   app.addHook("onRequest", async (request, reply) => {
     if (!["GET", "HEAD", "OPTIONS"].includes(request.method) && request.headers.origin && !allowedOrigin(request.headers.origin)) {
@@ -26,19 +44,38 @@ export async function buildServer(dataDir?: string, options: { worker?: boolean 
   });
 
   const engine = options.worker ? await startWorker(dataPaths(dataDir).dataDir) : new Engine(dataDir);
-  const extraction = options.worker ? engine as AsyncEngine & Extraction : inlineExtraction;
+  const extraction: Extraction = options.worker ? { ...inlineExtraction, extract: extractIsolated, available: () => (engine as AsyncEngine & Extraction).available() } : inlineExtraction;
   let jobs: IngestJobs;
   let folders: FolderSources;
+  let workspace: WorkspaceStore;
+  let semantic: SemanticIndex;
   try {
+    workspace = new WorkspaceStore(dataPaths(dataDir).dataDir);
+    semantic = new SemanticIndex(engine, dataPaths(dataDir).dataDir);
     jobs = new IngestJobs(engine, dataPaths(dataDir).dataDir);
     folders = new FolderSources(engine, extraction, dataPaths(dataDir).dataDir);
-  } catch (error) { await engine.close(); throw error; }
+  } catch (error) {
+    await Promise.allSettled([jobs!?.close(), folders!?.close()]);
+    await engine.close(); throw error;
+  }
   const demo = new DemoRuntime();
-  registerRoutes(app, engine, jobs, folders, extraction, demo);
+  registerRoutes(app, engine, jobs, folders, extraction, demo, workspace);
+  registerWorkspace(app, workspace);
+  registerStreamBackup(app, engine, workspace, () => jobs.busy() || folders.busy());
+  registerRetrieval(app, new Retrieval(engine, semantic, id => workspace.collection(id), () => jobs.busy() || folders.busy()), request => ({
+    strategies: ["lexical", "literal", "substring", ...(semantic.status().enabled ? ["dense", "hybrid"] : [])],
+    semantic: request.readScope ? { enabled: semantic.status().enabled } : semantic.status(),
+    sources: request.readScope ? undefined : folders.list().map(({ id, status, lastSyncedAt, error }) => ({ id, status, lastSyncedAt, error })),
+    pendingImports: request.readScope ? undefined : jobs.list().filter(job => ["queued", "running"].includes(job.status)).length,
+  }));
+  app.get("/ready", async (request, reply) => extraction.available() ? { status: "ready", ...await engine.retrievalStatus(request.readScope) } : reply.code(503).send({ status: "unavailable" }));
 
   // Flush snapshots and close fds cleanly on shutdown.
   app.addHook("onClose", async () => {
-    try { await Promise.all([jobs.close(), folders.close(), demo.close()]); } finally { await engine.close(); }
+    const results = await Promise.allSettled([semantic.close(), jobs.close(), folders.close(), demo.close()]);
+    await engine.close();
+    const failed = results.find(result => result.status === "rejected");
+    if (failed?.status === "rejected") throw failed.reason;
   });
 
   return { app, engine };
@@ -55,6 +92,7 @@ function allowedOrigin(origin: string): boolean {
 async function main() {
   const port = Number.parseInt(process.env.PORT ?? "3001", 10);
   const host = process.env.HOST ?? "127.0.0.1";
+  if (!["127.0.0.1", "localhost", "::1"].includes(host) && !process.env.SHARDLY_ADMIN_TOKEN) throw new Error("Network exposure requires SHARDLY_ADMIN_TOKEN");
   const { app, engine } = await buildServer(undefined, { worker: true });
 
   const shutdown = async () => {

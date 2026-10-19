@@ -14,6 +14,21 @@ async function isolated(run: (engine: Engine, dir: string) => void | Promise<voi
 }
 
 describe("packed engine and bounded cache", () => {
+  it("shares full-field frequencies only when a window contains every token", () => {
+    const index = new InvertedIndexStore();
+    index.setFields("short", [{ field: "content", text: "quartz quartz crystal" }]);
+    const short = index.indexedFields("short")[0]!;
+    expect(short.windows[0]!.tf).toBe(short.tf);
+    expect(short.tf.get("quartz")).toBe(2);
+    expect(index.postingMemory().frequencyBytes).toBe(short.tf.byteLength);
+    index.setFields("long", [{ field: "content", text: "quartz ".repeat(200) + "zircon" }]);
+    const long = index.indexedFields("long")[0]!;
+    expect(long.windows[0]!.tf).not.toBe(long.tf);
+    expect(long.windows[0]!.tf.has("zircon")).toBe(false);
+    expect(long.tf.has("zircon")).toBe(true);
+    index.removeDocument("short");
+    expect(index.indexedFields("short")).toEqual([]);
+  });
   it("stores numeric postings and token offsets, bounds cache and counts real misses", async () => isolated((engine) => {
     const ids = engine.addDocuments(Array.from({length:180}, (_,i) => ({sourceId:`x:${i}`, content:`quartz unique${i}`})));
     const diagnostics = engine.diagnostics() as {postingMemory:{packedBytes:number;objectEstimateBytes:number;tokenBytes:number};documentCache:{entries:number;bytes:number;maxBytes:number}};

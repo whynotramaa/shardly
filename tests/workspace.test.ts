@@ -2,6 +2,8 @@ import { describe, expect, it, vi, afterEach } from "vitest";
 // Load browser helpers at runtime; the root build deliberately excludes the web TS project.
 const workspaceModule = "../web/lib/workspace.ts";
 const jobsModule = "../web/lib/jobs.ts";
+const examplesModule = "../web/lib/search-examples.ts";
+const { exampleQueries } = await import(examplesModule);
 const {
   distinctPassages,
   visibleGroups,
@@ -35,6 +37,18 @@ const passage: SearchSnippet = {
   ],
 };
 afterEach(() => vi.unstubAllGlobals());
+
+it("derives bounded plain-word search examples from actual filenames and content", () => {
+  expect(exampleQueries([
+    { filename: "notes/crash-recovery.md", content: 'source:private -pending "commit"' },
+    { title: "crash recovery", content: "猫 café Unicode" },
+    { title: "CRASH RECOVERY" },
+    { content: "x a on" },
+  ])).toEqual(["crash recovery", "source private", "café Unicode"]);
+  const examples = exampleQueries(Array.from({ length: 20 }, (_, i) => ({ title: `document${i}`, content: `content${i}` })));
+  expect(examples).toHaveLength(6);
+  expect(exampleQueries([{ content: "a".repeat(1000) }, {}])).toEqual([]);
+});
 
 describe("passage navigation", () => {
   it("normalizes original offsets, clips and merges repeated overlapping tokens", () => {

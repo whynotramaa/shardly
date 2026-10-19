@@ -2,6 +2,7 @@ import { describe, it, expect, afterEach, vi } from "vitest";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import { spawnSync } from "node:child_process";
 import { Storage } from "../src/storage/storage.js";
 
 const dirs: string[] = [];
@@ -17,6 +18,28 @@ afterEach(() => {
 });
 
 describe("storage hardening", () => {
+  it("recovers original records after SIGKILL at an async compaction yield", () => {
+    const dir = tempDir();
+    const storage = new Storage(dir);
+    const ids = storage.writeBatch(Array.from({ length: 40 }, (_, n) => ({ n })));
+    storage.delete(ids[0]!);
+    storage.close();
+    const module = new URL("../src/storage/storage.js", import.meta.url).href;
+    const child = spawnSync(process.execPath, ["--import", "tsx", "--input-type=module", "-e", `
+      import { Storage } from ${JSON.stringify(module)};
+      const storage = new Storage(process.argv[1]);
+      void storage.compactAsync();
+      process.kill(process.pid, "SIGKILL");
+    `, dir], { timeout: 10000, encoding: "utf8" });
+    expect(child.error).toBeUndefined();
+    expect(child.signal, child.stderr).toBe("SIGKILL");
+    const recovered = new Storage(dir);
+    try {
+      expect(recovered.read(ids[0]!)).toBeNull();
+      for (let n = 1; n < ids.length; n++) expect(recovered.read(ids[n]!)).toEqual({ n });
+      expect(recovered.write({ after: true })).toBeTruthy();
+    } finally { recovered.close(); }
+  });
   it("reconciles a partial append before allowing another acknowledged write", () => {
     const dir = tempDir();
     const realWrite = fs.writeSync;
@@ -162,10 +185,10 @@ describe("storage hardening", () => {
     reopened.close();
   });
 
-  it("rolls back compaction when the new snapshot rename actually fails", () => {
+  it.each(["compact", "compactAsync"] as const)("rolls back %s when the new snapshot rename actually fails", async (method) => {
     const dir = tempDir();
     const storage = new Storage(dir);
-    const ids = storage.writeBatch([{ n: 1 }, { n: 2 }]);
+    const ids = storage.writeBatch(Array.from({ length: 40 }, (_, i) => ({ n: i + 1 })));
     storage.delete(ids[0]!);
     const realRename = fs.renameSync;
     let renames = 0;
@@ -173,7 +196,7 @@ describe("storage hardening", () => {
       if (++renames === 2) throw new Error("pre-rename failure");
       realRename(source, target);
     }) as typeof fs.renameSync);
-    expect(() => storage.compact()).toThrow(/pre-rename/);
+    await expect(Promise.resolve().then(() => storage[method]())).rejects.toThrow(/pre-rename/);
     expect(storage.read(ids[1]!)).toEqual({ n: 2 });
     vi.restoreAllMocks();
     const later = storage.write({ later: true });
@@ -282,10 +305,10 @@ describe("storage hardening", () => {
     readSpy.mockRestore();
   });
 
-  it("keeps the post-rename compaction state when directory fsync reports failure", () => {
+  it.each(["compact", "compactAsync"] as const)("keeps the post-rename %s state when directory fsync reports failure", async (method) => {
     const dir = tempDir();
     const storage = new Storage(dir);
-    const ids = storage.writeBatch([{ n: 1 }, { n: 2 }]);
+    const ids = storage.writeBatch(Array.from({ length: 40 }, (_, i) => ({ n: i + 1 })));
     storage.delete(ids[0]!);
     const realRename = fs.renameSync;
     let snapshotRenames = 0;
@@ -293,7 +316,7 @@ describe("storage hardening", () => {
       realRename(oldPath, newPath);
       if (String(newPath).endsWith("offset-index.snapshot.json") && ++snapshotRenames === 2) throw new Error("injected post-rename failure");
     }) as typeof fs.renameSync);
-    expect(() => storage.compact()).toThrow(/post-rename/);
+    await expect(Promise.resolve().then(() => storage[method]())).rejects.toThrow(/post-rename/);
     expect(storage.read(ids[1]!)).toEqual({ n: 2 });
     storage.close();
     vi.restoreAllMocks();

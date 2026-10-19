@@ -3,7 +3,8 @@
 import { useRef, useState } from "react";
 import { diagnostics, exportBackup, resetStore, restoreBackup, type DiagnosticsResponse } from "@/lib/api";
 import RebuildControl from "@/components/RebuildControl";
-import BenchmarkView from "@/components/BenchmarkView";
+import SemanticControl from "@/components/SemanticControl";
+import ApiAccess from "@/components/ApiAccess";
 import { Icon, Toast } from "@/components/ui";
 
 export default function EngineView({ onChanged }: { onChanged: () => void }) {
@@ -46,12 +47,13 @@ export default function EngineView({ onChanged }: { onChanged: () => void }) {
     <div className="page">
       <header className="page-head">
         <h1>Engine</h1>
-        <p>Maintenance and measurements for the index.</p>
+        <p>Maintenance and diagnostics for the index.</p>
       </header>
       {err && <p className="alert" role="alert">{err}</p>}
       <div className="sources">
+        <ApiAccess onChanged={onChanged} />
         <RebuildControl />
-        <BenchmarkView />
+        <SemanticControl />
         <section className="source">
           <span className="source-icon"><Icon name="search" size={18} /></span>
           <div className="source-body">

@@ -1,0 +1,30 @@
+name: Manual benchmarks
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: mkdir -p reports
+      - run: npm run --silent crash-test -- 8 > reports/crash.txt
+      - run: npm run --silent compare:fts -- 100000 > reports/fts.json
+      - run: npm run --silent bench:concurrent > reports/concurrent.json
+      - run: npm run --silent bench:maintenance > reports/maintenance.json
+      - run: npm run --silent profile:engine > reports/memory.json
+      - run: npm run evaluate:fetch
+      - run: npm run --silent evaluate:real > reports/scifact.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: benchmark-reports
+          path: reports/

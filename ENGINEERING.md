@@ -3,8 +3,9 @@
 Shardly is a personal document and code search engine. The TypeScript storage,
 analyzer, index, and ranker are hand-built so an interviewer can inspect the
 whole path. Fastify exposes the engine; Next.js exposes the evidence behind
-each result. OCR, AI chat, accounts, and distributed infrastructure are outside
-this version.
+each result. Optional inference and OCR adapters extend retrieval; generated
+answers, accounts, and distributed infrastructure remain outside this version.
+See [agent/search architecture and limits](AGENT_SEARCH.md).
 
 ## Durable storage
 
@@ -141,7 +142,7 @@ have timeouts and repository/file budgets. Credentials stay in memory, never in
 history. Restart marks unfinished jobs interrupted. Retry creates a new job;
 deduplication makes completed batches reusable. Cancellation retains completed
 batches. Extraction and storage batches cannot be interrupted mid-call. Scanned
-PDFs without embedded text are skipped; there is no OCR.
+PDFs without embedded text are skipped unless optional Poppler/Tesseract OCR is enabled. Production file extraction runs in separate bounded workers; extraction subprocesses also have their own timeouts.
 
 Backup export preserves ids and complete documents. Restore validates all entries
 and id conflicts before writing. Identical existing ids are duplicates; conflicting
@@ -196,10 +197,18 @@ binds to loopback, restricts browser origins, and rejects unrelated cross-origin
 mutations. There is no user authentication. External exposure needs an authenticated
 reverse proxy and an explicit allowed frontend origin.
 
-Storage I/O remains synchronous inside the worker. Snapshots, compaction, large
-extractions, and common queries can block engine requests. Packed postings remain
+Storage I/O remains synchronous inside the worker. Compaction yields every 16 live
+records while reads use the original offsets; the worker queues writes until commit.
+Synchronous and asynchronous compaction share the same snapshot commit and rollback
+path. Snapshot serialization, fsync, large extractions, individual large records, and
+common queries can still block engine requests. Packed postings remain
 memory-resident, with no disk spill or compressed on-disk query blocks. Backup export and snapshots also materialize JSON.
 Measure the real corpus before assuming a document count implies a memory ceiling.
+
+Single-window fields share their immutable frequency table with the full field.
+Longer fields retain separate passage frequencies. Token positions, offsets, and
+ranking calculations are unchanged. `npm run profile:engine` samples allocations
+and reports retained heap after forced GC, plus external typed-array allocations.
 
 The next scale change would be compact on-disk postings and bounded analysis of
 individual large documents. Replication changes this personal project's operating model.

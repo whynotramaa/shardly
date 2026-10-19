@@ -1,0 +1,916 @@
+{
+  "date": "2026-10-19",
+  "baselineCommit": "b63d56f0574efe6fcbd8aed7d060e3fdb2006005",
+  "memory": {
+    "before": {
+      "count": 10000,
+      "node": "v26.7.0",
+      "before": {
+        "rss": 101355520,
+        "heapTotal": 16650240,
+        "heapUsed": 8039528,
+        "external": 3222913,
+        "arrayBuffers": 532626
+      },
+      "after": {
+        "rss": 261947392,
+        "heapTotal": 149344256,
+        "heapUsed": 77493024,
+        "external": 7095252,
+        "arrayBuffers": 4453522
+      },
+      "retainedHeapGrowth": 69453496,
+      "allocations": [
+        [
+          "anonymous search/index.ts",
+          24653280
+        ],
+        [
+          "PackedFrequencies search/index.ts",
+          12077504
+        ],
+        [
+          "Uint32Array ",
+          9484760
+        ],
+        [
+          "set ",
+          6886216
+        ],
+        [
+          "push ",
+          5090784
+        ],
+        [
+          "addDocument search/index.ts",
+          3197488
+        ],
+        [
+          "add ",
+          1636640
+        ],
+        [
+          "packedFrequencies search/index.ts",
+          1344856
+        ],
+        [
+          "Set ",
+          1050072
+        ],
+        [
+          "map ",
+          852592
+        ],
+        [
+          "hash storage/storage.ts",
+          787360
+        ],
+        [
+          "fromEntries ",
+          721504
+        ],
+        [
+          "hashDoc src/engine.ts",
+          590560
+        ],
+        [
+          "writeBatch storage/storage.ts",
+          524960
+        ],
+        [
+          "indexDoc src/engine.ts",
+          426240
+        ],
+        [
+          "applyWrite storage/storage.ts",
+          360880
+        ]
+      ],
+      "postingMemory": {
+        "packedBytes": 975360,
+        "tokenBytes": 3840000,
+        "frequencyBytes": 1440000,
+        "postingCount": 60000,
+        "objectEstimateBytes": 2880000
+      },
+      "documentCache": {
+        "byteSource": "estimated UTF-16 serialized document size; excludes object overhead",
+        "entries": 128,
+        "bytes": 60152,
+        "maxEntries": 128,
+        "maxBytes": 8388608
+      },
+      "methodology": "Deterministic short documents with unique numeric identifiers. Heap sampled during ingestion at 32 KiB intervals; forced GC before and after. Sampling is approximate. Retained heap excludes external typed-array memory, reported separately. Does not establish a memory limit for arbitrary documents."
+    },
+    "after": {
+      "count": 10000,
+      "node": "v26.7.0",
+      "before": {
+        "rss": 93470720,
+        "heapTotal": 13504512,
+        "heapUsed": 7896416,
+        "external": 3049772,
+        "arrayBuffers": 209623
+      },
+      "after": {
+        "rss": 261394432,
+        "heapTotal": 149606400,
+        "heapUsed": 68885040,
+        "external": 7614291,
+        "arrayBuffers": 4064983
+      },
+      "retainedHeapGrowth": 60988624,
+      "allocations": [
+        [
+          "anonymous search/index.ts",
+          30110296
+        ],
+        [
+          "Uint32Array ",
+          10404552
+        ],
+        [
+          "set ",
+          6653624
+        ],
+        [
+          "PackedFrequencies search/index.ts",
+          5316880
+        ],
+        [
+          "addDocument search/index.ts",
+          2789360
+        ],
+        [
+          "Set ",
+          1640912
+        ],
+        [
+          "add ",
+          1102280
+        ],
+        [
+          "map ",
+          885264
+        ],
+        [
+          "hash storage/storage.ts",
+          754560
+        ],
+        [
+          "push ",
+          722608
+        ],
+        [
+          "writeBatch storage/storage.ts",
+          524984
+        ],
+        [
+          "hashDoc src/engine.ts",
+          492160
+        ],
+        [
+          "fromEntries ",
+          426328
+        ],
+        [
+          "indexDoc src/engine.ts",
+          426240
+        ],
+        [
+          "segmentName storage/storage.ts",
+          295072
+        ],
+        [
+          "structuredClone worker/js_transferable",
+          262760
+        ]
+      ],
+      "postingMemory": {
+        "packedBytes": 975360,
+        "tokenBytes": 3840000,
+        "frequencyBytes": 720000,
+        "postingCount": 60000,
+        "objectEstimateBytes": 2880000
+      },
+      "documentCache": {
+        "byteSource": "estimated UTF-16 serialized document size; excludes object overhead",
+        "entries": 128,
+        "bytes": 60160,
+        "maxEntries": 128,
+        "maxBytes": 8388608
+      },
+      "methodology": "Deterministic short documents with unique numeric identifiers. Heap sampled during ingestion at 32 KiB intervals; forced GC before and after. Sampling is approximate. Retained heap excludes external typed-array memory, reported separately. Does not establish a memory limit for arbitrary documents."
+    }
+  },
+  "maintenance": {
+    "before": {
+      "label": "production-worker-http-concurrent-compaction",
+      "node": "v26.7.0",
+      "count": 3000,
+      "elapsedMs": 92.536384,
+      "searchesDuringCompaction": 0,
+      "result": {
+        "reclaimedBytes": 120067,
+        "removedDocuments": 1
+      },
+      "search": {
+        "samples": 40,
+        "p50Ms": 0.6541650000000345,
+        "p95Ms": 2.4836590000001024,
+        "maxMs": 45.973254999999995
+      },
+      "methodology": "Compaction RPC is posted before 40 sequential real loopback HTTP searches, so searches cannot overtake its start at the worker. Counts searches whose replies arrive before the compaction RPC resolves. Verifies retained documents, reclaimed tombstone bytes, and the HTTP no-op compaction route. Includes HTTP/RPC overhead. Snapshot commits and individual large records remain synchronous."
+    },
+    "after": {
+      "label": "production-worker-http-concurrent-compaction",
+      "node": "v26.7.0",
+      "count": 3000,
+      "elapsedMs": 91.89860099999999,
+      "searchesDuringCompaction": 4,
+      "result": {
+        "reclaimedBytes": 120067,
+        "removedDocuments": 1
+      },
+      "search": {
+        "samples": 40,
+        "p50Ms": 0.7285650000000032,
+        "p95Ms": 15.887596999999914,
+        "maxMs": 28.566228000000024
+      },
+      "methodology": "Compaction RPC is posted before 40 sequential real loopback HTTP searches, so searches cannot overtake its start at the worker. Counts searches whose replies arrive before the compaction RPC resolves. Verifies retained documents, reclaimed tombstone bytes, and the HTTP no-op compaction route. Includes HTTP/RPC overhead. Snapshot commits and individual large records remain synchronous."
+    }
+  },
+  "fts10000": {
+    "before": {
+      "corpus": "deterministic synthetic topics",
+      "count": 10000,
+      "runs": 20,
+      "nodeVersion": "v26.7.0",
+      "platform": "linux/x64",
+      "cpus": "12th Gen Intel(R) Core(TM) i5-12450H",
+      "ingestMs": 1504.735503,
+      "heapGrowthBytes": 106463104,
+      "memoryAtIngest": {
+        "rss": 269213696,
+        "heapTotal": 161304576,
+        "heapUsed": 118870496,
+        "external": 9115969,
+        "arrayBuffers": 6551057
+      },
+      "rssBytes": 396746752,
+      "restartMs": 370.8892800000003,
+      "baseline": [
+        {
+          "query": "checksum integrity",
+          "total": 2000,
+          "p50Ms": 4.920703000000003,
+          "p95Ms": 13.660282000000052,
+          "ids": [
+            "000e76a3-908a-42bc-970a-9f25d63a092d",
+            "0073303d-1560-4757-b7d7-ca07dad101cf",
+            "008f1208-7606-4531-b1d3-e821d164dbdc",
+            "00c042db-143c-4798-ab37-bdd8d4b536f1",
+            "0118c318-38db-470a-9a3e-99c38df297a7",
+            "016b045d-8ba7-4eea-bfa0-fe9c998dd983",
+            "0197a91d-34a6-4c9b-9000-0303decf17e5",
+            "03018e89-e073-469e-aefe-0dfacdde9b2c",
+            "032c4b98-93d0-471d-ac3b-342f122ebe2a",
+            "03680c84-979f-4b55-b77f-4ab8f9d2e803"
+          ]
+        },
+        {
+          "query": "recovery latency",
+          "total": 2000,
+          "p50Ms": 2.555659999999989,
+          "p95Ms": 4.870582000000013,
+          "ids": [
+            "008283e0-9656-4df2-ab22-e4ff6145bb87",
+            "009d41d4-3acd-4c4c-a055-5b6bc78bfeba",
+            "01217dc3-f416-498d-8645-fc94476770b4",
+            "0172d3cd-d02a-48f9-adb1-1d5128069872",
+            "0193e356-557d-4eee-8c31-85e06dbda5a8",
+            "019c3b66-64eb-4775-bca0-18de254c6750",
+            "01b7d8f1-6aef-473c-9b99-912e55e4e3ea",
+            "01bf49db-9b73-4003-a531-06a68d47222b",
+            "02a0235a-7691-428d-b9af-0d3431a43474",
+            "02c3548a-8566-42f1-afc3-5fb5e5d845ae"
+          ]
+        },
+        {
+          "query": "vector",
+          "total": 2000,
+          "p50Ms": 1.8098170000000664,
+          "p95Ms": 2.5034310000000914,
+          "ids": [
+            "00043f9a-442e-4e9e-b882-9a97df70dfcd",
+            "0050bf02-d90a-4a70-9b9d-c995c8e362d8",
+            "00a03b82-5266-4a8f-8e02-a8c823d50d94",
+            "00d826f0-edb4-4266-b6ce-4b62031b9df9",
+            "00ff3a8b-61b5-46e0-8a1c-0c372cd6975e",
+            "010b2dc3-5ce6-4009-861c-9a1bf98a2cdc",
+            "017adb42-722e-45bd-b789-8f5b3c375ef5",
+            "01dc6d6f-4ff4-456b-bdba-b876f3b4ef7b",
+            "025fed40-ea64-4410-b0ed-9170c9913bb5",
+            "0286425d-a2db-4617-8448-4edd3379a330"
+          ]
+        },
+        {
+          "query": "storage",
+          "total": 2000,
+          "p50Ms": 1.2787670000000162,
+          "p95Ms": 2.3028810000000703,
+          "ids": [
+            "0048840e-1833-4b51-88f5-ff85bd4af104",
+            "00a5f7bf-b6ec-4195-bf96-b88b79da993b",
+            "010e481d-43b9-426a-872a-c5cd4e128c51",
+            "016fe71b-a295-4568-9888-5ad0f89d04cc",
+            "0186aeb5-507f-46ff-aa71-e9b0e7780191",
+            "019e874a-3b47-4488-938c-66794ef2d237",
+            "01d23206-2f53-4421-8666-26074c7f8241",
+            "01d365d4-33a1-498a-8cea-87ff5243815c",
+            "0249e017-27e7-40c8-8b4f-a26cccee57b6",
+            "029e1353-f3d5-4545-9577-0eb6aea47f14"
+          ]
+        },
+        {
+          "query": "unfindable",
+          "total": 0,
+          "p50Ms": 0.006209000000126252,
+          "p95Ms": 0.007405999999946289,
+          "ids": []
+        }
+      ],
+      "tuned": [
+        {
+          "query": "checksum integrity",
+          "total": 2000,
+          "p50Ms": 6.682692999999972,
+          "p95Ms": 9.499912000000222,
+          "ids": [
+            "000e76a3-908a-42bc-970a-9f25d63a092d",
+            "0073303d-1560-4757-b7d7-ca07dad101cf",
+            "008f1208-7606-4531-b1d3-e821d164dbdc",
+            "00c042db-143c-4798-ab37-bdd8d4b536f1",
+            "0118c318-38db-470a-9a3e-99c38df297a7",
+            "016b045d-8ba7-4eea-bfa0-fe9c998dd983",
+            "0197a91d-34a6-4c9b-9000-0303decf17e5",
+            "03018e89-e073-469e-aefe-0dfacdde9b2c",
+            "032c4b98-93d0-471d-ac3b-342f122ebe2a",
+            "03680c84-979f-4b55-b77f-4ab8f9d2e803"
+          ]
+        },
+        {
+          "query": "recovery latency",
+          "total": 2000,
+          "p50Ms": 7.585135999999693,
+          "p95Ms": 10.39034700000002,
+          "ids": [
+            "008283e0-9656-4df2-ab22-e4ff6145bb87",
+            "009d41d4-3acd-4c4c-a055-5b6bc78bfeba",
+            "01217dc3-f416-498d-8645-fc94476770b4",
+            "0172d3cd-d02a-48f9-adb1-1d5128069872",
+            "0193e356-557d-4eee-8c31-85e06dbda5a8",
+            "019c3b66-64eb-4775-bca0-18de254c6750",
+            "01b7d8f1-6aef-473c-9b99-912e55e4e3ea",
+            "01bf49db-9b73-4003-a531-06a68d47222b",
+            "02a0235a-7691-428d-b9af-0d3431a43474",
+            "02c3548a-8566-42f1-afc3-5fb5e5d845ae"
+          ]
+        },
+        {
+          "query": "vector",
+          "total": 2000,
+          "p50Ms": 3.7060899999996764,
+          "p95Ms": 6.8168000000000575,
+          "ids": [
+            "00043f9a-442e-4e9e-b882-9a97df70dfcd",
+            "0050bf02-d90a-4a70-9b9d-c995c8e362d8",
+            "00a03b82-5266-4a8f-8e02-a8c823d50d94",
+            "00d826f0-edb4-4266-b6ce-4b62031b9df9",
+            "00ff3a8b-61b5-46e0-8a1c-0c372cd6975e",
+            "010b2dc3-5ce6-4009-861c-9a1bf98a2cdc",
+            "017adb42-722e-45bd-b789-8f5b3c375ef5",
+            "01dc6d6f-4ff4-456b-bdba-b876f3b4ef7b",
+            "025fed40-ea64-4410-b0ed-9170c9913bb5",
+            "0286425d-a2db-4617-8448-4edd3379a330"
+          ]
+        },
+        {
+          "query": "storage",
+          "total": 2000,
+          "p50Ms": 4.563497999999981,
+          "p95Ms": 5.728251,
+          "ids": [
+            "0048840e-1833-4b51-88f5-ff85bd4af104",
+            "00a5f7bf-b6ec-4195-bf96-b88b79da993b",
+            "010e481d-43b9-426a-872a-c5cd4e128c51",
+            "016fe71b-a295-4568-9888-5ad0f89d04cc",
+            "0186aeb5-507f-46ff-aa71-e9b0e7780191",
+            "019e874a-3b47-4488-938c-66794ef2d237",
+            "01d23206-2f53-4421-8666-26074c7f8241",
+            "01d365d4-33a1-498a-8cea-87ff5243815c",
+            "0249e017-27e7-40c8-8b4f-a26cccee57b6",
+            "029e1353-f3d5-4545-9577-0eb6aea47f14"
+          ]
+        },
+        {
+          "query": "unfindable",
+          "total": 0,
+          "p50Ms": 0.004020999999738706,
+          "p95Ms": 0.004437999999936437,
+          "ids": []
+        }
+      ],
+      "pretokenizedScan": [
+        {
+          "query": "checksum integrity",
+          "total": 2000,
+          "p50Ms": 0.8531089999996766,
+          "p95Ms": 2.908484999999928,
+          "topTenMatch": true
+        },
+        {
+          "query": "recovery latency",
+          "total": 2000,
+          "p50Ms": 0.9040359999999055,
+          "p95Ms": 1.6580480000002353,
+          "topTenMatch": true
+        },
+        {
+          "query": "vector",
+          "total": 2000,
+          "p50Ms": 0.3633629999999357,
+          "p95Ms": 0.3919560000003912,
+          "topTenMatch": true
+        },
+        {
+          "query": "storage",
+          "total": 2000,
+          "p50Ms": 0.5598549999999705,
+          "p95Ms": 0.7623419999999896,
+          "topTenMatch": true
+        },
+        {
+          "query": "unfindable",
+          "total": 0,
+          "p50Ms": 0.314679999999953,
+          "p95Ms": 0.5197529999995822,
+          "topTenMatch": true
+        }
+      ],
+      "sqlite": {
+        "sqliteVersion": "3.53.4",
+        "ingestMs": 21.47196399891982,
+        "results": [
+          {
+            "query": "checksum integrity",
+            "p50Ms": 1.5843140063225292,
+            "p95Ms": 1.6506579995620996,
+            "ids": [
+              "000e76a3-908a-42bc-970a-9f25d63a092d",
+              "0073303d-1560-4757-b7d7-ca07dad101cf",
+              "008f1208-7606-4531-b1d3-e821d164dbdc",
+              "00c042db-143c-4798-ab37-bdd8d4b536f1",
+              "0118c318-38db-470a-9a3e-99c38df297a7",
+              "016b045d-8ba7-4eea-bfa0-fe9c998dd983",
+              "0197a91d-34a6-4c9b-9000-0303decf17e5",
+              "03018e89-e073-469e-aefe-0dfacdde9b2c",
+              "032c4b98-93d0-471d-ac3b-342f122ebe2a",
+              "03680c84-979f-4b55-b77f-4ab8f9d2e803"
+            ]
+          },
+          {
+            "query": "recovery latency",
+            "p50Ms": 1.650719001190737,
+            "p95Ms": 1.8722640015766956,
+            "ids": [
+              "008283e0-9656-4df2-ab22-e4ff6145bb87",
+              "009d41d4-3acd-4c4c-a055-5b6bc78bfeba",
+              "01217dc3-f416-498d-8645-fc94476770b4",
+              "0172d3cd-d02a-48f9-adb1-1d5128069872",
+              "0193e356-557d-4eee-8c31-85e06dbda5a8",
+              "019c3b66-64eb-4775-bca0-18de254c6750",
+              "01b7d8f1-6aef-473c-9b99-912e55e4e3ea",
+              "01bf49db-9b73-4003-a531-06a68d47222b",
+              "02a0235a-7691-428d-b9af-0d3431a43474",
+              "02c3548a-8566-42f1-afc3-5fb5e5d845ae"
+            ]
+          },
+          {
+            "query": "vector",
+            "p50Ms": 1.4604319949285127,
+            "p95Ms": 1.5629970002919436,
+            "ids": [
+              "00043f9a-442e-4e9e-b882-9a97df70dfcd",
+              "0050bf02-d90a-4a70-9b9d-c995c8e362d8",
+              "00a03b82-5266-4a8f-8e02-a8c823d50d94",
+              "00d826f0-edb4-4266-b6ce-4b62031b9df9",
+              "00ff3a8b-61b5-46e0-8a1c-0c372cd6975e",
+              "010b2dc3-5ce6-4009-861c-9a1bf98a2cdc",
+              "017adb42-722e-45bd-b789-8f5b3c375ef5",
+              "01dc6d6f-4ff4-456b-bdba-b876f3b4ef7b",
+              "025fed40-ea64-4410-b0ed-9170c9913bb5",
+              "0286425d-a2db-4617-8448-4edd3379a330"
+            ]
+          },
+          {
+            "query": "storage",
+            "p50Ms": 1.5190839985734783,
+            "p95Ms": 1.688010001089424,
+            "ids": [
+              "0048840e-1833-4b51-88f5-ff85bd4af104",
+              "00a5f7bf-b6ec-4195-bf96-b88b79da993b",
+              "010e481d-43b9-426a-872a-c5cd4e128c51",
+              "016fe71b-a295-4568-9888-5ad0f89d04cc",
+              "0186aeb5-507f-46ff-aa71-e9b0e7780191",
+              "019e874a-3b47-4488-938c-66794ef2d237",
+              "01d23206-2f53-4421-8666-26074c7f8241",
+              "01d365d4-33a1-498a-8cea-87ff5243815c",
+              "0249e017-27e7-40c8-8b4f-a26cccee57b6",
+              "029e1353-f3d5-4545-9577-0eb6aea47f14"
+            ]
+          },
+          {
+            "query": "unfindable",
+            "p50Ms": 0.003951005055569112,
+            "p95Ms": 0.004606001311913133,
+            "ids": []
+          }
+        ]
+      },
+      "methodology": "Warm single-process queries, 3 warmups + 20 samples. Pre-tokenized linear scan uses identical baseline BM25 and asserts top-ten agreement. SQLite receives identical pre-tokenized text in an in-memory FTS5 table. Shardly returns documents, snippets and explanations; SQLite returns IDs only. SQLite BM25 constants, IDF floor, tie ordering and field/passage behavior differ; this is not a quality equivalence or universal speed claim. Ingest timings exclude external token preparation for SQLite; heap growth is GC-sensitive. memoryAtIngest includes typed-array allocations in external/arrayBuffers; final RSS covers the Node process only, including scan preparation and reopened engine."
+    },
+    "after": {
+      "corpus": "deterministic synthetic topics",
+      "count": 10000,
+      "runs": 20,
+      "nodeVersion": "v26.7.0",
+      "platform": "linux/x64",
+      "cpus": "12th Gen Intel(R) Core(TM) i5-12450H",
+      "ingestMs": 707.958998,
+      "heapGrowthBytes": 75383960,
+      "memoryAtIngest": {
+        "rss": 241549312,
+        "heapTotal": 155406336,
+        "heapUsed": 87203528,
+        "external": 6364525,
+        "arrayBuffers": 3793151
+      },
+      "rssBytes": 360824832,
+      "restartMs": 577.4711010000001,
+      "baseline": [
+        {
+          "query": "checksum integrity",
+          "total": 2000,
+          "p50Ms": 2.4381590000000415,
+          "p95Ms": 4.181310999999937,
+          "ids": [
+            "0039dff6-622d-417c-9d89-ea9ca8f8db43",
+            "00942ac5-dd16-41fd-813e-61152d7fac7b",
+            "00a91c72-4400-4dda-b616-d126411b1381",
+            "00dd6f48-090a-4ecb-a51d-2e0a5a10f9a4",
+            "0113eab4-fd6f-4419-893d-4aaeefb35fee",
+            "012ca863-97d2-47d9-adc8-adf88c29d466",
+            "01529ed0-783e-47c3-a548-1cf956d68a0e",
+            "01c5bed5-9560-4e5e-ba07-7f539fba9771",
+            "01d62ce1-61bb-4b75-8088-64c22def4f62",
+            "01fd965f-60dd-4faf-8cb5-04d1aff00361"
+          ]
+        },
+        {
+          "query": "recovery latency",
+          "total": 2000,
+          "p50Ms": 2.648977000000059,
+          "p95Ms": 5.191316000000029,
+          "ids": [
+            "000979ce-968b-44ee-bab1-ecada314007a",
+            "0034f6b1-d6b5-4c39-b563-8ee1bcc5a60c",
+            "0037dc0f-ccc0-4fc5-9156-ab8aaa80da09",
+            "0098632f-6931-4394-83f1-941d8262cbd7",
+            "01838625-a52e-48c7-8123-77aad31178ec",
+            "0186fcb9-d06a-45d5-8295-b808a4a13596",
+            "01b39b62-81e3-4bee-82bd-3d42a5419379",
+            "01d8b6f0-f35e-4dc6-a1e2-b2599052a16f",
+            "0261e836-e29b-412b-962f-a2b18063eec6",
+            "02905891-5cef-44d4-afab-a8fe7cf5a69f"
+          ]
+        },
+        {
+          "query": "vector",
+          "total": 2000,
+          "p50Ms": 1.0531889999999748,
+          "p95Ms": 2.8300990000000183,
+          "ids": [
+            "00284ad7-6f82-4993-b6c4-05ccabbe247a",
+            "0030c797-3e25-46b3-9a35-58cb74ca402d",
+            "005bd014-6d66-4dab-b5c8-695e21a8b528",
+            "006d59bb-5b92-4fb3-925a-f38f0f9577e8",
+            "00a2cf5e-44e8-440e-bd1b-3a12da4e0d93",
+            "010653e6-6a03-4aaa-a1bd-80bf5a8b86fc",
+            "0212ddc4-62d1-4fba-9f84-06c9d8b2a941",
+            "021c6f1b-3a50-4b54-84fd-6472c38be9ff",
+            "0295e40e-cf59-443a-aacf-1b57219a7379",
+            "0298cfb7-caad-49a8-a6f4-a231e6084152"
+          ]
+        },
+        {
+          "query": "storage",
+          "total": 2000,
+          "p50Ms": 1.2742459999999483,
+          "p95Ms": 2.3111040000000003,
+          "ids": [
+            "0003844f-b097-4847-8982-73a93b293067",
+            "0099dcd8-c1e0-4d8a-a5e1-1ff86f03684a",
+            "00a25784-7ba6-4ef5-b59f-f78e58bc59a6",
+            "00ffacab-5b81-4ae4-af10-83d4f8593eb7",
+            "0135ac73-5356-4892-9f03-a9da885621dd",
+            "0157df3a-6ca0-4d3f-b575-9c389df82745",
+            "0179c12c-925f-4fed-b8e9-adc3b3a5e901",
+            "01eeea74-cdd3-40ec-9400-9a3de4a9b2a2",
+            "020289b1-8437-4edf-9eca-da473898e983",
+            "02aac1e1-44da-48b7-839e-195776363d99"
+          ]
+        },
+        {
+          "query": "unfindable",
+          "total": 0,
+          "p50Ms": 0.00684200000000601,
+          "p95Ms": 0.02185599999995702,
+          "ids": []
+        }
+      ],
+      "tuned": [
+        {
+          "query": "checksum integrity",
+          "total": 2000,
+          "p50Ms": 5.205916000000116,
+          "p95Ms": 12.095279000000119,
+          "ids": [
+            "0039dff6-622d-417c-9d89-ea9ca8f8db43",
+            "00942ac5-dd16-41fd-813e-61152d7fac7b",
+            "00a91c72-4400-4dda-b616-d126411b1381",
+            "00dd6f48-090a-4ecb-a51d-2e0a5a10f9a4",
+            "0113eab4-fd6f-4419-893d-4aaeefb35fee",
+            "012ca863-97d2-47d9-adc8-adf88c29d466",
+            "01529ed0-783e-47c3-a548-1cf956d68a0e",
+            "01c5bed5-9560-4e5e-ba07-7f539fba9771",
+            "01d62ce1-61bb-4b75-8088-64c22def4f62",
+            "01fd965f-60dd-4faf-8cb5-04d1aff00361"
+          ]
+        },
+        {
+          "query": "recovery latency",
+          "total": 2000,
+          "p50Ms": 5.233549000000039,
+          "p95Ms": 6.173436000000038,
+          "ids": [
+            "000979ce-968b-44ee-bab1-ecada314007a",
+            "0034f6b1-d6b5-4c39-b563-8ee1bcc5a60c",
+            "0037dc0f-ccc0-4fc5-9156-ab8aaa80da09",
+            "0098632f-6931-4394-83f1-941d8262cbd7",
+            "01838625-a52e-48c7-8123-77aad31178ec",
+            "0186fcb9-d06a-45d5-8295-b808a4a13596",
+            "01b39b62-81e3-4bee-82bd-3d42a5419379",
+            "01d8b6f0-f35e-4dc6-a1e2-b2599052a16f",
+            "0261e836-e29b-412b-962f-a2b18063eec6",
+            "02905891-5cef-44d4-afab-a8fe7cf5a69f"
+          ]
+        },
+        {
+          "query": "vector",
+          "total": 2000,
+          "p50Ms": 3.768459000000121,
+          "p95Ms": 4.4425240000000485,
+          "ids": [
+            "00284ad7-6f82-4993-b6c4-05ccabbe247a",
+            "0030c797-3e25-46b3-9a35-58cb74ca402d",
+            "005bd014-6d66-4dab-b5c8-695e21a8b528",
+            "006d59bb-5b92-4fb3-925a-f38f0f9577e8",
+            "00a2cf5e-44e8-440e-bd1b-3a12da4e0d93",
+            "010653e6-6a03-4aaa-a1bd-80bf5a8b86fc",
+            "0212ddc4-62d1-4fba-9f84-06c9d8b2a941",
+            "021c6f1b-3a50-4b54-84fd-6472c38be9ff",
+            "0295e40e-cf59-443a-aacf-1b57219a7379",
+            "0298cfb7-caad-49a8-a6f4-a231e6084152"
+          ]
+        },
+        {
+          "query": "storage",
+          "total": 2000,
+          "p50Ms": 4.38141799999994,
+          "p95Ms": 4.9004560000000765,
+          "ids": [
+            "0003844f-b097-4847-8982-73a93b293067",
+            "0099dcd8-c1e0-4d8a-a5e1-1ff86f03684a",
+            "00a25784-7ba6-4ef5-b59f-f78e58bc59a6",
+            "00ffacab-5b81-4ae4-af10-83d4f8593eb7",
+            "0135ac73-5356-4892-9f03-a9da885621dd",
+            "0157df3a-6ca0-4d3f-b575-9c389df82745",
+            "0179c12c-925f-4fed-b8e9-adc3b3a5e901",
+            "01eeea74-cdd3-40ec-9400-9a3de4a9b2a2",
+            "020289b1-8437-4edf-9eca-da473898e983",
+            "02aac1e1-44da-48b7-839e-195776363d99"
+          ]
+        },
+        {
+          "query": "unfindable",
+          "total": 0,
+          "p50Ms": 0.0044100000000071304,
+          "p95Ms": 0.0053430000000389555,
+          "ids": []
+        }
+      ],
+      "pretokenizedScan": [
+        {
+          "query": "checksum integrity",
+          "total": 2000,
+          "p50Ms": 1.6976539999998295,
+          "p95Ms": 4.7720580000000155,
+          "topTenMatch": true
+        },
+        {
+          "query": "recovery latency",
+          "total": 2000,
+          "p50Ms": 1.6929850000001352,
+          "p95Ms": 3.3272400000000744,
+          "topTenMatch": true
+        },
+        {
+          "query": "vector",
+          "total": 2000,
+          "p50Ms": 1.1127120000001014,
+          "p95Ms": 1.8328679999999622,
+          "topTenMatch": true
+        },
+        {
+          "query": "storage",
+          "total": 2000,
+          "p50Ms": 1.580508000000009,
+          "p95Ms": 2.1407520000000204,
+          "topTenMatch": true
+        },
+        {
+          "query": "unfindable",
+          "total": 0,
+          "p50Ms": 1.1083600000001752,
+          "p95Ms": 1.4534640000001673,
+          "topTenMatch": true
+        }
+      ],
+      "sqlite": {
+        "sqliteVersion": "3.53.4",
+        "ingestMs": 27.916842002014164,
+        "results": [
+          {
+            "query": "checksum integrity",
+            "p50Ms": 2.7888509939657524,
+            "p95Ms": 2.900038998632226,
+            "ids": [
+              "0039dff6-622d-417c-9d89-ea9ca8f8db43",
+              "00942ac5-dd16-41fd-813e-61152d7fac7b",
+              "00a91c72-4400-4dda-b616-d126411b1381",
+              "00dd6f48-090a-4ecb-a51d-2e0a5a10f9a4",
+              "0113eab4-fd6f-4419-893d-4aaeefb35fee",
+              "012ca863-97d2-47d9-adc8-adf88c29d466",
+              "01529ed0-783e-47c3-a548-1cf956d68a0e",
+              "01c5bed5-9560-4e5e-ba07-7f539fba9771",
+              "01d62ce1-61bb-4b75-8088-64c22def4f62",
+              "01fd965f-60dd-4faf-8cb5-04d1aff00361"
+            ]
+          },
+          {
+            "query": "recovery latency",
+            "p50Ms": 1.9598379949457012,
+            "p95Ms": 2.1736170019721612,
+            "ids": [
+              "000979ce-968b-44ee-bab1-ecada314007a",
+              "0034f6b1-d6b5-4c39-b563-8ee1bcc5a60c",
+              "0037dc0f-ccc0-4fc5-9156-ab8aaa80da09",
+              "0098632f-6931-4394-83f1-941d8262cbd7",
+              "01838625-a52e-48c7-8123-77aad31178ec",
+              "0186fcb9-d06a-45d5-8295-b808a4a13596",
+              "01b39b62-81e3-4bee-82bd-3d42a5419379",
+              "01d8b6f0-f35e-4dc6-a1e2-b2599052a16f",
+              "0261e836-e29b-412b-962f-a2b18063eec6",
+              "02905891-5cef-44d4-afab-a8fe7cf5a69f"
+            ]
+          },
+          {
+            "query": "vector",
+            "p50Ms": 1.7956709998543374,
+            "p95Ms": 2.312812997843139,
+            "ids": [
+              "00284ad7-6f82-4993-b6c4-05ccabbe247a",
+              "0030c797-3e25-46b3-9a35-58cb74ca402d",
+              "005bd014-6d66-4dab-b5c8-695e21a8b528",
+              "006d59bb-5b92-4fb3-925a-f38f0f9577e8",
+              "00a2cf5e-44e8-440e-bd1b-3a12da4e0d93",
+              "010653e6-6a03-4aaa-a1bd-80bf5a8b86fc",
+              "0212ddc4-62d1-4fba-9f84-06c9d8b2a941",
+              "021c6f1b-3a50-4b54-84fd-6472c38be9ff",
+              "0295e40e-cf59-443a-aacf-1b57219a7379",
+              "0298cfb7-caad-49a8-a6f4-a231e6084152"
+            ]
+          },
+          {
+            "query": "storage",
+            "p50Ms": 1.9618700025603175,
+            "p95Ms": 2.6972199993906543,
+            "ids": [
+              "0003844f-b097-4847-8982-73a93b293067",
+              "0099dcd8-c1e0-4d8a-a5e1-1ff86f03684a",
+              "00a25784-7ba6-4ef5-b59f-f78e58bc59a6",
+              "00ffacab-5b81-4ae4-af10-83d4f8593eb7",
+              "0135ac73-5356-4892-9f03-a9da885621dd",
+              "0157df3a-6ca0-4d3f-b575-9c389df82745",
+              "0179c12c-925f-4fed-b8e9-adc3b3a5e901",
+              "01eeea74-cdd3-40ec-9400-9a3de4a9b2a2",
+              "020289b1-8437-4edf-9eca-da473898e983",
+              "02aac1e1-44da-48b7-839e-195776363d99"
+            ]
+          },
+          {
+            "query": "unfindable",
+            "p50Ms": 0.004020002961624414,
+            "p95Ms": 0.006539004971273243,
+            "ids": []
+          }
+        ]
+      },
+      "methodology": "Warm single-process queries, 3 warmups + 20 samples. Pre-tokenized linear scan uses identical baseline BM25 and asserts top-ten agreement. SQLite receives identical pre-tokenized text in an in-memory FTS5 table. Shardly returns documents, snippets and explanations; SQLite returns IDs only. SQLite BM25 constants, IDF floor, tie ordering and field/passage behavior differ; this is not a quality equivalence or universal speed claim. Ingest timings exclude external token preparation for SQLite; heap growth is GC-sensitive. memoryAtIngest includes typed-array allocations in external/arrayBuffers; final RSS covers the Node process only, including scan preparation and reopened engine."
+    }
+  },
+  "concurrentImport": {
+    "label": "production-worker-http-concurrent-import",
+    "node": "v26.7.0",
+    "count": 3000,
+    "elapsedMs": 343.138317,
+    "searchesDuringImport": 40,
+    "partialImportSearches": 39,
+    "health": {
+      "samples": 40,
+      "p50Ms": 1.0850849999999923,
+      "p95Ms": 5.471103999999968,
+      "maxMs": 12.148363999999958
+    },
+    "search": {
+      "samples": 40,
+      "p50Ms": 2.3736880000000156,
+      "p95Ms": 9.43378100000001,
+      "maxMs": 12.74971000000005
+    },
+    "eventLoopDelay": {
+      "meanMs": 10.181787151515152,
+      "maxMs": 13.778943
+    },
+    "methodology": "Real loopback HTTP, one bulk import and sequential streams of 40 health and 40 search requests started concurrently. Each search is followed by a stats request to verify searches observe partially indexed batches. Existing unique reference must remain first. Includes RPC, JSON and HTTP overhead. Does not model many users, large PDFs, or physical disk faults."
+  },
+  "scifact": {
+    "dataset": "BEIR SciFact",
+    "corpusDocuments": 5183,
+    "judgedQueries": 300,
+    "mode": "any",
+    "cutoff": 10,
+    "domainLimit": "Scientific abstracts and claims, not code navigation or personal document relevance",
+    "baseline": {
+      "MRR10": 0.6405291005291005,
+      "nDCG10": 0.6750995722753245,
+      "recall10": 0.8112777777777779,
+      "p50Ms": 1.7077150000000074,
+      "p95Ms": 3.314213000000109
+    },
+    "tuned": {
+      "MRR10": 0.5641071428571428,
+      "nDCG10": 0.5950704412446497,
+      "recall10": 0.7233888888888889,
+      "p50Ms": 11.477469000000383,
+      "p95Ms": 27.320932999999968
+    }
+  },
+  "browser": {
+    "desktop": "1440x1000",
+    "mobile": "390x844",
+    "checks": [
+      "empty library",
+      "skipped upload stays empty",
+      "real upload counts",
+      "verified example links",
+      "keyboard source-to-search",
+      "search-page example buttons",
+      "light/dark layouts",
+      "optional examples API failure",
+      "no horizontal overflow",
+      "no page errors"
+    ],
+    "screenshots": 6,
+    "errors": []
+  },
+  "crashWrites": {
+    "rounds": 3,
+    "acknowledged": 82740,
+    "missing": 0,
+    "corrupt": 0
+  },
+  "limits": "Single local samples, not capacity guarantees. Retained heap uses forced GC and excludes external allocations; heap sampling is approximate. Initial FTS measurements overlapped other baseline checks, so latency changes are descriptive. Compaction is posted via RPC before real HTTP searches; the baseline copy omits only the overlap assertion. Snapshot commits and single large records remain synchronous. Repository judgments are authored and provisional; no private personal documents were available."
+}

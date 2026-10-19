@@ -87,8 +87,16 @@ describe("API", () => {
     ]);
     const res = await app.inject({ method: "GET", url: "/benchmark?q=storage" });
     expect(res.statusCode).toBe(200);
-    const body = res.json() as { topHitsMatch: boolean; naive: unknown; indexed: unknown };
+    const body = res.json() as import("../src/engine.js").BenchmarkResponse;
     expect(body.topHitsMatch).toBe(true);
+    expect(body.terms).toEqual(["storage"]);
+    expect(body.naive.scanned).toBe(3);
+    expect(body.indexed.scanned).toBe(2);
+    expect(body.details?.candidateCount).toBe(2);
+    expect(body.details?.postingReads).toBe(2);
+    expect(body.details!.documentReads + body.details!.cacheHits).toBeGreaterThanOrEqual(2);
+    expect(body.details?.stageMs.total).toBe(body.indexed.tookMs);
+    for (const stage of ["parse", "expand", "candidates", "postings", "filter", "score", "read"]) expect(body.details?.stageMs[stage]).toBeGreaterThanOrEqual(0);
   });
 
   it("GET /documents lists docs with snippet-trimmed previews", async () => {

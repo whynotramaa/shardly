@@ -1,0 +1,860 @@
+{
+  "label": "repository-task-judgments",
+  "sourceCommit": "b63d56f0574efe6fcbd8aed7d060e3fdb2006005",
+  "judgments": "Frozen real Shardly code and documentation. Task queries and provisional relevance judgments authored before evaluating either profile; not user judgments or personal-document evidence. Grade 3=primary implementation, 2=useful explanation/related implementation, 1=context. Unjudged documents score zero.",
+  "corpusDocuments": 20,
+  "judgedQueries": 24,
+  "mode": "any",
+  "cutoff": 10,
+  "restartParity": true,
+  "baseline": {
+    "MRR10": 0.8229166666666666,
+    "nDCG10": 0.8256238560878537,
+    "recall10": 0.9791666666666666,
+    "cases": [
+      {
+        "query": "write ahead log pending committed",
+        "hits": [
+          "src/storage/wal.ts",
+          "src/storage/storage.ts",
+          "README.md",
+          "ENGINEERING.md",
+          "src/engine.ts",
+          "src/runtime/engine.ts",
+          "src/ingest/folders.ts",
+          "src/api/routes.ts",
+          "src/runtime/worker.ts",
+          "src/api/server.ts"
+        ],
+        "mrr": 1,
+        "ndcg": 0.992619504174702,
+        "recall": 1
+      },
+      {
+        "query": "compaction snapshot rollback",
+        "hits": [
+          "src/storage/storage.ts",
+          "ENGINEERING.md",
+          "README.md",
+          "src/engine.ts",
+          "src/runtime/worker.ts",
+          "src/api/server.ts",
+          "src/search/index.ts",
+          "src/ingest/jobs.ts",
+          "src/api/routes.ts",
+          "src/ingest/folders.ts"
+        ],
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1
+      },
+      {
+        "query": "exclusive writer directory lock",
+        "hits": [
+          "ENGINEERING.md",
+          "src/storage/storage.ts",
+          "README.md",
+          "src/ingest/folders.ts",
+          "src/storage/wal.ts",
+          "src/ingest/extract.ts",
+          "src/engine.ts"
+        ],
+        "mrr": 0.5,
+        "ndcg": 0.6442869262030828,
+        "recall": 1
+      },
+      {
+        "query": "Unicode identifier token offsets",
+        "hits": [
+          "src/search/tokenizer.ts",
+          "ENGINEERING.md",
+          "README.md",
+          "src/api/routes.ts",
+          "src/engine.ts",
+          "src/ingest/jobs.ts",
+          "src/search/index.ts",
+          "src/ingest/github.ts",
+          "src/storage/storage.ts",
+          "src/storage/wal.ts"
+        ],
+        "mrr": 1,
+        "ndcg": 0.9610012895088121,
+        "recall": 1
+      },
+      {
+        "query": "BM25 term frequency normalization",
+        "hits": [
+          "README.md",
+          "ENGINEERING.md",
+          "src/search/index.ts",
+          "src/search/rank.ts",
+          "src/engine.ts",
+          "web/components/SearchView.tsx",
+          "src/search/tokenizer.ts",
+          "src/api/validation.ts",
+          "web/lib/workspace.ts",
+          "src/api/routes.ts"
+        ],
+        "mrr": 0.5,
+        "ndcg": 0.5636640860885236,
+        "recall": 1
+      },
+      {
+        "query": "bounded top results heap",
+        "hits": [
+          "src/search/heap.ts",
+          "README.md",
+          "src/search/rank.ts",
+          "ENGINEERING.md",
+          "src/engine.ts",
+          "src/api/routes.ts",
+          "src/runtime/worker.ts",
+          "web/components/SearchView.tsx",
+          "web/lib/workspace.ts",
+          "src/api/validation.ts"
+        ],
+        "mrr": 1,
+        "ndcg": 0.9828422279067397,
+        "recall": 1
+      },
+      {
+        "query": "numeric packed postings snapshot checksum",
+        "hits": [
+          "README.md",
+          "src/search/index.ts",
+          "ENGINEERING.md",
+          "src/storage/storage.ts",
+          "src/engine.ts",
+          "src/storage/wal.ts",
+          "src/search/rank.ts",
+          "src/runtime/worker.ts",
+          "src/api/server.ts",
+          "src/ingest/jobs.ts"
+        ],
+        "mrr": 0.5,
+        "ndcg": 0.6442869262030828,
+        "recall": 1
+      },
+      {
+        "query": "worker queue full shutdown",
+        "hits": [
+          "ENGINEERING.md",
+          "README.md",
+          "src/api/server.ts",
+          "src/runtime/engine.ts",
+          "src/ingest/github.ts",
+          "src/ingest/jobs.ts",
+          "src/runtime/worker.ts",
+          "web/components/SearchView.tsx",
+          "src/ingest/folders.ts",
+          "src/engine.ts"
+        ],
+        "mrr": 0.25,
+        "ndcg": 0.4514596926579187,
+        "recall": 1
+      },
+      {
+        "query": "serialize writes batch yield",
+        "hits": [
+          "src/runtime/worker.ts",
+          "ENGINEERING.md",
+          "README.md",
+          "src/ingest/jobs.ts",
+          "src/ingest/folders.ts",
+          "src/engine.ts",
+          "src/search/index.ts",
+          "src/storage/storage.ts"
+        ],
+        "mrr": 1,
+        "ndcg": 0.9173194127129571,
+        "recall": 0.5
+      },
+      {
+        "query": "CORS allowed origin loopback",
+        "hits": [
+          "src/api/server.ts",
+          "ENGINEERING.md",
+          "README.md",
+          "src/runtime/worker.ts",
+          "src/api/validation.ts",
+          "src/ingest/extract.ts",
+          "src/ingest/folders.ts"
+        ],
+        "mrr": 1,
+        "ndcg": 0.9828422279067397,
+        "recall": 1
+      },
+      {
+        "query": "request validation integer object",
+        "hits": [
+          "src/ingest/jobs.ts",
+          "src/api/validation.ts",
+          "README.md",
+          "src/api/routes.ts",
+          "src/api/server.ts",
+          "ENGINEERING.md",
+          "src/engine.ts",
+          "web/components/SearchView.tsx",
+          "src/search/index.ts",
+          "src/storage/wal.ts"
+        ],
+        "mrr": 0.5,
+        "ndcg": 0.6352023920551748,
+        "recall": 1
+      },
+      {
+        "query": "upload multipart file size limits",
+        "hits": [
+          "src/api/server.ts",
+          "README.md",
+          "src/api/routes.ts",
+          "ENGINEERING.md",
+          "src/search/index.ts",
+          "src/ingest/github.ts",
+          "src/engine.ts",
+          "web/components/SearchView.tsx",
+          "src/search/rank.ts",
+          "src/ingest/folders.ts"
+        ],
+        "mrr": 1,
+        "ndcg": 0.95583058934618,
+        "recall": 1
+      },
+      {
+        "query": "nested gitignore symlinks folder polling",
+        "hits": [
+          "README.md",
+          "ENGINEERING.md",
+          "src/ingest/folders.ts",
+          "src/api/routes.ts",
+          "src/api/server.ts",
+          "src/ingest/extract.ts",
+          "src/api/validation.ts",
+          "src/engine.ts"
+        ],
+        "mrr": 1,
+        "ndcg": 0.7309292742059024,
+        "recall": 1
+      },
+      {
+        "query": "cancel retry interrupted import jobs",
+        "hits": [
+          "src/ingest/jobs.ts",
+          "src/api/routes.ts",
+          "README.md",
+          "ENGINEERING.md",
+          "src/api/server.ts",
+          "src/engine.ts",
+          "src/runtime/worker.ts",
+          "src/runtime/engine.ts",
+          "web/components/SearchView.tsx",
+          "src/ingest/folders.ts"
+        ],
+        "mrr": 1,
+        "ndcg": 0.9828422279067397,
+        "recall": 1
+      },
+      {
+        "query": "PDF page offsets extract text",
+        "hits": [
+          "src/ingest/extract.ts",
+          "ENGINEERING.md",
+          "README.md",
+          "src/ingest/folders.ts",
+          "src/engine.ts",
+          "src/api/routes.ts",
+          "src/ingest/github.ts",
+          "web/components/SearchView.tsx",
+          "src/runtime/worker.ts",
+          "src/runtime/engine.ts"
+        ],
+        "mrr": 1,
+        "ndcg": 0.9680147827042069,
+        "recall": 1
+      },
+      {
+        "query": "binary UTF text detection",
+        "hits": [
+          "src/ingest/extract.ts",
+          "README.md",
+          "src/ingest/folders.ts",
+          "ENGINEERING.md",
+          "src/ingest/github.ts",
+          "src/engine.ts",
+          "src/search/index.ts",
+          "src/search/tokenizer.ts",
+          "src/api/routes.ts",
+          "web/lib/workspace.ts"
+        ],
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1
+      },
+      {
+        "query": "GitHub repository tree blob budgets",
+        "hits": [
+          "src/ingest/github.ts",
+          "README.md",
+          "ENGINEERING.md",
+          "src/api/routes.ts",
+          "src/ingest/folders.ts",
+          "src/ingest/jobs.ts",
+          "src/storage/wal.ts",
+          "src/engine.ts",
+          "src/search/heap.ts",
+          "src/runtime/worker.ts"
+        ],
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1
+      },
+      {
+        "query": "saved searches collections localStorage validation",
+        "hits": [
+          "web/lib/workspace.ts",
+          "README.md",
+          "ENGINEERING.md",
+          "web/components/SearchView.tsx",
+          "src/search/index.ts",
+          "src/ingest/jobs.ts",
+          "src/engine.ts",
+          "src/ingest/folders.ts",
+          "src/api/routes.ts",
+          "src/api/validation.ts"
+        ],
+        "mrr": 1,
+        "ndcg": 0.9324441894571632,
+        "recall": 1
+      },
+      {
+        "query": "search keyboard suggestions preview",
+        "hits": [
+          "web/components/SearchView.tsx",
+          "src/api/routes.ts",
+          "README.md",
+          "web/lib/workspace.ts",
+          "src/engine.ts",
+          "src/runtime/worker.ts",
+          "ENGINEERING.md",
+          "src/search/heap.ts",
+          "src/search/tokenizer.ts",
+          "src/search/rank.ts"
+        ],
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1
+      },
+      {
+        "query": "backup restore conflict duplicate ids",
+        "hits": [
+          "ENGINEERING.md",
+          "README.md",
+          "src/api/routes.ts",
+          "src/engine.ts",
+          "src/runtime/worker.ts",
+          "web/components/SearchView.tsx",
+          "src/search/index.ts",
+          "src/search/rank.ts",
+          "web/lib/workspace.ts",
+          "src/ingest/folders.ts"
+        ],
+        "mrr": 0.5,
+        "ndcg": 0.5518544320968081,
+        "recall": 1
+      },
+      {
+        "query": "shadow rebuild cancellation stale version",
+        "hits": [
+          "ENGINEERING.md",
+          "README.md",
+          "src/engine.ts",
+          "src/storage/storage.ts",
+          "src/api/routes.ts",
+          "src/search/index.ts",
+          "src/runtime/worker.ts",
+          "src/ingest/github.ts"
+        ],
+        "mrr": 1,
+        "ndcg": 0.7309292742059024,
+        "recall": 1
+      },
+      {
+        "query": "literal substring scan bounds",
+        "hits": [
+          "ENGINEERING.md",
+          "README.md",
+          "src/engine.ts",
+          "src/api/routes.ts",
+          "src/search/heap.ts",
+          "web/lib/workspace.ts",
+          "src/ingest/folders.ts",
+          "web/components/SearchView.tsx"
+        ],
+        "mrr": 0.5,
+        "ndcg": 0.606422698504514,
+        "recall": 1
+      },
+      {
+        "query": "search facets metadata filters",
+        "hits": [
+          "src/engine.ts",
+          "ENGINEERING.md",
+          "README.md",
+          "web/components/SearchView.tsx",
+          "web/lib/workspace.ts",
+          "src/ingest/github.ts",
+          "src/ingest/folders.ts",
+          "src/search/tokenizer.ts",
+          "src/search/rank.ts",
+          "src/api/routes.ts"
+        ],
+        "mrr": 1,
+        "ndcg": 0.9737576937588317,
+        "recall": 1
+      },
+      {
+        "query": "missing match explanation rank budget",
+        "hits": [
+          "ENGINEERING.md",
+          "README.md",
+          "src/engine.ts",
+          "web/components/SearchView.tsx",
+          "src/search/rank.ts",
+          "src/ingest/github.ts",
+          "src/api/routes.ts",
+          "src/ingest/folders.ts",
+          "web/lib/workspace.ts",
+          "src/search/tokenizer.ts"
+        ],
+        "mrr": 0.5,
+        "ndcg": 0.606422698504514,
+        "recall": 1
+      }
+    ]
+  },
+  "tuned": {
+    "MRR10": 0.8888888888888888,
+    "nDCG10": 0.8613277877857365,
+    "recall10": 0.9791666666666666,
+    "cases": [
+      {
+        "query": "write ahead log pending committed",
+        "hits": [
+          "README.md",
+          "src/storage/wal.ts",
+          "src/storage/storage.ts",
+          "ENGINEERING.md",
+          "src/engine.ts",
+          "src/runtime/engine.ts",
+          "src/ingest/folders.ts",
+          "src/runtime/worker.ts",
+          "src/api/server.ts",
+          "src/api/routes.ts"
+        ],
+        "mrr": 0.5,
+        "ndcg": 0.6757507974357403,
+        "recall": 1
+      },
+      {
+        "query": "compaction snapshot rollback",
+        "hits": [
+          "src/storage/storage.ts",
+          "ENGINEERING.md",
+          "README.md",
+          "src/engine.ts",
+          "src/api/routes.ts",
+          "src/api/server.ts",
+          "src/ingest/folders.ts",
+          "src/ingest/jobs.ts",
+          "src/runtime/worker.ts",
+          "src/search/index.ts"
+        ],
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1
+      },
+      {
+        "query": "exclusive writer directory lock",
+        "hits": [
+          "src/storage/storage.ts",
+          "ENGINEERING.md",
+          "README.md",
+          "src/ingest/folders.ts",
+          "src/ingest/extract.ts",
+          "src/storage/wal.ts",
+          "src/engine.ts"
+        ],
+        "mrr": 1,
+        "ndcg": 0.9828422279067397,
+        "recall": 1
+      },
+      {
+        "query": "Unicode identifier token offsets",
+        "hits": [
+          "README.md",
+          "src/search/tokenizer.ts",
+          "ENGINEERING.md",
+          "src/search/index.ts",
+          "src/api/routes.ts",
+          "src/ingest/github.ts",
+          "src/ingest/jobs.ts",
+          "src/engine.ts",
+          "src/storage/storage.ts",
+          "web/components/SearchView.tsx"
+        ],
+        "mrr": 0.5,
+        "ndcg": 0.6352023920551748,
+        "recall": 1
+      },
+      {
+        "query": "BM25 term frequency normalization",
+        "hits": [
+          "src/search/rank.ts",
+          "src/engine.ts",
+          "README.md",
+          "src/search/index.ts",
+          "ENGINEERING.md",
+          "web/components/SearchView.tsx",
+          "src/api/validation.ts",
+          "src/search/tokenizer.ts",
+          "src/api/routes.ts",
+          "web/lib/workspace.ts"
+        ],
+        "mrr": 1,
+        "ndcg": 0.9359826917490579,
+        "recall": 1
+      },
+      {
+        "query": "bounded top results heap",
+        "hits": [
+          "src/search/heap.ts",
+          "src/search/rank.ts",
+          "src/engine.ts",
+          "README.md",
+          "ENGINEERING.md",
+          "src/api/routes.ts",
+          "src/runtime/worker.ts",
+          "src/api/validation.ts",
+          "web/lib/workspace.ts",
+          "src/ingest/folders.ts"
+        ],
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1
+      },
+      {
+        "query": "numeric packed postings snapshot checksum",
+        "hits": [
+          "README.md",
+          "ENGINEERING.md",
+          "src/search/index.ts",
+          "src/storage/storage.ts",
+          "src/engine.ts",
+          "src/storage/wal.ts",
+          "src/search/rank.ts",
+          "web/components/SearchView.tsx",
+          "src/api/routes.ts",
+          "src/api/server.ts"
+        ],
+        "mrr": 0.5,
+        "ndcg": 0.5413402936435214,
+        "recall": 1
+      },
+      {
+        "query": "worker queue full shutdown",
+        "hits": [
+          "src/runtime/worker.ts",
+          "src/runtime/engine.ts",
+          "src/api/server.ts",
+          "ENGINEERING.md",
+          "README.md",
+          "src/ingest/github.ts",
+          "src/ingest/jobs.ts",
+          "web/components/SearchView.tsx",
+          "src/engine.ts",
+          "src/ingest/folders.ts"
+        ],
+        "mrr": 1,
+        "ndcg": 0.8339912323981488,
+        "recall": 1
+      },
+      {
+        "query": "serialize writes batch yield",
+        "hits": [
+          "src/runtime/worker.ts",
+          "ENGINEERING.md",
+          "README.md",
+          "src/engine.ts",
+          "src/ingest/jobs.ts",
+          "src/ingest/folders.ts",
+          "src/search/index.ts",
+          "src/storage/storage.ts"
+        ],
+        "mrr": 1,
+        "ndcg": 0.9173194127129571,
+        "recall": 0.5
+      },
+      {
+        "query": "CORS allowed origin loopback",
+        "hits": [
+          "src/api/server.ts",
+          "ENGINEERING.md",
+          "README.md",
+          "src/api/validation.ts",
+          "src/ingest/extract.ts",
+          "src/ingest/folders.ts",
+          "src/runtime/worker.ts"
+        ],
+        "mrr": 1,
+        "ndcg": 0.9828422279067397,
+        "recall": 1
+      },
+      {
+        "query": "request validation integer object",
+        "hits": [
+          "src/api/validation.ts",
+          "src/ingest/jobs.ts",
+          "README.md",
+          "src/api/routes.ts",
+          "src/api/server.ts",
+          "web/components/SearchView.tsx",
+          "src/search/index.ts",
+          "ENGINEERING.md",
+          "src/engine.ts",
+          "src/storage/wal.ts"
+        ],
+        "mrr": 1,
+        "ndcg": 0.9737576937588317,
+        "recall": 1
+      },
+      {
+        "query": "upload multipart file size limits",
+        "hits": [
+          "src/api/routes.ts",
+          "src/api/server.ts",
+          "README.md",
+          "ENGINEERING.md",
+          "src/ingest/github.ts",
+          "src/search/rank.ts",
+          "src/engine.ts",
+          "src/ingest/folders.ts",
+          "web/components/SearchView.tsx",
+          "src/search/index.ts"
+        ],
+        "mrr": 1,
+        "ndcg": 0.8339912323981488,
+        "recall": 1
+      },
+      {
+        "query": "nested gitignore symlinks folder polling",
+        "hits": [
+          "src/ingest/folders.ts",
+          "README.md",
+          "ENGINEERING.md",
+          "src/api/routes.ts",
+          "src/api/server.ts",
+          "src/ingest/extract.ts",
+          "src/engine.ts",
+          "src/api/validation.ts"
+        ],
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1
+      },
+      {
+        "query": "cancel retry interrupted import jobs",
+        "hits": [
+          "src/ingest/jobs.ts",
+          "src/api/routes.ts",
+          "README.md",
+          "ENGINEERING.md",
+          "src/api/server.ts",
+          "src/engine.ts",
+          "src/runtime/worker.ts",
+          "src/runtime/engine.ts",
+          "web/components/SearchView.tsx",
+          "src/ingest/folders.ts"
+        ],
+        "mrr": 1,
+        "ndcg": 0.9828422279067397,
+        "recall": 1
+      },
+      {
+        "query": "PDF page offsets extract text",
+        "hits": [
+          "src/ingest/extract.ts",
+          "ENGINEERING.md",
+          "src/engine.ts",
+          "src/ingest/folders.ts",
+          "web/components/SearchView.tsx",
+          "src/api/routes.ts",
+          "src/runtime/worker.ts",
+          "src/ingest/github.ts",
+          "src/runtime/engine.ts",
+          "README.md"
+        ],
+        "mrr": 1,
+        "ndcg": 0.9828422279067397,
+        "recall": 1
+      },
+      {
+        "query": "binary UTF text detection",
+        "hits": [
+          "src/ingest/extract.ts",
+          "README.md",
+          "src/ingest/folders.ts",
+          "src/engine.ts",
+          "src/ingest/github.ts",
+          "ENGINEERING.md",
+          "src/search/index.ts",
+          "src/search/tokenizer.ts",
+          "src/api/routes.ts",
+          "web/components/SearchView.tsx"
+        ],
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1
+      },
+      {
+        "query": "GitHub repository tree blob budgets",
+        "hits": [
+          "src/ingest/github.ts",
+          "README.md",
+          "src/ingest/jobs.ts",
+          "src/api/routes.ts",
+          "ENGINEERING.md",
+          "src/ingest/folders.ts",
+          "src/storage/wal.ts",
+          "src/engine.ts",
+          "web/components/SearchView.tsx",
+          "src/api/server.ts"
+        ],
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1
+      },
+      {
+        "query": "saved searches collections localStorage validation",
+        "hits": [
+          "web/lib/workspace.ts",
+          "web/components/SearchView.tsx",
+          "README.md",
+          "src/storage/storage.ts",
+          "src/api/validation.ts",
+          "src/search/index.ts",
+          "ENGINEERING.md",
+          "src/engine.ts",
+          "src/storage/wal.ts",
+          "src/api/routes.ts"
+        ],
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1
+      },
+      {
+        "query": "search keyboard suggestions preview",
+        "hits": [
+          "web/components/SearchView.tsx",
+          "src/api/routes.ts",
+          "README.md",
+          "src/engine.ts",
+          "web/lib/workspace.ts",
+          "src/search/heap.ts",
+          "src/search/index.ts",
+          "src/search/rank.ts",
+          "src/search/tokenizer.ts",
+          "src/runtime/worker.ts"
+        ],
+        "mrr": 1,
+        "ndcg": 1,
+        "recall": 1
+      },
+      {
+        "query": "backup restore conflict duplicate ids",
+        "hits": [
+          "README.md",
+          "ENGINEERING.md",
+          "src/api/routes.ts",
+          "src/engine.ts",
+          "src/runtime/worker.ts",
+          "web/components/SearchView.tsx",
+          "src/search/rank.ts",
+          "src/search/index.ts",
+          "src/ingest/folders.ts",
+          "src/storage/storage.ts"
+        ],
+        "mrr": 1,
+        "ndcg": 0.6763610077981964,
+        "recall": 1
+      },
+      {
+        "query": "shadow rebuild cancellation stale version",
+        "hits": [
+          "ENGINEERING.md",
+          "src/engine.ts",
+          "README.md",
+          "src/api/routes.ts",
+          "src/runtime/worker.ts",
+          "src/storage/storage.ts",
+          "src/search/index.ts",
+          "src/ingest/github.ts"
+        ],
+        "mrr": 1,
+        "ndcg": 0.8339912323981488,
+        "recall": 1
+      },
+      {
+        "query": "literal substring scan bounds",
+        "hits": [
+          "ENGINEERING.md",
+          "src/engine.ts",
+          "README.md",
+          "web/components/SearchView.tsx",
+          "src/api/routes.ts",
+          "web/lib/workspace.ts",
+          "src/search/heap.ts",
+          "src/ingest/folders.ts"
+        ],
+        "mrr": 0.5,
+        "ndcg": 0.6653152460429406,
+        "recall": 1
+      },
+      {
+        "query": "search facets metadata filters",
+        "hits": [
+          "web/components/SearchView.tsx",
+          "src/engine.ts",
+          "README.md",
+          "ENGINEERING.md",
+          "src/ingest/github.ts",
+          "web/lib/workspace.ts",
+          "src/search/rank.ts",
+          "src/search/tokenizer.ts",
+          "src/ingest/folders.ts",
+          "src/search/heap.ts"
+        ],
+        "mrr": 1,
+        "ndcg": 0.7098097413968655,
+        "recall": 1
+      },
+      {
+        "query": "missing match explanation rank budget",
+        "hits": [
+          "src/search/rank.ts",
+          "ENGINEERING.md",
+          "README.md",
+          "src/engine.ts",
+          "web/components/SearchView.tsx",
+          "src/ingest/github.ts",
+          "src/ingest/folders.ts",
+          "web/lib/workspace.ts",
+          "src/api/routes.ts",
+          "src/search/tokenizer.ts"
+        ],
+        "mrr": 0.3333333333333333,
+        "ndcg": 0.5076850214429881,
+        "recall": 1
+      }
+    ]
+  }
+}

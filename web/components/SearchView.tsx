@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import MissingInspector from "@/components/MissingInspector";
+import SearchExamples from "@/components/SearchExamples";
 import { Icon, Segmented, Switch, Toast } from "@/components/ui";
 import {
   compareSearch,
@@ -202,8 +203,11 @@ export default function SearchView({ documents, sourcesHref }: { documents?: num
   }
   function change(key: keyof SearchOptions, value: unknown) {
     const next = { ...options, [key]: value, offset: key === "offset" ? (value as number) : 0 };
+    let nextExact = exact;
+    if (key === "strategy" && value !== "lexical") { next.mode = "any"; next.match = "text"; next.groupBy = "none"; nextExact = false; setExact(false); }
+    if (key === "match" && value !== "text" || key === "mode" && value === "all") next.strategy = "lexical";
     setOptions(next);
-    void run(q, next);
+    void run(q, next, nextExact);
   }
   function restore(item: SavedSearch) {
     const next = { ...initialOptions, ...(item.options as SearchOptions) };
@@ -257,7 +261,7 @@ export default function SearchView({ documents, sourcesHref }: { documents?: num
     setFullDoc(null);
     setPreviewError(null);
     try {
-      const record = await getDocument(hit.docId);
+      const record = await getDocument(hit.docId, hit.revision);
       if (request === previewGeneration.current) setFullDoc(record.doc);
     } catch (error) {
       if (request === previewGeneration.current) setPreviewError(error instanceof Error ? error.message : "Could not load document. Try opening it again.");
@@ -349,11 +353,13 @@ export default function SearchView({ documents, sourcesHref }: { documents?: num
         </form>
 
         <div id="search-options" popover="auto" className="menu options-panel" aria-label="Search options">
+          <Segmented label="Search strategy" value={options.strategy ?? "lexical"} options={[["lexical", "Keywords"], ["hybrid", "Hybrid"], ["dense", "Meaning"]]} onChange={(v) => change("strategy", v)} />
+          {options.strategy && options.strategy !== "lexical" && <p className="hint">Meaning search needs an indexed embedding model. If unavailable, results fall back to keyword search with a status message.</p>}
           <Segmented label="Match" value={options.match ?? "text"} options={[["text", "Words"], ["literal", "Literal"], ["substring", "Substring"]]} onChange={(v) => change("match", v)} />
           {options.match && options.match !== "text" && <p className="hint">{options.match === "literal" ? "Exact text, case sensitive." : "Partial text, any case."} Scope to 2,000 documents or fewer.</p>}
           <Segmented label="Require" value={options.mode ?? "all"} options={[["all", "All words"], ["any", "Any word"]]} onChange={(v) => change("mode", v)} />
           <div className="switch-list">
-            <Switch label="Exact phrase" checked={exact} onChange={(next) => { setExact(next); void run(q, options, next); }} />
+            {(!options.strategy || options.strategy === "lexical") && <Switch label="Exact phrase" checked={exact} onChange={(next) => { setExact(next); void run(q, options, next); }} />}
             <Switch label="Prefix matching" checked={!!options.prefix} onChange={(next) => change("prefix", next)} />
             <Switch label="Typo tolerance" checked={!!options.typos} onChange={(next) => change("typos", next)} />
             <Switch label="Synonyms" checked={!!options.synonyms} onChange={(next) => { setSynonymError(null); change("synonyms", next ? {} : undefined); }} />
@@ -366,6 +372,9 @@ export default function SearchView({ documents, sourcesHref }: { documents?: num
             </div>
           )}
           <Segmented label="Ranking" value={options.profile ?? "tuned"} options={[["tuned", "Fields & passages"], ["baseline", "BM25"]]} onChange={(v) => change("profile", v)} />
+          <p className="hint">Fields &amp; passages favors titles, paths, and focused sections. Try BM25 for prose where whole-document word frequency matters.</p>
+          <Switch label="Rerank results" hint="Requires a configured reranking model" checked={!!options.rerank} onChange={(next) => change("rerank", next)} />
+          <label className="label">Content language<select aria-label="Content language" value={options.contentLanguage ?? ""} onChange={(e) => change("contentLanguage", e.target.value || undefined)}><option value="">Default analysis</option>{[["en", "English"], ["hi", "Hindi"], ["zh", "Chinese"], ["ja", "Japanese"], ["ko", "Korean"], ["tr", "Turkish"], ["fr", "French"], ["de", "German"], ["es", "Spanish"], ["ar", "Arabic"]].map(([code, label]) => <option key={code} value={code}>{label}</option>)}</select></label>
           <Segmented label="Group" value={options.groupBy ?? "none"} options={[["none", "None"], ["repo", "Repository"], ["source", "Source"]]} onChange={(v) => change("groupBy", v)} />
           <div className="switch-list">
             <Switch label="Query inspector" hint="Stage timings and reads" checked={!!options.inspect} onChange={(next) => change("inspect", next)} />
@@ -391,15 +400,24 @@ export default function SearchView({ documents, sourcesHref }: { documents?: num
             ))}
           </div>
         )}
-        {idle && documents === 0 && <Link className="button primary" href={sourcesHref}><Icon name="plus" />Add a source</Link>}
+        {idle && documents === 0 && <div className="search-start">
+          <p className="hint">Add files, a repository, or a folder. Then search the text inside.</p>
+          <Link className="button primary" href={sourcesHref}><Icon name="plus" />Add your first source</Link>
+        </div>}
+        {idle && !!documents && options.docIds === undefined && <SearchExamples documents={documents} onSelect={(query) => {
+          const next = { ...initialOptions, mode: "any" as const };
+          setQ(query); setOptions(next); setExact(false);
+          void run(query, next, false);
+        }} />}
       </section>
 
       {err && <p className="alert" role="alert">{err}</p>}
+      {res?.retrievalState && !["complete", "no_matches"].includes(res.retrievalState) && <p className="alert" role="status">{res.warnings?.filter(warning => !warning.startsWith("Retrieved content")).join(" ") || "The index changed during retrieval. Search again."}</p>}
 
       {(res || busy) && (
         <div className="result-bar">
           <span className="result-count">
-            {res ? <><b>{res.total.toLocaleString()}</b> {res.total === 1 ? "match" : "matches"} <span className="mono">{res.tookMs.toFixed(1)} ms</span></> : "Searching…"}
+            {res ? <><b>{res.total.toLocaleString()}</b> {res.totalRelation === "candidate_pool" ? "retrieved results" : res.total === 1 ? "match" : "matches"} <span className="mono">{res.tookMs.toFixed(1)} ms</span></> : "Searching…"}
           </span>
           {options.docIds !== undefined && (
             <span className="chip active">

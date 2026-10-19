@@ -7,6 +7,8 @@ The project is designed to be understandable and defensible in an engineering in
 For the reasoning behind each decision, the alternatives rejected, and the
 known limits, read [ENGINEERING.md](ENGINEERING.md).
 
+See [agent/search setup](AGENT_SEARCH.md) for MCP, versioned evidence, optional hybrid retrieval and reranking, read scopes, and streaming backups. [Implementation status](IMPLEMENTATION.md) maps every research recommendation to shipped behavior or its remaining gate.
+
 ## What the system does
 
 - Stores arbitrary JSON documents durably on disk.
@@ -19,15 +21,21 @@ known limits, read [ENGINEERING.md](ENGINEERING.md).
 - Compares indexed search with an unindexed scan over the same data.
 - Provides a Next.js workspace for ingesting, browsing, searching, benchmarking, and inspecting documents.
 
-The scope is deliberately single-process and single-machine. There is no clustering, replication, user authentication, multi-tenancy, SQL layer, or external database. A local directory lock enforces one writer; manual compaction reclaims dead records.
+The scope is deliberately single-process and single-machine. There is no clustering, replication, account system, SQL layer, or external database. Optional administrator/read tokens enforce document scopes on agent retrieval. A local directory lock enforces one writer; manual compaction reclaims dead records.
 
 ## Search workspace
 
 The workspace opens on search. Queries support quoted phrases, `-excluded` words, all/any matching, and `source:`, `repo:`, `type:`, and `language:` filters. Use facets to narrow results, repository/source grouping to diversify them, and prefix or typo expansion when needed. Optional synonyms are scoped to the current query.
 
-Results include original-text passages with match offsets. The split preview loads the full document. Query URLs, saved searches, and named document collections preserve useful work; saved searches and collections live in this browser's local storage. They are not included in engine backup files.
+Results include original-text passages with match offsets. The split preview loads the full document. Query URLs, saved searches, and named document collections preserve useful work; saved searches and collections live in browser storage, with portable export/import and explicit server save/load. Server-owned workspace state is included in backups.
 
 The workspace separates Search, Sources, Library, and Engine. Search keeps advanced matching and engineering detail expandable. Sources manages uploads, GitHub/Wikipedia imports, and local folders. Library manages documents and saved work. Engine provides rebuilds, diagnostics, backup/restore, and measurements.
+
+An empty library links directly to adding a source. Sources shows the indexed document count and links back to search after import. Sources and idle Search suggest queries drawn from document titles, filenames, and text. Each example is checked against the index before it appears. Examples are optional and stay hidden if their requests fail.
+
+Fields and passages remains the default for this developer workspace. A frozen repository-task evaluation supports that choice; BM25 performs better on the external SciFact abstract benchmark. Choose either profile in Search options. Repository labels are provisional authored judgments, not user feedback. See [evaluation evidence](VERIFICATION.md).
+
+Benchmark has a direct navbar link. It compares engine execution time and document counts, shows indexed stage timings and storage/cache reads, and keeps the last five manual runs while the view is open. Timings are single local samples; the page explains cache/order effects and the limits of top-document agreement.
 
 The inspector shows expansion, candidate counts, posting reads, real storage reads, cache hits, timings, and score contributions. Compare BM25 and field/passage ranking on the same corpus. Use the missing-match explanation to inspect a chosen document. Exact rank inspection stops at the first 1,000 matches and reports an unknown rank beyond that budget.
 
@@ -37,7 +45,7 @@ Imports report added, updated, and duplicate records. Matching `sourceId` values
 
 Backups contain document ids and full JSON metadata. Restore validates the payload and all id conflicts before writing. Existing identical ids are skipped; conflicting ids are rejected. An I/O failure during restore can leave completed writes, so retry the same backup after fixing the disk error.
 
-See [FEATURES.md](FEATURES.md) for the implementation and verification checklist. OCR and AI chat are outside this version.
+See [FEATURES.md](FEATURES.md) for the implementation and verification checklist. Optional OCR and agent retrieval setup are documented in [AGENT_SEARCH.md](AGENT_SEARCH.md). Generated answers are outside this version.
 
 ## Local folders and rebuilds
 
@@ -112,6 +120,8 @@ the current one, so the existing files stay readable until `snapshot()` durably
 commits the new offsets. That snapshot is the commit point: a crash before it
 leaves the old state intact, and a crash after it leaves only the old files to
 unlink. Neither window loses data.
+
+API compaction yields after every 16 live records so searches can continue reading the original segments. Writes queue behind compaction in the production worker. Direct storage mutations during async compaction fail with a retryable error. `Engine.compact()` returns a promise and must be awaited. The synchronous `Storage.compact()` remains available. Snapshot serialization, fsync, and individual large records can still block the worker.
 
 ### Write-ahead log
 
@@ -195,13 +205,16 @@ The Fastify API is intentionally thin; validation and response shaping stay at t
 | `POST` | `/compact` | Rewrite segments, dropping tombstoned records |
 | `POST` | `/reset` | Clear the store and index |
 
+The expanded agent endpoints are `POST /retrieve`, `POST /search`, `POST /fetch`, `POST /search/batch`, and `GET /retrieval/status`. Semantic indexing uses `GET /retrieval/semantic` and `POST/DELETE /retrieval/semantic/index`. Server saved work uses `GET/PUT /workspace`; streaming backups use `GET/POST /backup/stream`. `GET /ready` and administrator-only `GET /operations` expose readiness and bounded HTTP metrics. See [contracts and configuration](AGENT_SEARCH.md).
+
 ## Ingestion decisions
 
 - Text-like extensions are decoded as UTF-8.
 - JSON objects remain structured and get a filename field for traceability.
 - JSON arrays become multiple documents.
-- NDJSON is parsed line by line, with malformed lines skipped.
-- PDFs use `unpdf` for text extraction.
+- NDJSON is parsed line by line. A malformed line rejects extraction; managed folders retain the last good indexed version.
+- PDFs use `unpdf` for text extraction. Optional blank-page OCR uses installed Poppler/Tesseract tools.
+- Office, MIME email, EPUB, HTML, CSV/TSV, and RTF have format-specific extraction with bounded inputs and parser diagnostics.
 - Binary-looking content is rejected before it can pollute the index.
 - GitHub ingestion accepts a username, `owner/repo`, or GitHub URL. Repository metadata and README content are always collected; deep mode fetches source files under bounded request and file budgets with concurrent blob fetching.
 - Wikipedia is prefetched into local NDJSON because repeatedly calling the live API is rate-limited. The UI can index or de-index the saved corpus without losing the source file.
@@ -236,8 +249,11 @@ Useful commands:
 npm run build
 npm test
 npm run evaluate            # synthetic authored relevance regression suite
+npm run evaluate:workspace  # frozen real repository content, authored task judgments
 npm run compare:fts -- 10000 # requires Python 3 with SQLite FTS5
 npm run bench:concurrent    # isolated worker HTTP/import benchmark
+npm run bench:maintenance   # HTTP searches during worker compaction
+npm run profile:engine      # sampled allocations and retained heap, 10k docs by default
 npm run evaluate:fetch      # cached public BEIR SciFact archive
 npm run evaluate:real       # all 300 externally judged queries
 npm run seed                 # 50,000 deterministic synthetic documents by default
@@ -255,6 +271,8 @@ npm run dev
 ```
 
 The frontend API base is configurable through `NEXT_PUBLIC_API_URL`; otherwise it targets the local API.
+
+GitHub Actions runs tests, the engine build, both frontend builds, and both authored relevance suites on pushes and pull requests. The separate **Manual benchmarks** workflow runs crash recovery, 100k-document comparison, concurrent imports, compaction, heap profiling, and SciFact evaluation. It uploads reports as workflow artifacts.
 
 ## Verification and observed results
 

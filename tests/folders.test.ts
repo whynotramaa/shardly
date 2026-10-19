@@ -212,3 +212,23 @@ it("bounds aggregate staged extraction before reading the next file and retains 
   expect(opens.mock.calls.filter(call => files.includes(String(call[0])))).toHaveLength(1);
   expect(await server.engine.exportBackup()).toEqual(before);
 });
+
+
+it("preflights every folder document policy before changing the last good index", async () => {
+  const folder = dir();
+  fs.writeFileSync(path.join(folder, "a.md"), "lastgoodpolicyneedle");
+  server = await buildServer(dir());
+  const source = await request("POST", "/sources/folders", { path: folder }); await synced(source.id);
+  await request("POST", `/sources/folders/${source.id}/pause`);
+  fs.writeFileSync(path.join(folder, "a.md"), "newpolicyneedle");
+  fs.writeFileSync(path.join(folder, "z.json"), JSON.stringify({ content: "invalid", _access: { principals: "alice" } }));
+  await request("POST", `/sources/folders/${source.id}/rescan`);
+  for (let i = 0; i < 200; i++) {
+    const current = await request("GET", `/sources/folders/${source.id}`);
+    if (current.status !== "syncing") { expect(current.error).toContain("invalid _access"); break; }
+    if (i === 199) throw new Error("policy preflight did not finish");
+    await new Promise(resolve => setTimeout(resolve, 10));
+  }
+  expect((await request("GET", "/search?q=lastgoodpolicyneedle")).total).toBe(1);
+  expect((await request("GET", "/search?q=newpolicyneedle")).total).toBe(0);
+});

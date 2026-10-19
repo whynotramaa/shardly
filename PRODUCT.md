@@ -16,7 +16,7 @@ Find useful passages in uploaded documents and repository files. Show how indexi
 
 ## Capabilities and Constraints
 
-TypeScript engine, Fastify API, Next.js workspace, and a separate engineering guide. Keep storage and lexical search hand-built. Run one writer per data directory. No OCR or AI chat in this scope. No commits or contributor attribution.
+TypeScript engine, Fastify API, Next.js workspace, and a separate engineering guide. Keep storage and lexical search hand-built. Run one writer per data directory. The expanded research implementation adds optional OCR and inference adapters; generated answers remain outside this scope. No commits or contributor attribution.
 
 ## Product Principles
 

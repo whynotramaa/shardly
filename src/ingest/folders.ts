@@ -5,13 +5,17 @@ import { randomUUID } from "node:crypto";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 import type { RuntimeEngine, Extraction } from "../runtime/engine.js";
-import { TEXT_EXTENSIONS, extensionOf, type ExtractResult } from "./extract.js";
+import { DOCUMENT_EXTENSIONS, extensionOf, excludedPath, type ExtractResult } from "./extract.js";
+import { validateDocumentPolicy } from "../search/filters.js";
 import { InputError } from "../api/validation.js";
 
 const exec = promisify(execFile);
 const MAX_STAGED_BYTES = 256 * 1024 * 1024;
 interface FileRecord { hash: string; ids: string[]; size?: number; mtimeMs?: number; ctimeMs?: number }
 export interface FolderSource {
+  includeSensitive?: boolean;
+  recordKey?: string;
+  lastAttemptedAt?: string;
   id: string; path: string; status: "idle" | "syncing" | "paused" | "error"; paused: boolean;
   createdAt: string; lastSyncedAt?: string; error?: string; ignoreMode: "git" | "safe-fallback";
   progress: { scanned: number; indexed: number; removed: number }; files: number;
@@ -38,6 +42,7 @@ export class FolderSources {
       if (!Array.isArray(saved) || saved.length > 20) throw new Error("Invalid folder sources");
       for (const source of saved as SavedSource[]) {
         if (!source || !/^[a-z0-9-]{36}$/.test(source.id) || !path.isAbsolute(source.path) || typeof source.paused !== "boolean" || !source.records || typeof source.records !== "object" || Array.isArray(source.records)) throw new Error("Invalid folder source");
+        if (source.includeSensitive !== undefined && typeof source.includeSensitive !== "boolean" || source.recordKey !== undefined && (typeof source.recordKey !== "string" || !source.recordKey || source.recordKey.length > 128)) throw new Error("Invalid folder policy");
         for (const [relative, record] of Object.entries(source.records)) {
           if (!safeRelative(relative) || !record || typeof record.hash !== "string" || !Array.isArray(record.ids) || record.ids.some(id => typeof id !== "string")) throw new Error("Invalid folder file record");
         }
@@ -60,7 +65,7 @@ export class FolderSources {
   busy(): boolean { return this.active.size > 0; }
   private public({ records, ...source }: SavedSource): FolderSource { void records; return { ...source, progress: { ...source.progress } }; }
 
-  async create(root: string): Promise<FolderSource> {
+  async create(root: string, options: { includeSensitive?: boolean; recordKey?: string } = {}): Promise<FolderSource> {
     this.writable();
     if (!path.isAbsolute(root)) throw new InputError("folder path must be absolute");
     let canonical: string;
@@ -68,7 +73,7 @@ export class FolderSources {
     catch { throw new InputError("folder path must be an existing readable directory"); }
     if (this.sources.size >= 20) throw new InputError("at most 20 folder sources are allowed");
     if ([...this.sources.values()].some(source => source.path === canonical)) throw new InputError("folder is already managed");
-    const source: SavedSource = { id: randomUUID(), path: canonical, createdAt: new Date().toISOString(), status: "idle", paused: false, ignoreMode: "safe-fallback", progress: { scanned: 0, indexed: 0, removed: 0 }, files: 0, records: Object.create(null) };
+    const source: SavedSource = { ...options, id: randomUUID(), path: canonical, createdAt: new Date().toISOString(), status: "idle", paused: false, ignoreMode: "safe-fallback", progress: { scanned: 0, indexed: 0, removed: 0 }, files: 0, records: Object.create(null) };
     this.sources.set(source.id, source);
     try { this.persist(); } catch (error) { this.sources.delete(source.id); throw error; }
     this.start(source);
@@ -147,6 +152,7 @@ export class FolderSources {
 
   private async sync(source: SavedSource, signal: AbortSignal, force: boolean): Promise<void> {
     source.status = "syncing";
+    source.lastAttemptedAt = new Date().toISOString();
     source.error = undefined;
     source.progress = { scanned: 0, indexed: 0, removed: 0 };
     if (await fsp.realpath(source.path) !== source.path || (await fsp.lstat(source.path)).isSymbolicLink()) throw new Error("Folder root changed; select it again");
@@ -169,9 +175,10 @@ export class FolderSources {
       for (const entry of entries) {
         if (entry.isSymbolicLink() || entry.name === ".git") continue;
         const full = path.join(dir, entry.name);
+        if (!source.includeSensitive && excludedPath(path.relative(source.path, full))) continue;
         if (!git && entry.name === ".gitignore") throw new Error("Git unavailable; folder with .gitignore cannot be synced safely. Install Git and rescan.");
         if (entry.isDirectory() && !ignoredDirectories.has(path.relative(source.path, full).split(path.sep).join("/") + "/")) await walk(full);
-        else if (entry.isFile() && (TEXT_EXTENSIONS.has(extensionOf(entry.name)) || extensionOf(entry.name) === "pdf")) candidates.push(path.relative(source.path, full).split(path.sep).join("/"));
+        else if (entry.isFile() && DOCUMENT_EXTENSIONS.has(extensionOf(entry.name))) candidates.push(path.relative(source.path, full).split(path.sep).join("/"));
         if (candidates.length > 10_000) throw new Error("Folder exceeds 10000 supported files; choose a smaller folder");
       }
     };
@@ -214,6 +221,9 @@ export class FolderSources {
         continue;
       }
       const extracted = await this.extraction.extract(relative, buffer, { strictStructured: true });
+      extracted.docs.forEach(validateDocumentPolicy);
+      const recordKeys = extracted.docs.map((doc, ordinal) => source.recordKey ? doc[source.recordKey] : ordinal);
+      if (recordKeys.some(key => typeof key === "string" ? !key.length : typeof key !== "number" || !Number.isFinite(key)) || new Set(recordKeys.map(String)).size !== recordKeys.length) throw new Error(`${relative}: missing or duplicate record keys`);
       signal.throwIfAborted();
       if (extracted.status === "skipped" && extracted.reason !== "empty file" && !extracted.reason?.startsWith("unsupported binary") && !extracted.reason?.startsWith("no extractable text")) throw new Error(`${relative}: ${extracted.reason}`);
       stagedBytes += Math.max(stat.size * 3, buffer.length + JSON.stringify(extracted.docs).length * 2);
@@ -224,8 +234,8 @@ export class FolderSources {
     for (const { relative, hash, stat, extracted } of pending) {
       signal.throwIfAborted();
       const old = source.records[relative];
-      // shortcut: JSON records use ordinal identities; use record keys if stable identity across array reordering is needed.
-      const result = await this.engine.ingestDocuments(extracted.docs.map((doc, ordinal) => ({ ...doc, source: "folder", folderId: source.id, path: relative, sourceId: `folder:${source.id}:${relative}:${ordinal}` })));
+      const keys = extracted.docs.map((doc, ordinal) => source.recordKey ? doc[source.recordKey] : ordinal);
+      const result = await this.engine.ingestDocuments(extracted.docs.map((doc, ordinal) => ({ ...doc, modifiedAt: new Date(stat.mtimeMs).toISOString(), source: "folder", folderId: source.id, path: relative, sourceId: `folder:${source.id}:${relative}:${keys[ordinal]}` })));
       source.records[relative] = { hash, ids: result.ids, size: stat.size, mtimeMs: stat.mtimeMs, ctimeMs: stat.ctimeMs };
       for (const id of old?.ids ?? []) if (!result.ids.includes(id) && await this.deleteOwned(source, id)) source.progress.removed++;
       source.progress.indexed += result.added + result.updated;

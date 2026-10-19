@@ -1,5 +1,5 @@
 import type { Document } from "../types.js";
-import { TEXT_EXTENSIONS, extensionOf } from "./extract.js";
+import { TEXT_EXTENSIONS, extensionOf, excludedPath } from "./extract.js";
 
 const API = "https://api.github.com";
 
@@ -236,7 +236,7 @@ async function fetchRepoFiles(
       (e) =>
         e.type === "blob" &&
         (e.size ?? 0) <= maxFileBytes &&
-        TEXT_EXTENSIONS.has(extensionOf(e.path)),
+        TEXT_EXTENSIONS.has(extensionOf(e.path)) && !excludedPath(e.path),
     )
     .slice(0, maxFiles);
 

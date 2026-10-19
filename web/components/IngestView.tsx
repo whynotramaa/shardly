@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react";
 import { uploadFiles, type UploadResult } from "@/lib/api";
-import { Icon, Progress } from "@/components/ui";
+import { Icon, Progress, Segmented } from "@/components/ui";
 
 export default function IngestView({ onIngested }: { onIngested: () => void }) {
   const [busy, setBusy] = useState<number>(0);
@@ -10,6 +10,9 @@ export default function IngestView({ onIngested }: { onIngested: () => void }) {
   const [result, setResult] = useState<UploadResult | null>(null);
   const [err, setErr] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const [mode, setMode] = useState<"add" | "replace">("add");
+  const [namespace, setNamespace] = useState("");
+  const [language, setLanguage] = useState("en");
 
   async function handleFiles(fileList: FileList | null) {
     if (!fileList || fileList.length === 0) return;
@@ -17,7 +20,7 @@ export default function IngestView({ onIngested }: { onIngested: () => void }) {
     setErr(null);
     setResult(null);
     try {
-      setResult(await uploadFiles(Array.from(fileList)));
+      setResult(await uploadFiles(Array.from(fileList), { mode, namespace: namespace.trim() || undefined, contentLanguage: language }));
       onIngested();
     } catch (e) {
       setErr(e instanceof Error ? e.message : "Upload failed");
@@ -32,6 +35,13 @@ export default function IngestView({ onIngested }: { onIngested: () => void }) {
 
   return (
     <section className="upload">
+      <details className="block">
+        <summary>Import options</summary>
+        <Segmented label="Same-name files" value={mode} options={[["add", "Keep separate versions"], ["replace", "Replace in import group"]]} onChange={setMode} />
+        <label className="label">Import group<input aria-label="Import group" value={namespace} maxLength={128} onChange={e => setNamespace(e.target.value)} placeholder="For example: research" /></label>
+        <label className="label">Text language<select aria-label="Import text language" value={language} onChange={e => setLanguage(e.target.value)}>{[["en", "English"], ["hi", "Hindi"], ["zh", "Chinese"], ["ja", "Japanese"], ["ko", "Korean"], ["tr", "Turkish"], ["fr", "French"], ["de", "German"], ["es", "Spanish"], ["ar", "Arabic"]].map(([code, title]) => <option key={code} value={code}>{title}</option>)}</select></label>
+        <p className="hint">Repeated identical uploads are skipped. Replace updates files with the same name and import group. Common secret filenames are excluded.</p>
+      </details>
       <div
         className={`dropzone${dragging ? " dragging" : ""}${busy ? " busy" : ""}`}
         role="button"
@@ -47,12 +57,13 @@ export default function IngestView({ onIngested }: { onIngested: () => void }) {
         <input ref={inputRef} type="file" multiple hidden onChange={(e) => handleFiles(e.target.files)} />
         <span className="dz-icon"><Icon name="upload" size={22} /></span>
         <span className="dz-title">{busy ? `Indexing ${busy} ${busy === 1 ? "file" : "files"}…` : dragging ? "Release to add" : <>Drop files or <u>browse</u></>}</span>
-        <span className="dz-sub">PDF, text, Markdown, code, JSON</span>
+        <span className="dz-sub">PDF, Word, slides, spreadsheets, text, code, JSON</span>
         {!!busy && <Progress label="Uploading" />}
       </div>
       {result && (
         <div className="upload-result" role="status">
           <p><Icon name="check" size={15} />{sum("added")} added, {sum("updated")} updated, {sum("duplicates")} unchanged</p>
+          <details><summary>Extraction details</summary><ul className="skipped">{result.results.map((file, i) => <li key={`${file.filename}:${i}`}><span className="mono">{file.filename}</span><span>{file.status === "indexed" ? `${file.documents} records · ${file.parser ?? "text"}` : file.reason}</span></li>)}</ul></details>
           {skipped.length > 0 && (
             <ul className="skipped">
               {skipped.map((r) => <li key={r.filename}><span className="mono">{r.filename}</span><span>{r.reason}</span></li>)}

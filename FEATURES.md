@@ -19,7 +19,7 @@ A checkbox means implemented and verified. This file records the agreed scope; i
 
 Evidence: [verification report](VERIFICATION.md).
 
-OCR, AI chat, distributed infrastructure, billing, and team accounts are outside this scope.
+Optional OCR is available through installed external tools. AI chat, distributed infrastructure, billing, and team accounts remain outside this scope. See [research implementation status](IMPLEMENTATION.md) for the expanded retrieval work.
 
 ## Next completion checklist
 

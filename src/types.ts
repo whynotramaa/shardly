@@ -67,6 +67,7 @@ export interface TermScore {
 }
 
 export interface SearchHit {
+  revision?: string;
   docId: string;
   score: number;
   doc: Document;
@@ -77,6 +78,10 @@ export interface SearchHit {
 }
 
 export interface SearchSnippet {
+  revision?: string;
+  reference?: string;
+  offsetUnit?: "utf16";
+  heading?: string;
   text: string;
   field: string;
   start: number;
@@ -87,6 +92,13 @@ export interface SearchSnippet {
 }
 
 export interface SearchOptions {
+  contentLanguage?: string;
+  filter?: import("./search/filters.js").Filter;
+  scope?: import("./search/filters.js").ReadScope;
+  deadlineMs?: number;
+  maxWork?: number;
+  projection?: "full" | "evidence";
+  facets?: boolean;
   limit?: number;
   offset?: number;
   mode?: "all" | "any";

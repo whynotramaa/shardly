@@ -1,7 +1,10 @@
 import { extractText, getDocumentProxy } from "unpdf";
 import type { Document } from "../types.js";
+import { visibleHtml, delimitedRows, officeDocuments, ocrPdf, emailDocument, richText, epubDocuments } from "./formats.js";
 
 export interface ExtractResult {
+  parser?: string;
+  warnings?: string[];
   filename: string;
   status: "indexed" | "skipped";
   /** Present when skipped — why we couldn't index it. */
@@ -13,12 +16,17 @@ export interface ExtractResult {
 /** Extensions we confidently treat as UTF-8 text (source code, docs, data). */
 export const TEXT_EXTENSIONS = new Set([
   "txt", "md", "markdown", "log", "csv", "tsv", "rtf",
-  "json", "ndjson", "jsonl", "yaml", "yml", "toml", "ini", "env", "xml", "html",
+  "json", "ndjson", "jsonl", "yaml", "yml", "toml", "ini", "env", "xml", "html", "htm",
   "css", "scss", "js", "jsx", "ts", "tsx", "mjs", "cjs",
   "py", "rb", "go", "rs", "java", "kt", "c", "h", "cpp", "hpp", "cc",
   "cs", "php", "swift", "scala", "sh", "bash", "zsh", "sql", "graphql",
   "vue", "svelte", "dockerfile", "makefile", "gitignore", "lock", "conf",
 ]);
+export const DOCUMENT_EXTENSIONS = new Set([...TEXT_EXTENSIONS, "pdf", "docx", "pptx", "xlsx", "eml", "epub"]);
+
+export function excludedPath(filename: string): boolean {
+  return filename.split(/[\\/]/).some(part => /^(node_modules|\.git|\.ssh|\.aws|\.cache|vendor)$/.test(part) || /^\.env(?:\.|$)/i.test(part) || /\.(pem|key|p12|pfx)$/i.test(part) || /^(id_rsa|id_ed25519|credentials)$/i.test(part));
+}
 
 export function extensionOf(filename: string): string {
   const base = filename.toLowerCase().split(/[\\/]/).pop() ?? "";
@@ -50,7 +58,13 @@ function withSource(value: unknown, filename: string): Document {
 async function extractPdf(filename: string, buffer: Buffer): Promise<ExtractResult> {
   const pdf = await getDocumentProxy(new Uint8Array(buffer));
   const { totalPages, text } = await extractText(pdf, { mergePages: false });
-  const pageTexts = Array.isArray(text) ? text : [text ?? ""];
+  if (totalPages > 1000) throw new Error("PDF exceeds 1000-page extraction budget");
+  let pageTexts = Array.isArray(text) ? text : [text ?? ""];
+  let ocr = false;
+  if (process.env.SHARDLY_OCR === "1" && pageTexts.some(page => !page.trim())) {
+    const recognized = await ocrPdf(buffer, totalPages);
+    pageTexts = pageTexts.map((page, i) => page.trim() ? page : recognized[i] ?? ""); ocr = true;
+  }
   let offset = 0;
   const pageOffsets = pageTexts.map((page, index) => {
     const start = offset;
@@ -69,7 +83,8 @@ async function extractPdf(filename: string, buffer: Buffer): Promise<ExtractResu
   return {
     filename,
     status: "indexed",
-    docs: [{ filename, type: "pdf", pages: totalPages, pageOffsets, content }],
+    parser: ocr ? "unpdf+tesseract" : "unpdf",
+    docs: [{ filename, type: "pdf", pages: totalPages, pageOffsets, content, ...(ocr ? { _extraction: { parser: "tesseract", version: 1, mapping: "ocr-page-text" } } : {}) }],
   };
 }
 
@@ -108,6 +123,14 @@ export async function extractDocuments(
   const ext = extensionOf(filename);
 
   try {
+    if (buffer.length > 64 * 1024 * 1024) throw new Error("file exceeds 64 MiB extraction budget");
+    if (ext === "eml") return { filename, status: "indexed", parser: "mailparser", warnings: ["Attachments require separate import."], docs: [await emailDocument(filename, buffer)] };
+    if (ext === "epub") return { filename, status: "indexed", parser: "epub-spine", docs: epubDocuments(filename, buffer) };
+    if (["docx", "pptx", "xlsx"].includes(ext)) {
+      const docs = officeDocuments(filename, buffer, ext);
+      if (!docs.length) throw new Error("document contains no extractable records");
+      return { filename, status: "indexed", parser: "office-xml-1", docs };
+    }
     if (ext === "pdf") return await extractPdf(filename, buffer);
 
     // For everything else we need UTF-8 text. Reject true binaries up front.
@@ -122,10 +145,16 @@ export async function extractDocuments(
     }
 
     const text = new TextDecoder("utf-8", { fatal: true }).decode(buffer);
+    if (ext === "rtf") return { filename, status: "indexed", parser: "rtf-parser", warnings: ["Complex RTF tables are not reconstructed."], docs: [{ filename, type: "rtf", content: await richText(text), _extraction: { parser: "rtf-parser", version: 1, mapping: "extracted-text" } }] };
 
     if (text.trim().length === 0) {
       if (ext === "json" && options.strictStructured) throw new Error("invalid JSON: empty file");
       return { filename, status: "skipped", reason: "empty file", docs: [] };
+    }
+    if (["html", "htm"].includes(ext)) return { filename, status: "indexed", parser: "htmlparser2", docs: [{ filename, type: "html", content: visibleHtml(text), _extraction: { parser: "htmlparser2", version: 1, mapping: "visible-text" } }] };
+    if (["csv", "tsv"].includes(ext)) {
+      const rows = delimitedRows(text, ext === "tsv" ? "\t" : ","), headers = rows.shift() ?? [];
+      return { filename, status: "indexed", parser: "delimited-1", docs: rows.map((cells, i) => ({ filename, type: ext, row: i + 2, content: cells.map((cell, j) => `${headers[j] ?? `Column ${j + 1}`}: ${cell}`).join("\n"), _extraction: { parser: "delimited", version: 1, mapping: "logical-record", headers } })) };
     }
 
     if (ext === "json") {

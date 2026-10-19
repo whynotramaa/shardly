@@ -56,3 +56,28 @@ it("keeps queued writes after the entire bulk and exposes worker maintenance pro
   const explanation = await server.app.inject({ method: "POST", url: "/search/explain-missing", payload: { query: "afterbatchneedle", id: await after } });
   expect(explanation.statusCode).toBe(200); expect(explanation.json().matched).toBe(true);
 }, 20000);
+
+it("serves searches during compaction and serializes queued writes until it commits", async () => {
+  const server = await buildServer(dir(), { worker: true }); servers.push(server);
+  const ids = await server.engine.addDocuments(Array.from({ length: 1000 }, (_, i) => ({ content: `maintenancequartz ${i}` })));
+  await server.engine.deleteDocument(ids[0]!);
+  let finished = false;
+  const compact = server.engine.compact().then(result => { finished = true; return result; });
+  const write = server.engine.addDocument({ content: "aftermaintenance" }).then(id => { expect(finished).toBe(true); return id; });
+  const during = await server.engine.search("maintenancequartz");
+  expect(during.total).toBe(999);
+  expect(finished).toBe(false);
+  expect((await compact).removedDocuments).toBe(1);
+  expect((await server.engine.search("aftermaintenance")).hits[0]?.docId).toBe(await write);
+  expect(await server.engine.getDocument(ids[0]!)).toBeNull();
+}, 20000);
+
+
+it("validates document policies before yielding any worker import batch", async () => {
+  const server = await buildServer(dir(), { worker: true }); servers.push(server);
+  const docs = [...Array.from({ length: 20 }, () => ({ content: "valid record" })), { content: "invalid", _access: { principals: "alice" } }];
+  for (const method of ["addDocuments", "ingestDocuments"] as const) {
+    await expect(server.engine[method](docs)).rejects.toThrow("invalid _access");
+    expect(await server.engine.documentCount()).toBe(0);
+  }
+});

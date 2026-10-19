@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { createHash, randomUUID } from "node:crypto";
+import { setImmediate as yieldTurn } from "node:timers/promises";
 import { dataPaths, SEGMENT_MAX_BYTES, type DataPaths } from "../config.js";
 import type { Document, OffsetEntry, OffsetIndex, StoredDocument, WalRecord } from "../types.js";
 import { WriteAheadLog } from "./wal.js";
@@ -31,6 +32,7 @@ export class Storage {
   private version = 0;
   private closed = false;
   private writeBroken = false;
+  private compacting = false;
   private readonly plannedDocs = new Map<string, Document>();
 
   constructor(dataDir?: string) {
@@ -139,6 +141,7 @@ export class Storage {
 
   close(): void {
     if (this.closed) return;
+    if (this.compacting) throw Object.assign(new Error("compaction is running; retry after it completes"), { statusCode: 503 });
     this.closed = true;
     if (this.writeFd >= 0) fs.closeSync(this.writeFd);
     for (const fd of this.readFds.values()) fs.closeSync(fd);
@@ -176,6 +179,25 @@ export class Storage {
   }
 
   compact(): { reclaimedBytes: number; removedDocuments: number } {
+    const steps = this.compactSteps();
+    let step = steps.next();
+    while (!step.done) step = steps.next();
+    return step.value;
+  }
+
+  async compactAsync(): Promise<{ reclaimedBytes: number; removedDocuments: number }> {
+    let processed = 0;
+    const steps = this.compactSteps();
+    let step = steps.next();
+    while (!step.done) {
+      if (++processed % 16 === 0) await yieldTurn();
+      step = steps.next();
+    }
+    return step.value;
+  }
+
+  private *compactSteps(): Generator<void, { reclaimedBytes: number; removedDocuments: number }> {
+    this.assertWritable();
     const removedDocuments = [...this.offsetIndex.values()].filter((e) => e.deleted).length;
     if (removedDocuments === 0) return { reclaimedBytes: 0, removedDocuments: 0 };
     const bytesBefore = this.segmentBytes();
@@ -190,6 +212,7 @@ export class Storage {
     let fd = -1;
     let size = 0;
     const next: OffsetIndex = new Map();
+    this.compacting = true;
     try {
       // This checkpoint is the rollback point if the new snapshot never renames.
       this.snapshot();
@@ -204,6 +227,7 @@ export class Storage {
         writeAll(fd, buf);
         next.set(docId, { segment: segmentName(index), byteOffset: size, length: buf.length - 1, deleted: false, checksum: hash(buf.subarray(0, -1)) });
         size += buf.length;
+        yield;
       }
       fs.fsyncSync(fd); fs.closeSync(fd); fd = -1;
       fsyncDir(this.paths.segmentsDir);
@@ -234,7 +258,7 @@ export class Storage {
         this.openCurrentSegment(false);
       }
       throw error;
-    }
+    } finally { this.compacting = false; }
   }
 
   private planRecords(inputs: Array<{ id: string; doc: Document }>): Array<Omit<WalRecord, "status" | "op">> {
@@ -284,6 +308,7 @@ export class Storage {
   }
 
   private assertWritable(): void {
+    if (this.compacting) throw Object.assign(new Error("compaction is running; retry after it completes"), { statusCode: 503 });
     if (this.closed) throw new Error("storage is closed");
     if (this.writeBroken) throw new Error("storage writer is broken; reopen the store");
   }

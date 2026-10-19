@@ -47,6 +47,12 @@ export function validSearchOptions(value: unknown): value is SearchOptions {
   return Object.entries(value).every(([key, v]) => {
     if (v === undefined) return true;
     switch (key) {
+      case "strategy":
+        return ["lexical", "dense", "hybrid"].includes(String(v));
+      case "rerank":
+        return typeof v === "boolean";
+      case "contentLanguage":
+        return ["en", "hi", "zh", "ja", "ko", "tr", "fr", "de", "es", "ar"].includes(String(v));
       case "match":
         return v === "text" || v === "literal" || v === "substring";
       case "mode":
@@ -131,6 +137,22 @@ export function loadRecentSearches(): SavedSearch[] {
 export function loadCollections(): Collection[] {
   return read("shardly-collections", [], validCollections);
 }
+export function portableWorkspace() { return { version: 1 as const, collections: loadCollections(), searches: loadSavedSearches() }; }
+export function importWorkspace(value: unknown) {
+  if (!object(value) || value.version !== 1 || !validCollections(value.collections) || !validSavedSearches(value.searches) || JSON.stringify(value).length > 2 * 1024 * 1024) throw new Error("This file does not contain valid saved searches and collections.");
+  const oldCollections = localStorage.getItem("shardly-collections"), oldSearches = localStorage.getItem("shardly-saved-searches");
+  try {
+    localStorage.setItem("shardly-collections", JSON.stringify(value.collections));
+    localStorage.setItem("shardly-saved-searches", JSON.stringify(value.searches));
+  } catch {
+    try {
+      if (oldCollections === null) localStorage.removeItem("shardly-collections"); else localStorage.setItem("shardly-collections", oldCollections);
+      if (oldSearches === null) localStorage.removeItem("shardly-saved-searches"); else localStorage.setItem("shardly-saved-searches", oldSearches);
+    } catch { throw new Error("Browser storage failed during import and rollback. Your export file remains intact; check the Library before trying again."); }
+    throw new Error("Could not import saved work. Browser storage may be full or disabled.");
+  }
+  return { collections: value.collections, searches: value.searches };
+}
 export function saveWorkspace(
   key: "shardly-saved-searches" | "shardly-recent-searches" | "shardly-collections",
   value: unknown,
@@ -184,12 +206,14 @@ export function readSearchOptions(params: URLSearchParams): SearchOptions {
     } else if (key === "docIds") options[key] = value ? value.split(",") : [];
     else if (key === "limit" || key === "offset")
       options[key] = /^\d+$/.test(value) ? Number(value) : NaN;
-    else if (["prefix", "typos", "inspect"].includes(key))
+    else if (["prefix", "typos", "inspect", "rerank"].includes(key))
       options[key] =
         value === "true" ? true : value === "false" ? false : value;
     else if (
       [
         "mode",
+        "strategy",
+        "contentLanguage",
         "match",
         "groupBy",
         "profile",
@@ -271,6 +295,7 @@ export function documentMatchHref(
 ): string {
   const params = new URLSearchParams({ q: query });
   if (passage) {
+    if (passage.revision) params.set("revision", passage.revision);
     params.set("field", passage.field);
     params.set("at", String(passage.matches[0]?.start ?? passage.start));
     params.set("end", String(passage.matches[0]?.end ?? passage.end));

@@ -48,6 +48,7 @@ export class InvertedIndexStore {
     this.removeFields(id);
     const fields = values.map(
       ({ field, text, tokens = tokenizeDetailed(text, field) }) => {
+        const tf = this.packedFrequencies(tokens);
         const length = tokens.length
           ? tokens[tokens.length - 1]!.position + 1
           : 0;
@@ -69,7 +70,7 @@ export class InvertedIndexStore {
               start: local[0]!.start,
               end: local[local.length - 1]!.end,
               length: Math.min(main ? 120 : length, length - start),
-              tf: this.packedFrequencies(local),
+              tf: local.length === tokens.length ? tf : this.packedFrequencies(local),
             });
           if (!main || start + 120 >= length) break;
         }
@@ -82,7 +83,7 @@ export class InvertedIndexStore {
         const packed = new Uint32Array(tokens.length * 4);
         tokens.forEach((t, i) => packed.set([this.intern(t.term), t.position, t.start, t.end], i * 4));
         const words = this.interned;
-        return { field, length, tf: this.packedFrequencies(tokens), windows,
+        return { field, length, tf, windows,
           packedBytes: packed.byteLength,
           get tokens(): Array<Omit<TokenInfo, "original">> {
             return Array.from({ length: packed.length / 4 }, (_, i) => ({ term: words[packed[i * 4]!]!, position: packed[i * 4 + 1]!, start: packed[i * 4 + 2]!, end: packed[i * 4 + 3]!, field }));
@@ -130,7 +131,7 @@ export class InvertedIndexStore {
     }
   }
   typos(term: string, limit = 20): string[] {
-    if (term.length < 3 || term.length > 64) return [];
+    if (term.length < 4 || term.length > 64 || !/^[\p{L}\p{M}]+$/u.test(term)) return [];
     // shortcut: typos use terms up to 64 UTF-16 units and 2048 checks, raise only with measured recall needs.
     const out = new Set<string>();
     let work = 0;
@@ -241,7 +242,7 @@ export class InvertedIndexStore {
     let packedBytes = 0, postingCount = 0;
     for (const list of this.index.values()) { packedBytes += list.data.byteLength; postingCount += list.size; }
     let tokenBytes = 0, frequencyBytes = 0;
-    for (const fields of this.fields.values()) for (const f of fields) { tokenBytes += f.packedBytes ?? 0; frequencyBytes += f.tf.byteLength; for (const w of f.windows) frequencyBytes += w.tf.byteLength; }
+    for (const fields of this.fields.values()) for (const f of fields) { tokenBytes += f.packedBytes ?? 0; frequencyBytes += f.tf.byteLength; for (const w of f.windows) if (w.tf !== f.tf) frequencyBytes += w.tf.byteLength; }
     return { packedBytes, tokenBytes, frequencyBytes, postingCount, objectEstimateBytes: postingCount * 48 };
   }
 
@@ -277,6 +278,7 @@ export class InvertedIndexStore {
   snapshot(filePath: string, version: number): void {
     const payload = {
       formatVersion: 4,
+      analyzerVersion: 1,
       ids: this.ids,
       version,
       index: Object.fromEntries([...this.index].map(([term, list]) => [term, Array.from(list.data.subarray(0, list.size * 2))])),
@@ -299,7 +301,7 @@ export class InvertedIndexStore {
   }
 
   /** Load a snapshot. Returns the storage version it was built at, or null if none. */
-  load(filePath: string): number | null {
+  load(filePath: string, requireCurrentAnalyzer = false): number | null {
     if (!fs.existsSync(filePath)) return null;
     const raw = fs.readFileSync(filePath, "utf8");
     if (raw.trim().length === 0) return null;
@@ -307,6 +309,7 @@ export class InvertedIndexStore {
     const payload = JSON.parse(raw) as {
       checksum?: string;
       formatVersion?: number;
+      analyzerVersion?: number;
       version?: number;
       ids?: string[];
       index: Record<string, PostingList | number[]>;
@@ -315,6 +318,7 @@ export class InvertedIndexStore {
       totalTokens: number;
     };
     if (payload.formatVersion !== 3 && payload.formatVersion !== 4) return null;
+    if (requireCurrentAnalyzer && payload.analyzerVersion !== 1) return null;
     const { checksum, ...body } = payload;
     if (checksum !== createHash("sha256").update(JSON.stringify(body)).digest("hex"))
       throw new Error("index cache checksum mismatch");
@@ -417,6 +421,7 @@ function oneEdit(a: string, b: string): boolean {
       continue;
     }
     if (++edits > 1) return false;
+    if (a.length === b.length && a[i] === b[j + 1] && a[i + 1] === b[j]) return a.slice(i + 2) === b.slice(j + 2);
     if (a.length >= b.length) i++;
     if (b.length >= a.length) j++;
   }

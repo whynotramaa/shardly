@@ -1,3 +1,4 @@
+import { validateDocumentPolicy } from "../search/filters.js";
 import type { Document } from "../types.js";
 
 export class InputError extends Error {
@@ -18,6 +19,7 @@ export function documents(value: unknown): Document[] {
   for (const doc of value) {
     object(doc, "document");
     validateJson(doc, 0);
+    validateDocumentPolicy(doc as Document);
   }
   return value as Document[];
 }

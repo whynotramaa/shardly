@@ -24,6 +24,7 @@ function DocumentInner() {
   const search = useSearchParams();
   const terms = queryTerms(search.get("q"));
   const field = search.get("field") ?? undefined;
+  const revision = search.get("revision") ?? undefined;
   const rawAt = search.get("at");
   const at = rawAt !== null && /^\d+$/.test(rawAt) ? Number(rawAt) : undefined;
   const rawEnd = search.get("end");
@@ -39,7 +40,7 @@ function DocumentInner() {
     setBusy(true);
     setErr(null);
     setRec(null);
-    getDocument(id)
+    getDocument(id, revision)
       .then((record) => {
         if (!cancelled) setRec(record);
       })
@@ -52,7 +53,7 @@ function DocumentInner() {
     return () => {
       cancelled = true;
     };
-  }, [id]);
+  }, [id, revision]);
   useEffect(() => {
     if (!rec || at === undefined) return;
     const timer = window.setTimeout(

@@ -11,6 +11,8 @@ import { Storage } from "./storage/storage.js";
 import { TopHeap } from "./search/heap.js";
 import { InvertedIndexStore, type IndexedField } from "./search/index.js";
 import { idf } from "./search/rank.js";
+import { validateDocumentPolicy, authorized, matchesFilter, validateFilter, FILTER_FIELDS, type ReadScope } from "./search/filters.js";
+import { blocks, passage, decodeReference, type EvidenceReference } from "./search/evidence.js";
 import {
   tokenize,
   tokenizeDocument,
@@ -18,6 +20,8 @@ import {
   documentFields,
   surfaceTokens,
   type TokenInfo,
+  CONTENT_LANGUAGES,
+  documentLanguage,
 } from "./search/tokenizer.js";
 import type {
   Document,
@@ -48,6 +52,13 @@ export interface BenchmarkResponse {
   naive: { tookMs: number; scanned: number; hits: number };
   speedup: number;
   topHitsMatch: boolean;
+  details?: {
+    postingReads: number;
+    candidateCount: number;
+    documentReads: number;
+    cacheHits: number;
+    stageMs: Record<string, number>;
+  };
 }
 export class SearchInputError extends Error {
   readonly statusCode = 400;
@@ -95,6 +106,7 @@ export class Engine {
     }
   }
   addDocument(doc: Document): string {
+    validateDocumentPolicy(doc);
     doc = structuredClone(doc);
     const id = this.storage.write(doc);
     this.indexDoc(id, doc);
@@ -102,6 +114,7 @@ export class Engine {
     return id;
   }
   addDocuments(docs: Document[]): string[] {
+    docs.forEach(validateDocumentPolicy);
     docs = structuredClone(docs);
     const ids = this.storage.writeBatch(docs);
     ids.forEach((id, i) => this.indexDoc(id, docs[i]!));
@@ -111,6 +124,55 @@ export class Engine {
   }
   getDocument(id: string): Document | null {
     return this.storage.read(id);
+  }
+  getDocumentRecord(id: string, expectedRevision?: string) {
+    const revision = this.docHashes.get(id);
+    if (!revision) return null;
+    if (expectedRevision !== undefined && revision !== expectedRevision) throw Object.assign(new Error("This document changed after the search. Search again to open its current evidence."), { statusCode: 409 });
+    return { id, revision, doc: this.storage.read(id)! };
+  }
+  retrievalStatus(scope?: ReadScope) {
+    return { indexGeneration: this.storage.stateVersion(), documents: [...this.docs.values()].filter(doc => authorized(doc, scope)).length, rebuild: scope ? { state: this.progress.state } : this.rebuildStatus(), strategies: ["lexical", "literal", "substring"], offsetUnit: "utf16", analysisVersion: "blocks-1" };
+  }
+  retrievalManifest(options: SearchOptions = {}, offset = 0, limit = 100) {
+    const ids = [...this.docs].filter(([id, doc]) => this.inScope(id, doc, options)).map(([id]) => id);
+    return { indexGeneration: this.storage.stateVersion(), total: ids.length, items: ids.slice(offset, offset + Math.min(limit, 1000)).map(id => ({ id, revision: this.docHashes.get(id)!, doc: this.readDoc(id)! })) };
+  }
+  retrievalVersions(options: SearchOptions = {}) {
+    return { indexGeneration: this.storage.stateVersion(), items: [...this.docs].filter(([id, doc]) => this.inScope(id, doc, options)).map(([id]) => ({ id, revision: this.docHashes.get(id)! })) };
+  }
+  backupPage(offset: number) {
+    const items: Array<{ id: string; doc: Document }> = [];
+    let position = 0, bytes = 0;
+    for (const id of this.docs.keys()) {
+      if (position++ < offset) continue;
+      const doc = this.readDoc(id)!;
+      const size = Buffer.byteLength(JSON.stringify({ id, doc }));
+      if (size > 16 * 1024 * 1024 - 64) throw new SearchInputError("document exceeds streaming backup record budget");
+      if (items.length && bytes + size > 1024 * 1024) break;
+      items.push({ id, doc }); bytes += size;
+      if (items.length >= 100 || bytes >= 1024 * 1024) break;
+    }
+    return { indexGeneration: this.storage.stateVersion(), items };
+  }
+  fetchEvidence(input: { reference?: string; documentId?: string; revision?: string; field?: string; start?: number; end?: number }, scope?: ReadScope) {
+    const r = input.reference ? decodeReference(input.reference) : input as EvidenceReference;
+    if (typeof r.documentId !== "string" || r.documentId.length > 128) throw new SearchInputError("invalid document id");
+    const metadata = this.docs.get(r.documentId);
+    if (!metadata || !authorized(metadata, scope)) return { state: "not_found" as const, documentId: r.documentId };
+    const revision = this.docHashes.get(r.documentId)!;
+    if (r.revision !== undefined && r.revision !== revision) return { state: "stale_reference" as const, documentId: r.documentId };
+    const doc = this.readDoc(r.documentId)!;
+    const fields = documentFields(doc);
+    const field = r.field ?? fields.find(f => ["content", "body", "text"].includes(f.field))?.field ?? fields[0]?.field;
+    const text = fields.find(f => f.field === field)?.text;
+    if (text === undefined) throw new SearchInputError("field is not searchable");
+    const start = r.start ?? 0, end = r.end ?? Math.min(text.length, start + 4000);
+    if (!Number.isSafeInteger(start) || !Number.isSafeInteger(end) || start < 0 || end < start || end > text.length || end - start > 65536) throw new SearchInputError("invalid evidence span");
+    return { state: "complete" as const, documentId: r.documentId, revision, metadata: Object.fromEntries(["title", "filename", "path", "source", "repo", "type", "language", "modifiedAt"].filter(key => doc[key] !== undefined).map(key => [key, String(doc[key]).slice(0, 2048)])), passage: passage(r.documentId, revision, doc, { field: field!, start, end, text: "", matches: [] }), truncated: end < text.length };
+  }
+  private inScope(id: string, doc: Document, options: SearchOptions): boolean {
+    return (!options.docIds || options.docIds.includes(id)) && META.every(k => options[k] === undefined || String(doc[k]) === options[k]) && (!options.contentLanguage || documentLanguage(doc) === options.contentLanguage) && authorized(doc, options.scope) && matchesFilter(doc, options.filter);
   }
   deleteDocument(id: string): boolean {
     const ok = this.storage.delete(id);
@@ -187,6 +249,14 @@ export class Engine {
       typeof limitOrOptions === "number"
         ? { ...maybeOptions, limit: limitOrOptions }
         : limitOrOptions;
+    try { validateFilter(options.filter); } catch (error) { throw new SearchInputError((error as Error).message); }
+    if (options.contentLanguage && !CONTENT_LANGUAGES.includes(options.contentLanguage as typeof CONTENT_LANGUAGES[number])) throw new SearchInputError("unsupported content language");
+    const analyzeQuery = (value: string) => tokenizeDetailed(value, "text", options.contentLanguage).map(t => t.term);
+    const deadline = began + (options.deadlineMs ?? 30_000);
+    let work = 0;
+    const checkWork = () => {
+      if (++work > (options.maxWork ?? 5_000_000) || performance.now() > deadline) throw Object.assign(new Error("search work budget exceeded; narrow the query or scope"), { statusCode: 422, code: "scope_limit" });
+    };
     if (options.match !== undefined && !["text", "literal", "substring"].includes(options.match)) throw new SearchInputError("invalid match mode");
     const limit = Math.max(0, Math.min(1000, Math.floor(options.limit ?? 10)));
     const offset = Math.max(0, Math.floor(options.offset ?? 0));
@@ -207,14 +277,14 @@ export class Engine {
     };
     const parsed = parseQuery(query);
     const terms = unique(
-      parsed.terms.flatMap(tokenize).concat(parsed.phrases.flatMap(tokenize)),
+      parsed.terms.flatMap(analyzeQuery).concat(parsed.phrases.flatMap(analyzeQuery)),
     );
     if (
       !terms.length &&
       !parsed.phrases.some((p) => surfaceTokens(p).length) &&
       !parsed.fields.length &&
       !META.some((k) => options[k] !== undefined) &&
-      !options.docIds
+      !options.docIds && !options.filter && !options.scope
     )
       throw new SearchInputError(
         "query must contain a searchable term, phrase, filter, or document id",
@@ -224,7 +294,7 @@ export class Engine {
     for (const term of terms) {
       const values = new Set([term]);
       for (const synonym of (options.synonyms?.[term] ?? []).slice(0, 20))
-        for (const value of tokenize(synonym.slice(0, 256)))
+        for (const value of analyzeQuery(synonym.slice(0, 256)))
           if (values.size < 20) values.add(value);
       if (options.prefix)
         for (const value of this.index.prefix(term))
@@ -245,6 +315,7 @@ export class Engine {
     ])
       scopes.push(this.metadata.get(key)?.get(value) ?? new Set());
     if (options.docIds) scopes.push(new Set(options.docIds));
+    if (options.filter || options.scope || options.contentLanguage) scopes.push(new Set([...this.docs].filter(([, doc]) => authorized(doc, options.scope) && matchesFilter(doc, options.filter) && (!options.contentLanguage || documentLanguage(doc) === options.contentLanguage)).map(([id]) => id)));
     scopes.sort((a, b) => a.size - b.size);
     let scope: Set<string> | undefined;
     if (scopes.length)
@@ -256,6 +327,7 @@ export class Engine {
     let postingReads = 0;
     for (const value of new Set(Object.values(expansions).flat())) {
       for (const posting of this.index.postingEntries(value)) {
+        checkWork();
         postingReads++;
         if (scope && !scope.has(posting.docId)) continue;
         const tf = tfById.get(posting.docId) ?? new Map<string, number>();
@@ -306,74 +378,41 @@ export class Engine {
         idf(this.docs.size, this.index.documentFrequency(t)),
       ]),
     );
-    for (const [id, tf] of candidates) {
-      const breakdown: TermScore[] = [];
+    const scoreCandidate = (id: string, tf: Map<string, number>, explain = false): Scored => {
+      const contributions = new Map<string, number>();
+      const frequencies = explain ? new Map<string, number>() : undefined;
+      const add = (term: string, frequency: number, contribution: number) => {
+        contributions.set(term, (contributions.get(term) ?? 0) + contribution);
+        if (frequencies) frequencies.set(term, (frequencies.get(term) ?? 0) + frequency);
+      };
       if (options.profile === "baseline") {
         for (const [term, frequency] of tf)
-          breakdown.push({
-            term,
-            termFrequency: frequency,
-            idf: idfs.get(term)!,
-            contribution:
-              bm25(
-                frequency,
-                this.index.documentLength(id),
-                this.index.averageDocumentLength(),
-              ) * idfs.get(term)!,
-          });
+          add(term, frequency, bm25(frequency, this.index.documentLength(id), this.index.averageDocumentLength()) * idfs.get(term)!);
       } else {
-        const contributions = new Map<string, TermScore>();
         for (const field of this.index.indexedFields(id)) {
-          let best: TermScore[] = [],
-            bestScore = -1;
+          let best: typeof field.windows[number] | undefined, bestScore = -1;
+          const contribution = (term: string, frequency: number, length: number) => weights.get(term)! * fieldWeight(field.field) * idfs.get(term)! * bm25(frequency, length, this.index.averageFieldLength(field.field));
           for (const window of field.windows) {
-            const scores: TermScore[] = [];
-            for (const [term, weight] of weights) {
+            checkWork();
+            let score = 0;
+            for (const term of weights.keys()) {
               const frequency = window.tf.get(term);
-              if (frequency)
-                scores.push({
-                  term,
-                  termFrequency: frequency,
-                  idf: idfs.get(term)!,
-                  contribution:
-                    weight *
-                    fieldWeight(field.field) *
-                    idfs.get(term)! *
-                    bm25(
-                      frequency,
-                      window.length,
-                      this.index.averageFieldLength(field.field),
-                    ),
-                });
+              if (frequency) score += contribution(term, frequency, window.length);
             }
-            const score = scores.reduce((sum, s) => sum + s.contribution, 0);
-            if (score > bestScore) {
-              bestScore = score;
-              best = scores;
-            }
+            if (score > bestScore) { bestScore = score; best = window; }
           }
-          for (const entry of best) {
-            const previous = contributions.get(entry.term);
-            contributions.set(
-              entry.term,
-              previous
-                ? {
-                    ...entry,
-                    termFrequency: previous.termFrequency + entry.termFrequency,
-                    contribution: previous.contribution + entry.contribution,
-                  }
-                : entry,
-            );
+          if (best) for (const term of weights.keys()) {
+            const frequency = best.tf.get(term);
+            if (frequency) add(term, frequency, contribution(term, frequency, best.length));
           }
         }
-        breakdown.push(...contributions.values());
       }
-      breakdown.sort((a, b) => b.contribution - a.contribution);
-      const row = {
-        id,
-        score: breakdown.reduce((sum, t) => sum + t.contribution, 0),
-        breakdown,
-      };
+      const ordered = [...contributions].sort((a, b) => b[1] - a[1]);
+      return { id, score: ordered.reduce((sum, [, value]) => sum + value, 0), breakdown: frequencies ? ordered.map(([term, contribution]) => ({ term, termFrequency: frequencies.get(term)!, idf: idfs.get(term)!, contribution })) : [] };
+    };
+    for (const [id, tf] of candidates) {
+      checkWork();
+      const row = scoreCandidate(id, tf);
       const key =
         groupBy === "none" ? "" : String(this.docs.get(id)?.[groupBy] ?? "");
       let heap = heaps.get(key);
@@ -410,10 +449,11 @@ export class Engine {
       }
     }
     const paged = selected.slice(offset, offset + limit);
-    const resultFacets = facets(allIds, this.docs),
+    const resultFacets = options.facets === false ? { source: [], repo: [], type: [], language: [] } : facets(allIds, this.docs),
       groups = groupCounts(allIds, this.docs, groupBy);
     finish("score");
     const hits = paged.map((row) => {
+      if (options.projection !== "evidence" || options.inspect) row.breakdown = scoreCandidate(row.id, candidates.get(row.id)!, true).breakdown;
       const doc = structuredClone(this.readDoc(row.id)!);
       let passages = makePassages(
         doc,
@@ -428,11 +468,17 @@ export class Engine {
           this.surfaceInfo(row.id),
           parsed.phrases,
         );
+      if (options.projection === "evidence") {
+        if (!passages.length) passages = blocks(doc).slice(0, 3).map(b => ({ ...b, text: "", matches: [] }));
+        passages = passages.map(p => passage(row.id, this.docHashes.get(row.id)!, doc, p));
+      }
+      passages = passages.map(p => ({ ...p, revision: this.docHashes.get(row.id) }));
       return {
         docId: row.id,
+        revision: this.docHashes.get(row.id),
         score: row.score,
-        doc,
-        breakdown: row.breakdown,
+        doc: options.projection === "evidence" ? Object.fromEntries(["title", "filename", "path", "source", "repo", "type", "language", "modifiedAt", "contentLanguage"].filter(key => doc[key] !== undefined).map(key => [key, doc[key]])) : doc,
+        breakdown: options.projection === "evidence" && !options.inspect ? [] : row.breakdown,
         snippet: passages[0],
         passages,
         ...(groupBy === "none" ? {} : { groupKey: String(doc[groupBy] ?? "") }),
@@ -499,7 +545,7 @@ export class Engine {
         if (state) { this.progress.state = state; break; }
         const doc = this.storage.read(ids[i]!);
         if (!doc) throw new Error("document disappeared during rebuild");
-        const fields = documentFields(doc).map(f => ({ ...f, tokens: tokenizeDetailed(f.text, f.field) }));
+        const fields = documentFields(doc).map(f => ({ ...f, tokens: tokenizeDetailed(f.text, f.field, documentLanguage(doc)) }));
         shadow.addDocument(ids[i]!, fields.flatMap(f => f.tokens.map(t => t.term)));
         shadow.setFields(ids[i]!, fields);
         this.progress.processed++;
@@ -522,7 +568,7 @@ export class Engine {
     const began = performance.now(), before = this.storageReads, hitsBefore = this.cacheHits;
     if (typeof query !== "string" || query.length < (options.match === "substring" ? 2 : 1) || query.length > 256)
       throw new SearchInputError("literal query must be 1..256 characters; substring requires at least 2");
-    const ids = [...this.docs.keys()].filter(id => (!options.docIds || options.docIds.includes(id)) && META.every(k => options[k] === undefined || String(this.docs.get(id)?.[k]) === options[k]));
+    const ids = [...this.docs.keys()].filter(id => this.inScope(id, this.docs.get(id)!, options));
     if (ids.length > 2000) throw new SearchInputError("literal scan exceeds 2000 documents; narrow filters or document ids");
     const pattern = new RegExp(query.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), options.match === "substring" ? "giu" : "gu");
     const snippets = new Map<string, SearchSnippet[]>();
@@ -546,7 +592,7 @@ export class Engine {
     }
     const result = this.search("", { ...options, match: "text", docIds: [...snippets.keys()] });
     result.query = query; result.terms = [query]; result.tookMs = performance.now() - began;
-    for (const hit of result.hits) { hit.passages = snippets.get(hit.docId); hit.snippet = hit.passages?.[0]; }
+    for (const hit of result.hits) { hit.passages = snippets.get(hit.docId)?.map(p => ({ ...p, revision: hit.revision })); hit.snippet = hit.passages?.[0]; }
     if (result.inspector) {
       result.inspector.parsedQuery = [query]; result.inspector.expansions = { [query]: [query] };
       result.inspector.documentReads = this.storageReads - before;
@@ -652,7 +698,7 @@ export class Engine {
     };
   }
   benchmark(query: string, limit = 10): BenchmarkResponse {
-    const indexed = this.search(query, { limit, profile: "baseline" }),
+    const indexed = this.search(query, { limit, profile: "baseline", inspect: true }),
       naive = this.naiveSearch(query, limit);
     return {
       query,
@@ -669,6 +715,13 @@ export class Engine {
       },
       speedup: naive.tookMs / Math.max(indexed.tookMs, 1e-6),
       topHitsMatch: indexed.hits[0]?.docId === naive.hits[0]?.docId,
+      details: indexed.inspector && {
+        postingReads: indexed.inspector.postingReads,
+        candidateCount: indexed.inspector.candidateCount,
+        documentReads: indexed.inspector.documentReads,
+        cacheHits: indexed.inspector.cacheHits ?? 0,
+        stageMs: indexed.inspector.stageMs,
+      },
     };
   }
   suggest(prefix: string, limit = 10): string[] {
@@ -718,6 +771,7 @@ export class Engine {
     updated: number;
     duplicates: number;
   } {
+    docs.forEach(validateDocumentPolicy);
     const ids: string[] = [];
     let added = 0,
       updated = 0,
@@ -790,6 +844,7 @@ export class Engine {
     const byId = new Map<string, Document>();
     for (const x of items) {
       if (byId.has(x.id)) throw new SearchInputError("duplicate backup id");
+      validateDocumentPolicy(x.doc);
       byId.set(x.id, x.doc);
     }
     for (const [id, doc] of byId)
@@ -809,8 +864,8 @@ export class Engine {
     }
     return { added, updated: 0, duplicates };
   }
-  compact(): { reclaimedBytes: number; removedDocuments: number } {
-    const result = this.storage.compact();
+  async compact(): Promise<{ reclaimedBytes: number; removedDocuments: number }> {
+    const result = await this.storage.compactAsync();
     this.snapshot();
     return result;
   }
@@ -884,7 +939,7 @@ export class Engine {
     }
     const fields = documentFields(doc).map((f) => ({
       ...f,
-      tokens: tokenizeDetailed(f.text, f.field),
+      tokens: tokenizeDetailed(f.text, f.field, documentLanguage(doc)),
     }));
     const info = fields.flatMap((f) => f.tokens);
     if (!cached)
@@ -893,7 +948,7 @@ export class Engine {
         info.map((x) => x.term),
       );
     this.index.setFields(id, fields);
-    this.docs.set(id, Object.fromEntries([...META, "sourceId", "pageid", "fullName", "path"].filter(k => doc[k] !== undefined).map(k => [k, doc[k]])));
+    this.docs.set(id, Object.fromEntries([...new Set([...META, ...FILTER_FIELDS, "_access", "sourceId", "pageid", "fullName"])].filter(k => doc[k] !== undefined).map(k => [k, doc[k]])));
     this.putCache(id, doc);
     this.docHashes.set(id, hashDoc(doc));
     for (const key of META)
@@ -914,7 +969,7 @@ export class Engine {
     const ids = this.storage.liveDocIds();
     try {
       loaded =
-        this.index.load(this.paths.invertedSnapshot) ===
+        this.index.load(this.paths.invertedSnapshot, true) ===
           this.storage.stateVersion() &&
         this.index.documentCount() === ids.length &&
         ids.every((id) => this.index.hasDocument(id));
@@ -932,21 +987,23 @@ export class Engine {
 function unique(xs: string[]): string[] {
   return [...new Set(xs)];
 }
-function parseQuery(query: string): Parsed {
+export function parseQuery(query: string): Parsed {
   if (typeof query !== "string" || query.length > 4096)
     throw new SearchInputError("query must be at most 4096 characters");
   if ((query.match(/"/g) ?? []).length % 2)
     throw new SearchInputError("unterminated quoted phrase");
   const phrases: string[] = [];
-  const without = query.replace(/"([^\"]+)"/g, (_, p: string) => {
+  const quotedFields: Array<[string, string]> = [];
+  const scoped = query.replace(/\b(source|repo|type|language):"([^\"]+)"/g, (_, field: string, value: string) => { quotedFields.push([field, value]); return " "; });
+  const without = scoped.replace(/"([^\"]+)"/g, (_, p: string) => {
     phrases.push(p);
     return " ";
   });
   const words = without.split(/\s+/).filter(Boolean);
-  const fields = words.flatMap((x) => {
+  const fields = quotedFields.concat(words.flatMap((x) => {
     const m = /^(source|repo|type|language):(.+)$/.exec(x);
     return m ? [[m[1]!, m[2]!] as [string, string]] : [];
-  });
+  }));
   return {
     terms: words.filter(
       (x) => !x.startsWith("-") && !/^(source|repo|type|language):/.test(x),

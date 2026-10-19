@@ -7,7 +7,7 @@ description: Search-first document tool in a flat, technical-drawing style with 
 
 ## Overview
 
-Shardly opens to a search box and little else. The look is a technical drawing: hairlines, square corners, mono labels, serif display headings, and rust as the only color. Sources, Library, and Engine sit behind the menu in the top bar. Matching and ranking options live in one popover on the search box. Technical detail (scores, inspector, comparisons) appears only when asked for.
+Shardly opens to a search box and little else. The look is a technical drawing: hairlines, square corners, mono labels, serif display headings, and rust as the only color. Benchmark has a direct link in the top bar. Sources, Library, and Engine sit behind its menu. Matching and ranking options live in one popover on the search box. Technical detail (scores, inspector, comparisons) appears only when asked for.
 
 `web/app/globals.css` is the only stylesheet. `web/components/ui.tsx` holds the shared primitives: `Icon`, `Brand`, `Check`, `Switch`, `Segmented`, `Progress`, and `Toast`. Use them before writing new markup.
 

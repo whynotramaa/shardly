@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 import { parentPort, workerData } from "node:worker_threads";
 import { setImmediate as yieldTurn } from "node:timers/promises";
+import { validateDocumentPolicy } from "../search/filters.js";
 import { Engine } from "../engine.js";
 import { extractDocuments, type ExtractOptions } from "../ingest/extract.js";
 import type { Document } from "../types.js";
@@ -11,6 +12,7 @@ process.on("uncaughtException", error => {
   try { engine.close(); } finally { throw error; }
 });
 const allowed = new Set([
+  "retrievalStatus", "retrievalManifest", "retrievalVersions", "fetchEvidence", "backupPage", "getDocumentRecord",
   "addDocument", "addDocuments", "getDocument", "deleteDocument", "documentCount", "listDocuments", "collectBySource", "reset",
   "search", "naiveSearch", "benchmark", "suggest", "diagnostics", "compare", "ingestDocuments", "exportBackup", "restoreBackup",
   "compact", "snapshot", "close", "explainMissing", "rebuildIndex", "rebuildStatus", "cancelRebuild",
@@ -18,6 +20,7 @@ const allowed = new Set([
 let writing = false;
 const waiting: Array<() => void> = [];
 const reads = new Set(["documentCount", "getDocument", "listDocuments", "collectBySource", "search", "suggest", "diagnostics", "compare", "benchmark", "naiveSearch", "exportBackup", "explainMissing", "rebuildStatus", "cancelRebuild"]);
+for (const method of ["retrievalStatus", "retrievalManifest", "retrievalVersions", "fetchEvidence", "backupPage", "getDocumentRecord"]) reads.add(method);
 
 async function call(method: string, args: unknown[]): Promise<unknown> {
   if (method === "hash") return createHash("sha256").update(args[0] as Uint8Array).digest("hex");
@@ -29,6 +32,7 @@ async function call(method: string, args: unknown[]): Promise<unknown> {
   const fn = (engine as unknown as Record<string, (...args: unknown[]) => unknown>)[method]!;
   if (method !== "addDocuments" && method !== "ingestDocuments") return fn.apply(engine, args);
   const docs = args[0] as Document[];
+  docs.forEach(validateDocumentPolicy);
   const ids: string[] = [];
   let added = 0, updated = 0, duplicates = 0;
   for (let offset = 0; offset < docs.length; offset += 16) {

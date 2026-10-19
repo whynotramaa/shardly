@@ -110,6 +110,29 @@ describe("Storage", () => {
 });
 
 describe("compaction", () => {
+  it("allows reads while async compaction runs and rejects overlapping mutations", async () => {
+    const storage = freshStorage();
+    const ids = storage.writeBatch(Array.from({ length: 40 }, (_, n) => ({ n })));
+    storage.delete(ids[0]!);
+    const compact = storage.compactAsync();
+    try {
+      expect(storage.read(ids[20]!)).toEqual({ n: 20 });
+      expect(() => storage.write({ n: 99 })).toThrow(/compaction/);
+      expect(() => storage.delete(ids[20]!)).toThrow(/compaction/);
+      expect(() => storage.reset()).toThrow(/compaction/);
+      expect(() => storage.close()).toThrow(/compaction/);
+      await expect(storage.compactAsync()).rejects.toThrow(/compaction/);
+      expect((await compact).removedDocuments).toBe(1);
+      const after = storage.write({ n: 99 });
+      storage.close();
+      const reopened = freshStorage();
+      try {
+        expect(reopened.read(ids[0]!)).toBeNull();
+        expect(reopened.read(ids[20]!)).toEqual({ n: 20 });
+        expect(reopened.read(after)).toEqual({ n: 99 });
+      } finally { reopened.close(); }
+    } finally { await compact; storage.close(); }
+  });
   it("reclaims tombstoned bytes and keeps live docs readable", async () => {
     let storage = freshStorage();
     const ids = storage.writeBatch(

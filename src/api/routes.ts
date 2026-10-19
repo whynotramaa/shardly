@@ -1,4 +1,8 @@
 import { PassThrough } from "node:stream";
+import { createHash } from "node:crypto";
+import { excludedPath } from "../ingest/extract.js";
+import { CONTENT_LANGUAGES } from "../search/tokenizer.js";
+import { WorkspaceStore, validateWorkspace } from "./workspace.js";
 import type { FastifyInstance } from "fastify";
 import type { RuntimeEngine, Extraction } from "../runtime/engine.js";
 import type { DemoRuntime } from "../runtime/demo.js";
@@ -46,7 +50,7 @@ function previewDoc(doc: Document, maxLen = 280): Document {
   return out;
 }
 
-export function registerRoutes(app: FastifyInstance, engine: RuntimeEngine, jobs: IngestJobs, folders: FolderSources, extraction: Extraction, demo: DemoRuntime): void {
+export function registerRoutes(app: FastifyInstance, engine: RuntimeEngine, jobs: IngestJobs, folders: FolderSources, extraction: Extraction, demo: DemoRuntime, workspace: WorkspaceStore): void {
   app.get("/health", async (req, reply) => {
     void req;
     return extraction.available() ? { status: "ok" } : reply.code(503).send({ status: "unavailable" });
@@ -67,6 +71,12 @@ export function registerRoutes(app: FastifyInstance, engine: RuntimeEngine, jobs
   });
 
   app.post("/documents/upload", async (req, reply) => {
+    const input = req.query as Record<string, unknown>;
+    const namespace = optionalText(input.namespace, "namespace", 128);
+    const mode = choice(input.mode, "mode", ["add", "replace"]) ?? "replace";
+    const recordKey = optionalText(input.recordKey, "recordKey", 128);
+    const contentLanguage = choice(input.contentLanguage, "contentLanguage", CONTENT_LANGUAGES);
+    const includeSensitive = flag(input.includeSensitive, "includeSensitive") ?? false;
     if (!req.isMultipart()) {
       return reply.code(400).send({ error: "expected a multipart upload" });
     }
@@ -78,17 +88,25 @@ export function registerRoutes(app: FastifyInstance, engine: RuntimeEngine, jobs
       added?: number;
       updated?: number;
       duplicates?: number;
+      parser?: string;
+      warnings?: string[];
     }> = [];
 
     for await (const part of req.parts()) {
       if (part.type !== "file") continue;
       const buffer = await part.toBuffer();
+      if (!includeSensitive && excludedPath(part.filename)) { results.push({ filename: part.filename, status: "skipped", reason: "excluded sensitive filename; explicitly enable includeSensitive to index it", documents: 0 }); continue; }
       const extracted = await extraction.extract(part.filename, buffer);
+      const keys = extracted.docs.map((doc, ordinal) => recordKey ? doc[recordKey] : ordinal);
+      if (keys.some(key => typeof key === "string" ? !key.length : typeof key !== "number" || !Number.isFinite(key)) || new Set(keys.map(String)).size !== keys.length) throw new InputError("missing or duplicate record keys");
+      const suffix = mode === "add" ? `:${createHash("sha256").update(buffer).digest("hex")}` : "";
       const ingestion = extracted.docs.length > 0 ? await engine.ingestDocuments(
-        extracted.docs.map((doc, ordinal) => ({ ...doc, source: "upload", sourceId: `upload:${part.filename}:${ordinal}` })),
+        extracted.docs.map((doc, ordinal) => ({ ...doc, ...(contentLanguage ? { contentLanguage } : {}), source: "upload", sourceId: `${namespace ? `upload-group:${JSON.stringify([namespace, part.filename, String(keys[ordinal])])}` : `upload:${part.filename}:${keys[ordinal]}`}${suffix}` })),
       ) : undefined;
       results.push({
         filename: extracted.filename,
+        parser: extracted.parser ?? "utf8",
+        warnings: extracted.warnings,
         status: extracted.status,
         reason: extracted.reason,
         documents: extracted.docs.length,
@@ -188,9 +206,10 @@ export function registerRoutes(app: FastifyInstance, engine: RuntimeEngine, jobs
 
   // O(1) lookup by id — returns the FULL document for the detail view.
   app.get<{ Params: IdParam }>("/documents/:id", async (req, reply) => {
-    const doc = await engine.getDocument(req.params.id);
-    if (doc === null) return reply.code(404).send({ error: "not found" });
-    return { id: req.params.id, doc };
+    const revision = optionalText((req.query as Record<string, unknown>).revision, "revision", 128);
+    const record = await engine.getDocumentRecord(req.params.id, revision);
+    if (record === null) return reply.code(404).send({ error: "not found" });
+    return revision === undefined ? { id: record.id, doc: record.doc } : record;
   });
 
   app.delete<{ Params: IdParam }>("/documents/:id", async (req, reply) => {
@@ -242,13 +261,14 @@ export function registerRoutes(app: FastifyInstance, engine: RuntimeEngine, jobs
     void req;
     reply.header("content-disposition", 'attachment; filename="shardly-backup.json"');
     reply.header("cache-control", "no-store");
-    return await engine.exportBackup();
+    return { ...await engine.exportBackup(), workspace: workspace.get() };
   });
 
   app.post("/backup", async (req) => {
     if (jobs.busy() || folders.busy()) throw new InputError("cancel active imports before restoring a backup");
     const body = object(req.body);
     const backup = object(body.backup, "backup");
+    const restoredWorkspace = backup.workspace === undefined ? undefined : validateWorkspace(backup.workspace);
     if (backup.version !== 1 || !Array.isArray(backup.documents)) throw new InputError("unsupported backup format");
     if (backup.documents.length > 100_000) throw new InputError("backup exceeds 100000 documents");
     const ids = new Set<string>();
@@ -259,7 +279,9 @@ export function registerRoutes(app: FastifyInstance, engine: RuntimeEngine, jobs
       ids.add(id);
       documents([record.doc]);
     }
-    return await engine.restoreBackup(backup);
+    const result = await engine.restoreBackup(backup);
+    if (restoredWorkspace) workspace.save(restoredWorkspace);
+    return result;
   });
 
   app.get("/jobs", async () => ({ jobs: jobs.list() }));
@@ -296,7 +318,7 @@ export function registerRoutes(app: FastifyInstance, engine: RuntimeEngine, jobs
   app.get("/sources/folders", async () => ({ sources: folders.list() }));
   app.post("/sources/folders", async (req, reply) => {
     const body = object(req.body);
-    return reply.code(202).send(await folders.create(text(body.path, "folder path", 4096)));
+    return reply.code(202).send(await folders.create(text(body.path, "folder path", 4096), { includeSensitive: flag(body.includeSensitive, "includeSensitive"), recordKey: optionalText(body.recordKey, "recordKey", 128) }));
   });
   app.get<{ Params: IdParam }>("/sources/folders/:id", async (req, reply) => folders.get(req.params.id) ?? reply.code(404).send({ error: "folder source not found" }));
   for (const action of ["pause", "resume", "rescan"] as const) {
@@ -317,13 +339,14 @@ export function registerRoutes(app: FastifyInstance, engine: RuntimeEngine, jobs
   });
 }
 
-function searchOptions(input: Record<string, unknown>): SearchOptions {
+export function searchOptions(input: Record<string, unknown>): SearchOptions {
   let docIds: unknown = input.docIds;
   if (typeof docIds === "string") docIds = docIds.length ? docIds.split(",") : [];
   if (docIds !== undefined && (!Array.isArray(docIds) || docIds.length > 1000 || docIds.some((id) => typeof id !== "string" || id.length > 128))) {
     throw new InputError("docIds must contain at most 1000 document ids");
   }
   return {
+    contentLanguage: choice(input.contentLanguage, "contentLanguage", CONTENT_LANGUAGES),
     limit: integer(input.limit, "limit", 10, 1, 100),
     offset: integer(input.offset, "offset", 0, 0, 100_000),
     mode: choice(input.mode, "mode", ["all", "any"]),

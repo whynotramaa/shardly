@@ -52,6 +52,10 @@ const STOPWORDS = new Set([
   "they",
 ]);
 const WORD = /[\p{L}\p{M}\p{N}_]+/gu;
+export const CONTENT_LANGUAGES = ["en", "hi", "zh", "ja", "ko", "tr", "fr", "de", "es", "ar"] as const;
+export function documentLanguage(doc: Record<string, unknown>): string {
+  return CONTENT_LANGUAGES.includes(doc.contentLanguage as typeof CONTENT_LANGUAGES[number]) ? String(doc.contentLanguage) : "en";
+}
 
 export interface TokenInfo {
   term: string;
@@ -81,7 +85,11 @@ function identifierParts(raw: string): string[] {
     .map((x) => x.toLowerCase());
 }
 
-export function tokenizeDetailed(text: string, field = "text"): TokenInfo[] {
+export function tokenizeDetailed(text: string, field = "text", language = "en"): TokenInfo[] {
+  if (language !== "en") {
+    if (!CONTENT_LANGUAGES.includes(language as typeof CONTENT_LANGUAGES[number])) throw new Error("unsupported content language");
+    return [...new Intl.Segmenter(language, { granularity: "word" }).segment(text)].filter(segment => segment.isWordLike).map((segment, position) => ({ term: segment.segment.normalize("NFC").toLocaleLowerCase(language), original: segment.segment, start: segment.index, end: segment.index + segment.segment.length, position, field }));
+  }
   const out: TokenInfo[] = [];
   let position = 0;
   for (const m of text.matchAll(WORD)) {
@@ -111,9 +119,7 @@ export function tokenize(text: string): string[] {
 }
 
 export function tokenizeDocument(doc: unknown): string[] {
-  const values: string[] = [];
-  collectStrings(doc, values);
-  return tokenize(values.join(" "));
+  return tokenize(documentFields(doc).map(field => field.text).join(" "));
 }
 
 export function tokenizeDocumentDetailed(doc: unknown): TokenInfo[] {
@@ -126,15 +132,18 @@ export function documentFields(
   doc: unknown,
 ): Array<{ field: string; text: string }> {
   const fields: Array<{ field: string; text: string }> = [];
+  const policy = doc && typeof doc === "object" ? (doc as Record<string, unknown>)._search : undefined;
+  const selected = policy && typeof policy === "object" && Array.isArray((policy as { fields?: unknown }).fields) ? (policy as { fields: unknown[] }).fields : undefined;
   if (doc && typeof doc === "object" && !Array.isArray(doc))
     for (const [field, value] of Object.entries(
       doc as Record<string, unknown>,
     )) {
+      if (["_search", "_access", "_extraction"].includes(field) || selected && !selected.includes(field)) continue;
       const values: string[] = [];
       collectStrings(value, values);
       if (values.length) fields.push({ field, text: values.join(" ") });
     }
-  if (!fields.length) {
+  if (!fields.length && (!doc || typeof doc !== "object" || Array.isArray(doc))) {
     const values: string[] = [];
     collectStrings(doc, values);
     fields.push({ field: "text", text: values.join(" ") });
