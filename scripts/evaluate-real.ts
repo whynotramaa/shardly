@@ -6,6 +6,8 @@ import { Engine } from "../src/engine.js";
 import { rankingMetrics } from "./relevance-metrics.js";
 
 const folder = path.resolve(process.argv[2] ?? ".cache/relevance/scifact");
+const candidates = Number(process.env.CANDIDATES ?? 10);
+assert(Number.isSafeInteger(candidates) && candidates >= 10 && candidates <= 100, "CANDIDATES must be 10..100");
 const readLines = (file: string): Record<string, unknown>[] => fs.readFileSync(path.join(folder, file), "utf8").trim().split("\n").map(line => JSON.parse(line));
 const corpus = readLines("corpus.jsonl");
 const queries = new Map(readLines("queries.jsonl").map(row => [String(row._id), String(row.text)]));
@@ -36,11 +38,12 @@ try {
   const run = (profile: "baseline" | "tuned") => {
     const cases = [...judgments].map(([queryId, grades]) => {
       const started = performance.now();
-      const hits = engine!.search(queries.get(queryId)!, { profile, mode: "any", limit: 10 });
-      return { queryId, ...rankingMetrics(hits.hits.map(hit => hit.docId), grades, 10), tookMs: performance.now() - started };
+      const hits = engine!.search(queries.get(queryId)!, { profile, mode: "any", limit: candidates });
+      const ids = hits.hits.map(hit => hit.docId);
+      return { queryId, ...rankingMetrics(ids, grades, 10), recall100: candidates === 100 ? rankingMetrics(ids, grades, 100).recall : undefined, tookMs: performance.now() - started };
     });
     const times = cases.map(test => test.tookMs).sort((a, b) => a - b);
-    return { MRR10: cases.reduce((sum, test) => sum + test.mrr, 0) / cases.length, nDCG10: cases.reduce((sum, test) => sum + test.ndcg, 0) / cases.length, recall10: cases.reduce((sum, test) => sum + test.recall, 0) / cases.length, p50Ms: times[Math.floor(times.length * .5)], p95Ms: times[Math.floor(times.length * .95)], cases };
+    return { MRR10: cases.reduce((sum, test) => sum + test.mrr, 0) / cases.length, nDCG10: cases.reduce((sum, test) => sum + test.ndcg, 0) / cases.length, recall10: cases.reduce((sum, test) => sum + test.recall, 0) / cases.length, recall100: candidates === 100 ? cases.reduce((sum, test) => sum + test.recall100!, 0) / cases.length : undefined, retrievalLimit: candidates, p50Ms: times[Math.floor(times.length * .5)], p95Ms: times[Math.floor(times.length * .95)], cases };
   };
   console.log(JSON.stringify({ dataset: "BEIR SciFact", corpusDocuments: corpus.length, judgedQueries: judgments.size, judgments: "External expert-authored annotations distributed by BEIR; no Shardly-authored labels or per-query tuning", mode: "any", cutoff: 10, source: "https://github.com/beir-cellar/beir/wiki/Datasets-available", originalSource: "https://github.com/allenai/scifact", licenses: "SciFact claims/annotations CC BY 4.0; abstracts ODC-By 1.0", domainLimit: "Scientific abstracts and claims, not code navigation or personal document relevance", ingestMs, baseline: run("baseline"), tuned: run("tuned") }, null, 2));
 } finally {

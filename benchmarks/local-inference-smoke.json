@@ -1,0 +1,22 @@
+{
+  "timestamp": "2026-10-22T17:41:16.751Z",
+  "node": "v26.7.0",
+  "embedding": "[\"transformers.js@4.3.1\",\"Xenova/all-MiniLM-L6-v2\",\"751bff37182d3f1213fa05d7196b954e230abad9\",\"q8\",\"mean\",\"normalize\",384]",
+  "reranker": "[\"transformers.js@4.3.1\",\"Xenova/ms-marco-MiniLM-L-6-v2\",\"a09144355adeed5f58c8ed011d209bf8ee5a1fec\",\"q8\",\"logits\",512]",
+  "dimensions": 384,
+  "finite": true,
+  "semanticPairCheck": true,
+  "ranking": [
+    {
+      "index": 1,
+      "score": -8.695551872253418
+    },
+    {
+      "index": 0,
+      "score": -11.299424171447754
+    }
+  ],
+  "firstLoadAndInferenceMs": 51114.736265,
+  "offlineLoadAndInferenceMs": 461.74666600000637,
+  "offlineRepeatWithinTolerance": 0.000001
+}

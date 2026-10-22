@@ -13,7 +13,7 @@ process.on("uncaughtException", error => {
 });
 const allowed = new Set([
   "retrievalStatus", "retrievalManifest", "retrievalVersions", "fetchEvidence", "backupPage", "getDocumentRecord",
-  "addDocument", "addDocuments", "getDocument", "deleteDocument", "documentCount", "listDocuments", "collectBySource", "reset",
+  "addDocument", "addDocuments", "replaceDocument", "getDocument", "deleteDocument", "documentCount", "listDocuments", "collectBySource", "reset",
   "search", "naiveSearch", "benchmark", "suggest", "diagnostics", "compare", "ingestDocuments", "exportBackup", "restoreBackup",
   "compact", "snapshot", "close", "explainMissing", "rebuildIndex", "rebuildStatus", "cancelRebuild",
 ]);

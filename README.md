@@ -1,8 +1,29 @@
 # Shardly
 
-Shardly is a small, self-contained document store with full-text search. It is intentionally similar in spirit to a tiny Elasticsearch: the storage engine, write-ahead log, inverted index, tokenizer, and BM25 ranker are implemented in TypeScript without using an embedded database or a search library.
+Shardly is a self-contained document store and hybrid retrieval engine for Node.js. Its append-only storage, WAL, tokenizer, BM25, Float32 vector store and HNSW graph are implemented in TypeScript without an embedded database or search library.
 
-The project is designed to be understandable and defensible in an engineering interview. It demonstrates durable append-only storage, crash recovery, O(1) document reads, relevance ranking, ingestion pipelines, and a measured indexed-vs-linear-search comparison.
+It supports durable document writes, O(1) document reads, chunk-level semantic retrieval, reciprocal rank fusion, optional local cross-encoder reranking, and cited context construction. Lexical operation requires no model, account or API key. Embedding and reranking inference can run locally in an optional worker through Transformers.js.
+
+## Hybrid retrieval
+
+```sh
+npm ci
+npm run build
+npm test
+SHARDLY_LOCAL_EMBEDDINGS=1 SHARDLY_MODEL_CACHE="$PWD/.cache/models" npm start
+```
+
+Model assets download once; set `SHARDLY_MODEL_OFFLINE=1` for subsequent offline operation. Use `npm ci --omit=optional` for lexical operation without the inference runtime. Document writes become durable independently of semantic backfill; inspect `/index/health` for completeness.
+
+```sh
+npm run example:rag -- README.md "How are writes recovered?"
+npm run crash-test:hybrid
+npm run bench:ann
+npm run evaluate:fetch
+OFFLINE=1 npm run evaluate:hybrid
+```
+
+Read the [local setup guide](docs/HYBRID_GUIDE.md), [API reference](docs/HYBRID_API.md), [architecture](docs/HYBRID_ARCHITECTURE.md), [HNSW notes](docs/HNSW.md), [WAL specification](docs/WAL_CONSISTENCY.md), [benchmark methodology](docs/HYBRID_BENCHMARKS.md), and [implementation status and remaining limits](docs/HYBRID_STATUS.md). Existing lexical API contracts and historical benchmarks remain available.
 
 For the reasoning behind each decision, the alternatives rejected, and the
 known limits, read [ENGINEERING.md](ENGINEERING.md).
@@ -140,7 +161,7 @@ Snapshots are written atomically through a temporary file, `fsync`, and rename. 
 
 `writeBatch` records all intents, writes the batch to the segment, and finalizes the batch with shared fsyncs. This keeps the durability contract while avoiding three fsyncs per document. The seed script uses batches of 1,000 documents because fsync is the dominant cost of individual writes.
 
-[Completion checklist](FEATURES.md) · [Current verification and measurements](VERIFICATION.md)
+[Completion checklist](docs/HYBRID_STATUS.md) · [Current verification and measurements](VERIFICATION.md)
 
 ## Search decisions
 
@@ -241,7 +262,7 @@ npm run demo                # optional small, repeatable showcase corpus
 npm run dev
 ```
 
-The API listens on `http://127.0.0.1:3001` by default. The frontend is available at `http://localhost:3000/app`. Browser origins are restricted to loopback and an optional exact `SHARDLY_ALLOWED_ORIGIN`. The API has no user authentication; expose it only behind an authenticated reverse proxy. Persisted state goes to `./data`; set `SHARDLY_DATA_DIR` to choose another default, or pass a data directory to the engine in scripts/tests.
+The API listens on `http://127.0.0.1:3001` by default. The frontend is available at `http://localhost:3000/app`. Browser origins are restricted to loopback and an optional exact `SHARDLY_ALLOWED_ORIGIN`. Configure `SHARDLY_ADMIN_TOKEN` for network exposure and `SHARDLY_READ_KEYS` for scoped retrieval clients. Persisted state goes to `./data`; set `SHARDLY_DATA_DIR` to choose another default, or pass a data directory to the engine in scripts/tests.
 
 Useful commands:
 

@@ -122,6 +122,15 @@ export class Engine {
     if (this.writesSinceSnapshot >= SNAPSHOT_EVERY_N_WRITES * 20) this.checkpoint();
     return ids;
   }
+  replaceDocument(id: string, doc: Document): boolean {
+    if (!this.docs.has(id)) return false;
+    validateDocumentPolicy(doc);
+    const copy = structuredClone(doc);
+    this.storage.writeWithId(id, copy);
+    this.indexDoc(id, copy);
+    this.maybeSnapshot();
+    return true;
+  }
   getDocument(id: string): Document | null {
     return this.storage.read(id);
   }
@@ -132,11 +141,18 @@ export class Engine {
     return { id, revision, doc: this.storage.read(id)! };
   }
   retrievalStatus(scope?: ReadScope) {
-    return { indexGeneration: this.storage.stateVersion(), documents: [...this.docs.values()].filter(doc => authorized(doc, scope)).length, rebuild: scope ? { state: this.progress.state } : this.rebuildStatus(), strategies: ["lexical", "literal", "substring"], offsetUnit: "utf16", analysisVersion: "blocks-1" };
+    return { indexGeneration: this.storage.stateVersion(), walSequence: scope ? undefined : this.storage.walPosition(), documents: [...this.docs.values()].filter(doc => authorized(doc, scope)).length, rebuild: scope ? { state: this.progress.state } : this.rebuildStatus(), strategies: ["lexical", "literal", "substring"], offsetUnit: "utf16", analysisVersion: "blocks-1" };
   }
   retrievalManifest(options: SearchOptions = {}, offset = 0, limit = 100) {
     const ids = [...this.docs].filter(([id, doc]) => this.inScope(id, doc, options)).map(([id]) => id);
-    return { indexGeneration: this.storage.stateVersion(), total: ids.length, items: ids.slice(offset, offset + Math.min(limit, 1000)).map(id => ({ id, revision: this.docHashes.get(id)!, doc: this.readDoc(id)! })) };
+    const items: Array<{ id: string; revision: string; doc: Document }> = [];
+    let bytes = 0;
+    for (const id of ids.slice(offset, offset + Math.min(limit, 1000))) {
+      const size = this.storage.documentBytes(id);
+      if (items.length && bytes + size > 8 * 1024 * 1024) break;
+      items.push({ id, revision: this.docHashes.get(id)!, doc: this.readDoc(id)! }); bytes += size;
+    }
+    return { indexGeneration: this.storage.stateVersion(), total: ids.length, items, nextOffset: offset + items.length };
   }
   retrievalVersions(options: SearchOptions = {}) {
     return { indexGeneration: this.storage.stateVersion(), items: [...this.docs].filter(([id, doc]) => this.inScope(id, doc, options)).map(([id]) => ({ id, revision: this.docHashes.get(id)! })) };
@@ -169,7 +185,7 @@ export class Engine {
     if (text === undefined) throw new SearchInputError("field is not searchable");
     const start = r.start ?? 0, end = r.end ?? Math.min(text.length, start + 4000);
     if (!Number.isSafeInteger(start) || !Number.isSafeInteger(end) || start < 0 || end < start || end > text.length || end - start > 65536) throw new SearchInputError("invalid evidence span");
-    return { state: "complete" as const, documentId: r.documentId, revision, metadata: Object.fromEntries(["title", "filename", "path", "source", "repo", "type", "language", "modifiedAt"].filter(key => doc[key] !== undefined).map(key => [key, String(doc[key]).slice(0, 2048)])), passage: passage(r.documentId, revision, doc, { field: field!, start, end, text: "", matches: [] }), truncated: end < text.length };
+    return { state: "complete" as const, documentId: r.documentId, revision, metadata: Object.fromEntries(["title", "filename", "path", "source", "repo", "type", "language", "modifiedAt", "sourceId", "tags", "collection", "metadata"].filter(key => doc[key] !== undefined).map(key => [key, ["tags", "collection", "metadata"].includes(key) ? structuredClone(doc[key]) : String(doc[key]).slice(0, 2048)])), passage: passage(r.documentId, revision, doc, { field: field!, start, end, text: "", matches: [] }), truncated: end < text.length };
   }
   private inScope(id: string, doc: Document, options: SearchOptions): boolean {
     return (!options.docIds || options.docIds.includes(id)) && META.every(k => options[k] === undefined || String(doc[k]) === options[k]) && (!options.contentLanguage || documentLanguage(doc) === options.contentLanguage) && authorized(doc, options.scope) && matchesFilter(doc, options.filter);
@@ -477,7 +493,7 @@ export class Engine {
         docId: row.id,
         revision: this.docHashes.get(row.id),
         score: row.score,
-        doc: options.projection === "evidence" ? Object.fromEntries(["title", "filename", "path", "source", "repo", "type", "language", "modifiedAt", "contentLanguage"].filter(key => doc[key] !== undefined).map(key => [key, doc[key]])) : doc,
+        doc: options.projection === "evidence" ? Object.fromEntries(["title", "filename", "path", "source", "repo", "type", "language", "modifiedAt", "contentLanguage", "sourceId", "tags", "collection", "metadata"].filter(key => doc[key] !== undefined).map(key => [key, doc[key]])) : doc,
         breakdown: options.projection === "evidence" && !options.inspect ? [] : row.breakdown,
         snippet: passages[0],
         passages,

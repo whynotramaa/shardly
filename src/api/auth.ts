@@ -16,7 +16,7 @@ export function registerAuth(app: FastifyInstance) {
   });
   if (admin !== undefined && admin.length < 24) throw new Error("SHARDLY_ADMIN_TOKEN must have at least 24 characters");
   if (readers.length && !admin) throw new Error("read keys require SHARDLY_ADMIN_TOKEN");
-  const readPosts = new Set(["/search", "/retrieve", "/fetch", "/search/batch"]);
+  const readPosts = new Set(["/search", "/retrieve", "/fetch", "/search/batch", "/search/lexical", "/search/semantic", "/search/hybrid"]);
   const readGets = new Set(["/retrieval/status", "/ready"]);
   app.addHook("onRequest", async (request, reply) => {
     if (!admin || request.method === "OPTIONS") return;

@@ -47,6 +47,8 @@ export type WalStatus = "pending" | "committed";
 export type WalOp = "write" | "delete";
 
 export interface WalRecord {
+  /** Monotonic log position; absent on legacy records. */
+  sequence?: number;
   op: WalOp;
   docId: string;
   segment: string;
@@ -78,6 +80,7 @@ export interface SearchHit {
 }
 
 export interface SearchSnippet {
+  chunkId?: string;
   revision?: string;
   reference?: string;
   offsetUnit?: "utf16";

@@ -1,0 +1,122 @@
+{
+  "timestamp": "2026-10-22T17:39:12.112Z",
+  "node": "v26.7.0",
+  "cpu": "12th Gen Intel(R) Core(TM) i5-12450H",
+  "cpuCount": 12,
+  "metric": "cosine",
+  "data": "deterministic uniform random coordinates, no embedding inference",
+  "reports": [
+    {
+      "count": 50000,
+      "dimensions": 32,
+      "M": 8,
+      "efConstruction": 64,
+      "queries": 20,
+      "buildMs": 64493.798076,
+      "vectorsPerSecond": 775.2683434937356,
+      "memory": {
+        "before": {
+          "rss": 75100160,
+          "heapTotal": 13242368,
+          "heapUsed": 8125512,
+          "external": 2830430,
+          "arrayBuffers": 306659
+        },
+        "after": {
+          "rss": 228122624,
+          "heapTotal": 145510400,
+          "heapUsed": 91379168,
+          "external": 9107703,
+          "arrayBuffers": 6544767
+        },
+        "rssDelta": 153022464,
+        "note": "Process memory; GC and allocator retention affect deltas across configurations"
+      },
+      "serializedVectorBytes": 12516840,
+      "serializedGraphBytes": 4048902,
+      "exact": {
+        "p50Ms": 6.7116340000065975,
+        "p95Ms": 8.681198999998742,
+        "p99Ms": 8.681198999998742
+      },
+      "runs": [
+        {
+          "efSearch": 64,
+          "effectiveEfSearch": 100,
+          "recall1": 0.95,
+          "recall10": 0.8300000000000001,
+          "recall100": 0.6319999999999999,
+          "p50Ms": 1.7452520000006189,
+          "p95Ms": 2.5574479999995674,
+          "p99Ms": 2.5574479999995674
+        },
+        {
+          "efSearch": 256,
+          "effectiveEfSearch": 256,
+          "recall1": 1,
+          "recall10": 0.9600000000000002,
+          "recall100": 0.867,
+          "p50Ms": 3.9250079999983427,
+          "p95Ms": 4.805319999999483,
+          "p99Ms": 4.805319999999483
+        }
+      ]
+    },
+    {
+      "count": 100000,
+      "dimensions": 32,
+      "M": 8,
+      "efConstruction": 64,
+      "queries": 20,
+      "buildMs": 143906.00851900002,
+      "vectorsPerSecond": 694.8980173179978,
+      "memory": {
+        "before": {
+          "rss": 297066496,
+          "heapTotal": 158429184,
+          "heapUsed": 106330656,
+          "external": 58806529,
+          "arrayBuffers": 56243593
+        },
+        "after": {
+          "rss": 356716544,
+          "heapTotal": 219574272,
+          "heapUsed": 172962688,
+          "external": 15503875,
+          "arrayBuffers": 12945663
+        },
+        "rssDelta": 59650048,
+        "note": "Process memory; GC and allocator retention affect deltas across configurations"
+      },
+      "serializedVectorBytes": 25066840,
+      "serializedGraphBytes": 8082864,
+      "exact": {
+        "p50Ms": 11.104393000015989,
+        "p95Ms": 12.10997600000701,
+        "p99Ms": 12.10997600000701
+      },
+      "runs": [
+        {
+          "efSearch": 64,
+          "effectiveEfSearch": 100,
+          "recall1": 0.9,
+          "recall10": 0.785,
+          "recall100": 0.5645,
+          "p50Ms": 1.6856339999940246,
+          "p95Ms": 1.969874999980675,
+          "p99Ms": 1.969874999980675
+        },
+        {
+          "efSearch": 256,
+          "effectiveEfSearch": 256,
+          "recall1": 1,
+          "recall10": 0.9549999999999998,
+          "recall100": 0.8220000000000001,
+          "p50Ms": 4.371396000002278,
+          "p95Ms": 5.114893000019947,
+          "p99Ms": 5.114893000019947
+        }
+      ]
+    }
+  ]
+}

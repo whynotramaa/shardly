@@ -3,7 +3,7 @@ import { documentFields } from "./tokenizer.js";
 import type { Document, SearchSnippet } from "../types.js";
 
 export interface Block { field: string; kind: "heading" | "code" | "text" | "table"; start: number; end: number; heading?: string; line: number; page?: number }
-export interface Passage extends Block { revision: string; reference: string; text: string; offsetUnit: "utf16"; matches: Array<{ start: number; end: number }> }
+export interface Passage extends Block { revision: string; reference: string; chunkId: string; text: string; offsetUnit: "utf16"; matches: Array<{ start: number; end: number }> }
 export interface EvidenceReference { documentId: string; revision: string; field: string; start: number; end: number }
 export const ANALYSIS_VERSION = "blocks-1";
 
@@ -55,7 +55,8 @@ export function blocks(doc: Document, maxChars = 1600): Block[] {
 export function passage(documentId: string, revision: string, doc: Document, snippet: SearchSnippet | Block): Passage {
   const text = documentFields(doc).find(f => f.field === snippet.field)?.text ?? "";
   const location = blocks(doc).find(b => b.field === snippet.field && snippet.start >= b.start && snippet.start < b.end);
-  return { ...location, revision, kind: location?.kind ?? "text", line: location?.line ?? 1, ...snippet, text: text.slice(snippet.start, snippet.end), reference: reference({ documentId, revision, field: snippet.field, start: snippet.start, end: snippet.end }), offsetUnit: "utf16", matches: "matches" in snippet ? snippet.matches : [] };
+  const id = reference({ documentId, revision, field: snippet.field, start: snippet.start, end: snippet.end });
+  return { ...location, revision, kind: location?.kind ?? "text", line: location?.line ?? 1, ...snippet, text: text.slice(snippet.start, snippet.end), reference: id, chunkId: id, offsetUnit: "utf16", matches: "matches" in snippet ? snippet.matches : [] };
 }
 
 export function chunkHash(revision: string, block: Block): string {

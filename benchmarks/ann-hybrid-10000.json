@@ -1,0 +1,76 @@
+{
+  "timestamp": "2026-10-22T17:27:19.844Z",
+  "node": "v26.7.0",
+  "cpu": "12th Gen Intel(R) Core(TM) i5-12450H",
+  "cpuCount": 12,
+  "metric": "cosine",
+  "data": "deterministic uniform random coordinates, no embedding inference",
+  "reports": [
+    {
+      "count": 10000,
+      "dimensions": 64,
+      "M": 12,
+      "efConstruction": 80,
+      "queries": 30,
+      "buildMs": 14902.150435,
+      "vectorsPerSecond": 671.0440914965841,
+      "memory": {
+        "before": {
+          "rss": 75198464,
+          "heapTotal": 12980224,
+          "heapUsed": 9226480,
+          "external": 2895968,
+          "arrayBuffers": 372197
+        },
+        "after": {
+          "rss": 166055936,
+          "heapTotal": 95694848,
+          "heapUsed": 46174288,
+          "external": 5275767,
+          "arrayBuffers": 2712831
+        },
+        "rssDelta": 90857472,
+        "note": "Process memory; GC and allocator retention affect deltas across configurations"
+      },
+      "serializedVectorBytes": 3756840,
+      "serializedGraphBytes": 1118020,
+      "exact": {
+        "p50Ms": 1.8009410000013304,
+        "p95Ms": 3.4722949999995762,
+        "p99Ms": 3.531091999999262
+      },
+      "runs": [
+        {
+          "efSearch": 32,
+          "effectiveEfSearch": 100,
+          "recall1": 0.9666666666666667,
+          "recall10": 0.9199999999999999,
+          "recall100": 0.765,
+          "p50Ms": 1.396030999998402,
+          "p95Ms": 1.9481359999990673,
+          "p99Ms": 2.0598730000001524
+        },
+        {
+          "efSearch": 128,
+          "effectiveEfSearch": 128,
+          "recall1": 1,
+          "recall10": 0.9499999999999997,
+          "recall100": 0.8330000000000002,
+          "p50Ms": 2.0355129999989003,
+          "p95Ms": 2.657044000001406,
+          "p99Ms": 2.8087109999996756
+        },
+        {
+          "efSearch": 512,
+          "effectiveEfSearch": 512,
+          "recall1": 1,
+          "recall10": 1,
+          "recall100": 0.9956666666666664,
+          "p50Ms": 5.839446999998472,
+          "p95Ms": 6.69793700000082,
+          "p99Ms": 6.935424000001149
+        }
+      ]
+    }
+  ]
+}

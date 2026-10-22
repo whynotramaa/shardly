@@ -1,0 +1,13 @@
+export { Engine } from "./engine.js";
+export { SemanticIndex, fuse } from "./search/semantic.js";
+export type { SemanticConfig } from "./search/semantic.js";
+export { Retrieval } from "./api/retrieval.js";
+export { chunkDocument } from "./search/chunker.js";
+export type { Chunk, ChunkOptions } from "./search/chunker.js";
+export { VectorStore, distance } from "./vector/store.js";
+export type { Metric, VectorRow, VectorMetadata, Neighbor } from "./vector/store.js";
+export { HnswIndex } from "./vector/hnsw.js";
+export type { HnswOptions } from "./vector/hnsw.js";
+export { LocalInference, MockEmbeddings } from "./vector/providers.js";
+export type { EmbeddingProvider, Reranker, LocalModelOptions } from "./vector/providers.js";
+export type { Document, SearchOptions, SearchHit } from "./types.js";

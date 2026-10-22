@@ -59,6 +59,19 @@ export async function buildServer(dataDir?: string, options: { worker?: boolean 
     await engine.close(); throw error;
   }
   const demo = new DemoRuntime();
+  let semanticClosing = false, checkingSemantic = false;
+  const refreshSemantic = async () => {
+    if (semanticClosing || checkingSemantic || !semantic.status().enabled) return;
+    checkingSemantic = true;
+    try {
+      const state = await engine.retrievalStatus();
+      if (!semanticClosing && state.indexGeneration !== semantic.status().indexedGeneration) semantic.start();
+    } catch { /* Availability is reported by /index/health; retry the next bounded pass. */ }
+    finally { checkingSemantic = false; }
+  };
+  const semanticTimer = setInterval(() => { void refreshSemantic(); }, 30000);
+  semanticTimer.unref();
+  void refreshSemantic();
   registerRoutes(app, engine, jobs, folders, extraction, demo, workspace);
   registerWorkspace(app, workspace);
   registerStreamBackup(app, engine, workspace, () => jobs.busy() || folders.busy());
@@ -69,9 +82,15 @@ export async function buildServer(dataDir?: string, options: { worker?: boolean 
     pendingImports: request.readScope ? undefined : jobs.list().filter(job => ["queued", "running"].includes(job.status)).length,
   }));
   app.get("/ready", async (request, reply) => extraction.available() ? { status: "ready", ...await engine.retrievalStatus(request.readScope) } : reply.code(503).send({ status: "unavailable" }));
+  app.get("/index/health", async () => {
+    const document = await engine.retrievalStatus(), dense = semantic.status();
+    return { status: extraction.available() ? dense.state === "failed" || dense.checkpointError ? "degraded" : "ready" : "unavailable", documentGeneration: document.indexGeneration, semanticComplete: dense.indexedGeneration === document.indexGeneration, indexingLag: Math.max(0, document.indexGeneration - dense.indexedGeneration), semantic: dense };
+  });
+  app.get("/index/stats", async () => ({ lexical: await engine.diagnostics(), semantic: semantic.status(), memory: process.memoryUsage() }));
 
   // Flush snapshots and close fds cleanly on shutdown.
   app.addHook("onClose", async () => {
+    semanticClosing = true; clearInterval(semanticTimer);
     const results = await Promise.allSettled([semantic.close(), jobs.close(), folders.close(), demo.close()]);
     await engine.close();
     const failed = results.find(result => result.status === "rejected");

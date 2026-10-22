@@ -1,0 +1,81 @@
+{
+  "source": "V8 CPU sampling; 2000 uniform vectors, 64 dimensions, 10 queries; exploratory shared-host run",
+  "samples": 2153,
+  "functions": [
+    {
+      "name": "distance",
+      "samples": 1124,
+      "fraction": 0.5220622387366466
+    },
+    {
+      "name": "explore",
+      "samples": 198,
+      "fraction": 0.09196470041802136
+    },
+    {
+      "name": "(anonymous)",
+      "samples": 174,
+      "fraction": 0.08081746400371574
+    },
+    {
+      "name": "get",
+      "samples": 93,
+      "fraction": 0.043195541105434276
+    },
+    {
+      "name": "candidate",
+      "samples": 82,
+      "fraction": 0.03808639108221087
+    },
+    {
+      "name": "add",
+      "samples": 79,
+      "fraction": 0.03669298653042267
+    },
+    {
+      "name": "prune",
+      "samples": 74,
+      "fraction": 0.034370645610775664
+    },
+    {
+      "name": "push",
+      "samples": 52,
+      "fraction": 0.024152345564328843
+    },
+    {
+      "name": "runCallSync",
+      "samples": 46,
+      "fraction": 0.021365536460752437
+    },
+    {
+      "name": "(garbage collector)",
+      "samples": 44,
+      "fraction": 0.020436600092893636
+    },
+    {
+      "name": "select",
+      "samples": 28,
+      "fraction": 0.013005109150023224
+    },
+    {
+      "name": "pop",
+      "samples": 27,
+      "fraction": 0.012540640966093822
+    },
+    {
+      "name": "serialize",
+      "samples": 17,
+      "fraction": 0.007895959126799815
+    },
+    {
+      "name": "sorted",
+      "samples": 11,
+      "fraction": 0.005109150023223409
+    },
+    {
+      "name": "vector",
+      "samples": 10,
+      "fraction": 0.004644681839294009
+    }
+  ]
+}

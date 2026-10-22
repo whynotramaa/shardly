@@ -1,0 +1,11 @@
+crash-test data dir: /tmp/shardly-crash-QszFib
+round 1: killed@366ms  acked_total=18604  missing=0  corrupt=0
+round 2: killed@376ms  acked_total=41292  missing=0  corrupt=0
+round 3: killed@205ms  acked_total=53958  missing=0  corrupt=0
+round 4: killed@369ms  acked_total=75698  missing=0  corrupt=0
+round 5: killed@225ms  acked_total=90047  missing=0  corrupt=0
+round 6: killed@394ms  acked_total=113831  missing=0  corrupt=0
+round 7: killed@319ms  acked_total=132480  missing=0  corrupt=0
+round 8: killed@273ms  acked_total=149691  missing=0  corrupt=0
+
+✓ 149691 acknowledged writes survived 8 SIGKILLs with zero loss or corruption

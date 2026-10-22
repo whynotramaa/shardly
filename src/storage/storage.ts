@@ -11,6 +11,8 @@ const SEGMENT_SUFFIX = ".log";
 const LOCK_NAME = ".lock";
 
 export interface StorageDiagnostics {
+  walSequence: number;
+  checkpointSequence: number;
   documents: number;
   tombstones: number;
   segments: number;
@@ -30,6 +32,7 @@ export class Storage {
   private currentSegmentSize = 0;
   private readonly readFds = new Map<string, number>();
   private version = 0;
+  private checkpointSequence = 0;
   private closed = false;
   private writeBroken = false;
   private compacting = false;
@@ -44,6 +47,7 @@ export class Storage {
       openedWal = new WriteAheadLog(this.paths.walPath);
       this.wal = openedWal;
       this.loadOffsetSnapshot();
+      this.wal.setSequenceFloor(this.checkpointSequence);
       this.replayWal();
       this.closeReadFds();
       this.cleanupOrphans();
@@ -113,6 +117,8 @@ export class Storage {
   }
 
   stateVersion(): number { return this.version; }
+  walPosition(): number { return this.wal.position(); }
+  documentBytes(id: string): number { const entry = this.offsetIndex.get(id); return entry && !entry.deleted ? entry.length : 0; }
 
   size(): number { return this.liveDocIds().length; }
 
@@ -122,7 +128,7 @@ export class Storage {
     let segmentBytes = 0;
     let segments = 0;
     for (const name of this.segmentNames()) { segments++; segmentBytes += fs.statSync(this.segmentPath(name)).size; }
-    return { documents: this.size(), tombstones, segments, segmentBytes, walBytes: fs.statSync(this.paths.walPath).size, version: this.version };
+    return { documents: this.size(), tombstones, segments, segmentBytes, walBytes: fs.statSync(this.paths.walPath).size, version: this.version, walSequence: this.wal.position(), checkpointSequence: this.checkpointSequence };
   }
 
   snapshot(): void {
@@ -133,8 +139,10 @@ export class Storage {
       segmentIndex: this.currentSegmentIndex,
       segmentSize: this.currentSegmentSize,
       version: this.version,
+      walSequence: this.wal.position(),
       entries,
     });
+    this.checkpointSequence = this.wal.position();
     this.wal.checkpoint();
     fsyncDir(this.paths.dataDir);
   }
@@ -161,7 +169,7 @@ export class Storage {
     try {
       fs.fsyncSync(fd);
       fsyncDir(this.paths.segmentsDir);
-      writeSnapshotAtomic(this.paths.offsetSnapshot, index, 0, version, new Map(), () => { committed = true; });
+      writeSnapshotAtomic(this.paths.offsetSnapshot, index, 0, version, new Map(), this.wal.position(), () => { committed = true; });
     } finally {
       if (committed) {
         const oldFd = this.writeFd;
@@ -236,7 +244,7 @@ export class Storage {
       this.currentSegmentIndex = index;
       this.currentSegmentSize = size;
       this.version = oldVersion + 1;
-      writeSnapshotAtomic(this.paths.offsetSnapshot, this.currentSegmentIndex, this.currentSegmentSize, this.version, this.offsetIndex, () => { committed = true; });
+      writeSnapshotAtomic(this.paths.offsetSnapshot, this.currentSegmentIndex, this.currentSegmentSize, this.version, this.offsetIndex, this.wal.position(), () => { committed = true; });
       this.closeReadFds();
       try { this.cleanupOrphans(); } catch { /* Orphans are safe to reclaim on a later open. */ }
       this.openCurrentSegment();
@@ -362,8 +370,10 @@ export class Storage {
     const raw = fs.readFileSync(this.paths.offsetSnapshot, "utf8");
     if (!raw.trim()) return;
     try {
-      const parsed = JSON.parse(raw) as { segmentIndex: number; segmentSize: number; version?: number; entries: Record<string, OffsetEntry> };
+      const parsed = JSON.parse(raw) as { segmentIndex: number; segmentSize: number; version?: number; walSequence?: number; entries: Record<string, OffsetEntry> };
       if (!Number.isSafeInteger(parsed.segmentIndex) || !Number.isSafeInteger(parsed.segmentSize) || typeof parsed.entries !== "object" || parsed.entries === null) throw new Error();
+      if (parsed.walSequence !== undefined && (!Number.isSafeInteger(parsed.walSequence) || parsed.walSequence < 0)) throw new Error();
+      this.checkpointSequence = parsed.walSequence ?? 0;
       for (const [id, entry] of Object.entries(parsed.entries)) {
         validateEntry(id, entry);
         this.offsetIndex.set(id, entry);
@@ -376,6 +386,7 @@ export class Storage {
     const records = this.wal.readAll();
     const committed = new Set(records.filter((r) => r.op === "write" && r.status === "committed").map(walKey));
     for (const record of records) {
+      if (record.sequence !== undefined && record.sequence <= this.checkpointSequence) continue;
       if (record.op === "delete" && record.status === "committed") {
         const entry = this.offsetIndex.get(record.docId); if (entry) { entry.deleted = true; this.version++; }
       } else if (record.op === "write") {
@@ -453,12 +464,12 @@ function hash(value: Buffer): string { return createHash("sha256").update(value)
 function readExact(fd: number, offset: number, length: number): Buffer { const out = Buffer.alloc(length); let at = 0; while (at < length) { const n = fs.readSync(fd, out, at, length - at, offset + at); if (n === 0) throw new Error("short storage read"); at += n; } return out; }
 function writeAll(fd: number, buffer: Buffer): void { let at = 0; while (at < buffer.length) { const n = fs.writeSync(fd, buffer, at, buffer.length - at); if (n <= 0) throw new Error("storage write made no progress"); at += n; } }
 function walKey(r: WalRecord): string { return `${r.docId}:${r.segment}:${r.byteOffset}`; }
-function writeSnapshotAtomic(target: string, segmentIndex: number, segmentSize: number, version: number, entries: OffsetIndex, onRename: () => void): void {
+function writeSnapshotAtomic(target: string, segmentIndex: number, segmentSize: number, version: number, entries: OffsetIndex, walSequence: number, onRename: () => void): void {
   const serialized: Record<string, OffsetEntry> = {};
   for (const [id, entry] of entries) serialized[id] = entry;
   const tmp = target + ".tmp";
   const fd = fs.openSync(tmp, "w");
-  try { writeAll(fd, Buffer.from(JSON.stringify({ segmentIndex, segmentSize, version, entries: serialized }), "utf8")); fs.fsyncSync(fd); }
+  try { writeAll(fd, Buffer.from(JSON.stringify({ segmentIndex, segmentSize, version, walSequence, entries: serialized }), "utf8")); fs.fsyncSync(fd); }
   finally { fs.closeSync(fd); }
   try { fs.renameSync(tmp, target); }
   catch (error) {

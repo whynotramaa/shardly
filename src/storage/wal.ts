@@ -13,15 +13,19 @@ function withChecksum(record: Omit<WalRecord, "checksum">): WalRecord {
 export class WriteAheadLog {
   private fd: number;
   private broken = false;
+  private sequence = 0;
 
   constructor(private readonly path: string) { this.fd = fs.openSync(path, "a"); }
+
+  position(): number { return this.sequence; }
+  setSequenceFloor(sequence: number): void { this.sequence = Math.max(this.sequence, sequence); }
 
   private append(record: Omit<WalRecord, "checksum">): void { this.appendMany([record]); }
 
   private appendMany(records: Omit<WalRecord, "checksum">[]): void {
     if (this.broken) throw new Error("WAL writer is broken; checkpoint or reopen the store");
     if (records.length === 0) return;
-    const blob = records.map((r) => JSON.stringify(withChecksum(r)) + "\n").join("");
+    const blob = records.map((r) => JSON.stringify(withChecksum({ ...r, sequence: ++this.sequence })) + "\n").join("");
     try {
       writeAll(this.fd, Buffer.from(blob, "utf8"));
       fs.fsyncSync(this.fd);
@@ -69,6 +73,7 @@ export class WriteAheadLog {
         if (recordChecksum(withoutChecksum) !== value.checksum) throw new Error("WAL checksum mismatch");
       }
       records.push(value);
+      if (value.sequence !== undefined) this.setSequenceFloor(value.sequence);
     }
     return records;
   }
@@ -109,6 +114,7 @@ function isWalRecord(value: unknown): value is WalRecord {
     typeof r.segment === "string" && Number.isSafeInteger(r.byteOffset) && (r.byteOffset as number) >= 0 &&
     Number.isSafeInteger(r.length) && (r.length as number) >= 0 &&
     (r.status === "pending" || r.status === "committed") &&
+    (r.sequence === undefined || Number.isSafeInteger(r.sequence) && (r.sequence as number) > 0) &&
     (r.checksum === undefined || (typeof r.checksum === "string" && /^[a-f0-9]{64}$/.test(r.checksum))) &&
     (r.dataChecksum === undefined || (typeof r.dataChecksum === "string" && /^[a-f0-9]{64}$/.test(r.dataChecksum)));
 }

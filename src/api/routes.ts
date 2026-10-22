@@ -70,6 +70,13 @@ export function registerRoutes(app: FastifyInstance, engine: RuntimeEngine, jobs
     return reply.code(201).send({ ids, count: ids.length });
   });
 
+  app.post("/documents/batch", async (req, reply) => reply.code(201).send(await engine.ingestDocuments(documents(req.body))));
+  app.put<{ Params: IdParam }>("/documents/:id", async (req, reply) => {
+    const id = text(req.params.id, "id", 128);
+    if (!await engine.replaceDocument(id, documents([req.body])[0]!)) return reply.code(404).send({ error: "document not found" });
+    return { id, replaced: true };
+  });
+
   app.post("/documents/upload", async (req, reply) => {
     const input = req.query as Record<string, unknown>;
     const namespace = optionalText(input.namespace, "namespace", 128);

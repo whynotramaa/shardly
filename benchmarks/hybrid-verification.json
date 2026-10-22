@@ -1,0 +1,52 @@
+{
+  "timestamp": "2026-10-22T17:56:00.464Z",
+  "node": "v26.7.0",
+  "build": {
+    "command": "npm run build",
+    "passed": true
+  },
+  "tests": {
+    "command": "npm test -- --reporter=dot",
+    "files": 31,
+    "passed": 250,
+    "failed": 0
+  },
+  "storageCrashTest": {
+    "cycles": 8,
+    "acknowledgedWrites": 149691,
+    "missing": 0,
+    "corrupt": 0,
+    "report": "crash-hybrid-regression.txt"
+  },
+  "localInference": {
+    "report": "local-inference-smoke.json",
+    "offlineVerified": true
+  },
+  "relevance": {
+    "report": "scifact-hybrid-local-v4.json",
+    "documents": 5183,
+    "judgedQueries": 300,
+    "lexicalProfile": "tuned",
+    "originalBaselineReport": "scifact-bm25-current.json"
+  },
+  "ann": {
+    "sizes": [
+      10000,
+      50000,
+      100000
+    ],
+    "reports": [
+      "ann-hybrid-10000.json",
+      "ann-hybrid-scale.json"
+    ]
+  },
+  "dependencyAudit": {
+    "info": 0,
+    "low": 0,
+    "moderate": 0,
+    "high": 0,
+    "critical": 0,
+    "total": 0
+  },
+  "limitations": "See docs/HYBRID_STATUS.md"
+}
