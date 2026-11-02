@@ -121,7 +121,7 @@ ascii_zones = """ d (m)  0 ............ 52 | 53 ........... 82 | 83 ............
         |  CSMA/CA shares |  HIDDEN TERMINAL  |  no interaction
         |  the channel    |  collisions at B  |  (spatial reuse)"""
 
-HTML = f"""<!doctype html><html><head><meta charset="utf-8"><title>Lab Assignment 10</title>
+HTML = f"""<!doctype html><html><head><meta charset="utf-8"><title>123CS0965_RamnathThakur_10</title>
 <style>
 {fonts}
 :root {{ --ink:#0b0b0b; --ink2:#52514e; --ink3:#8a8984; --rule:#e2e1dc; --tint:#f6f5f1; --blue:#2a78d6; --orange:#eb6834; --aqua:#1baf7a; }}
@@ -131,7 +131,7 @@ html {{ background:#fff; }}
 body {{ font-family:'Google Sans Flex', sans-serif; font-size:10pt; line-height:1.55; color:var(--ink); margin:0; background:#fff;
   font-variation-settings: 'opsz' 12; -webkit-print-color-adjust: exact; print-color-adjust: exact; }}
 h1,h2,h3,.serif {{ font-family:'Geist Serif', serif; font-weight:500; letter-spacing:-0.01em; }}
-h1 {{ font-size:27pt; line-height:1.12; margin:0 0 6pt; }}
+h1 {{ font-size:22pt; line-height:1.12; margin:0 0 6pt; }}
 h2 {{ font-size:15pt; margin:20pt 0 6pt; padding-top:6pt; border-top:1px solid var(--ink); display:flex; gap:10pt; align-items:baseline; break-after:avoid; }}
 h2 .n {{ font-family:'Geist Mono'; font-size:9pt; color:var(--ink3); font-weight:400; }}
 h3 {{ font-size:11.5pt; margin:13pt 0 4pt; break-after:avoid; }}
@@ -175,10 +175,9 @@ ul, ol {{ margin:0 0 8pt; padding-left:15pt; }} li {{ margin-bottom:2.5pt; }}
 <div class="cover">
   <div class="eyebrow">Computer Networks Lab  ·  Lab Assignment 10</div>
   <h1>Impact of interference on an<br>IEEE 802.11b Wi-Fi link</h1>
-  <div class="sub">An ns-3 study of two co-located transmitter and receiver pairs: how far the interfering pair must be before the primary link stops paying for it, and why the worst place to put it is not the closest one.</div>
   <div class="meta">
-    <div><span>Name</span>________________</div>
-    <div><span>Roll no.</span>________________</div>
+    <div><span>Name</span>Ramnath Thakur</div>
+    <div><span>Roll no.</span>123CS0965</div>
     <div><span>Simulator</span>ns-3.44, C++20</div>
     <div><span>Date</span>02 Nov 2026</div>
   </div>
@@ -199,7 +198,7 @@ ul, ol {{ margin:0 0 8pt; padding-left:15pt; }} li {{ margin-bottom:2.5pt; }}
 <tr><td class="num">8</td><td>Repeat for different distances</td><td>31 distances x 5 seeds, plus a load sweep, Section 7</td></tr>
 </table>
 
-<h2><span class="n">02</span>Background</h2>
+<h2 class="pb"><span class="n">02</span>Background</h2>
 <p><b>802.11b PHY.</b> 802.11b runs in the 2.4 GHz band with 22 MHz channels and offers 1, 2, 5.5 and 11 Mbit/s using DSSS and CCK. Every station on the same channel shares one collision domain, so a second link nearby is not "noise" in the abstract; it is a competitor for the same air.</p>
 <p><b>CSMA/CA.</b> Before sending, a station listens. If it decodes a preamble or sees energy above its threshold, it defers, then counts down a random backoff. Each unicast frame must be acknowledged; if the ACK does not come, the sender doubles its contention window and tries again, up to the retry limit (<code>FrameRetryLimit</code> = 7 attempts in ns-3.44). This is the mechanism that decides who wins, so it shapes every result below.</p>
 <p><b>Three distances that matter.</b> The <i>transmission range</i> is where a frame can be decoded. The <i>carrier-sense range</i> is where a station hears enough to defer. The <i>interference range</i> is where a signal is strong enough to ruin someone else's reception. When the interfering transmitter is outside the sender's sensing range but inside the receiver's, CSMA/CA has nothing to work with. That is the classic <b>hidden-terminal</b> problem, and it turned out to be the most damaging region in this experiment.</p>
