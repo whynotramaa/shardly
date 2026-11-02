@@ -154,14 +154,14 @@ figcaption {{ font-size:8.8pt; color:var(--ink2); margin-top:4pt; }}
 figcaption b {{ color:var(--ink); font-family:'Geist Serif'; font-weight:600; }}
 figure img {{ width:100%; border:1px solid var(--rule); display:block; }}
 pre {{ font-family:'Geist Mono', monospace; font-size:7.2pt; line-height:1.36; margin:4pt 0 10pt; white-space:pre-wrap; word-break:break-word; }}
-pre.src {{ background:#fbfaf7; border:1px solid var(--rule); border-left:3px solid var(--blue); padding:8pt 10pt; }}
+pre.src {{ background:#f7f6f3; padding:8pt 10pt; border-radius:4px; }}
 pre.term {{ background:#16161a; color:#d8d7d2; padding:9pt 11pt; border-radius:6px; break-inside:avoid; }}
 pre.term .pr {{ color:#1baf7a; }} pre.term .cmd {{ color:#ffffff; }} pre.term .fl {{ color:#8fb8ef; }} pre.term b {{ color:#ffb38f; font-weight:600; }}
 pre.ascii {{ background:var(--tint); padding:8pt 10pt; font-size:7.8pt; border-radius:4px; break-inside:avoid; }}
 .cols2 {{ column-count:2; column-gap:18pt; }} .cols2 pre.term {{ break-inside:auto; }}
 .term-head {{ break-after:avoid; font-family:'Geist Mono'; font-size:7.5pt; color:var(--ink3); margin:8pt 0 -2pt; }}
-.callout {{ border-left:3px solid var(--orange); background:#fdf3ee; padding:7pt 10pt; margin:8pt 0 10pt; font-size:9.4pt; break-inside:avoid; }}
-.callout.blue {{ border-color:var(--blue); background:#eef4fc; }}
+.callout {{ background:#fdf3ee; border-radius:4px; padding:7pt 10pt; margin:8pt 0 10pt; font-size:9.4pt; break-inside:avoid; }}
+.callout.blue {{ background:#eef4fc; }}
 .two {{ display:grid; grid-template-columns:1fr 1fr; gap:14pt; }}
 ul, ol {{ margin:0 0 8pt; padding-left:15pt; }} li {{ margin-bottom:2.5pt; }}
 .k {{ font-family:'Geist Mono'; font-size:8pt; color:var(--ink3); }}
@@ -309,33 +309,32 @@ ul, ol {{ margin:0 0 8pt; padding-left:15pt; }} li {{ margin-bottom:2.5pt; }}
 <figcaption><b>Fig. 7.</b> Primary PDR against interferer offered load. At 120 m the interferer is harmless at any rate. At 20 m losses begin once the two loads together exceed what the channel can carry. At 70 m the link survives up to about 4 Mbit/s and then collapses.</figcaption></figure>
 
 <h2><span class="n">08</span>Analysis</h2>
-<p>The curve in Fig. 4 is not monotonic, and that is the main finding. Moving the interferer away does not steadily help. There are three regimes with sharp edges, and the edges line up with the 82 m sensing range from the link budget.</p>
+<p>Fig. 4 is not monotonic, and that is the main finding. There are three regimes, and their edges line up with the roughly 82 m sensing range from the link budget.</p>
 <pre class="ascii">{html.escape(ascii_zones)}</pre>
 
 <h3>Regime 1: shared channel (d ≤ 52 m)</h3>
-<p>A and C hear each other, so CSMA/CA does its job: they take turns. Collisions are rare (about 200 retries over 9 s), and no frame ever hits the retry limit. The primary still loses about 30% of its packets, but not because of corrupted frames. It simply gets about half the airtime (2.96 of the roughly 6.3 Mbit/s the two flows carry together) while asking for 4.19 Mbit/s. The excess sits in A's MAC queue until it is dropped, which is why delivered packets average around 460 ms of delay. ns-3's <code>WifiMacQueue</code> drops any packet older than <code>MaxDelay</code> = 500 ms (and holds at most 500 packets), so the delay plateau just under that value is the queue limit, not the radio.</p>
-<p>Within this regime PDR <i>rises</i> slightly from 70% to 77% between 40 m and 52 m, and retries fall from about 200 to 29. When A and C pick the same backoff slot they collide at B. At d = 20 m the interferer arrives at B 5 dB stronger than A, so the collision always destroys A's frame. At d = 50 m A is 6.6 dB stronger than C at B, and B can decode A's frame through the collision. This is the capture effect, and it is visible in the retry counter before it shows in PDR.</p>
+<p>A and C hear each other and take turns. Frames rarely fail on air (about 200 retries in 9 s, none reaching the retry limit). The 30% loss comes from airtime: the primary gets about half the channel (2.96 Mbit/s) while asking for 4.19. The excess waits in A's queue until <code>WifiMacQueue</code> drops it at <code>MaxDelay</code> = 500 ms, which is why delay plateaus near 460 ms.</p>
+<p>PDR rises slightly from 70% to 77% between 40 and 52 m. When A and C collide, B can still decode A's frame if A is stronger at B: 5 dB weaker at d = 20 m, 6.6 dB stronger at d = 50 m. That is the capture effect, and retries drop from about 200 to 29.</p>
 
 <h3>Regime 2: hidden terminal (53 m ≤ d ≤ 82 m)</h3>
-<p>This is the worst place for the interferer, even though it is farther away than in regime 1. A and C can no longer hear each other, so both transmit whenever they like. C is saturated, so it is on air almost all the time. B is still inside C's range, so whenever C's frame reaches B first, B locks onto it (Fig. 3 shows B decoding C's traffic) and A's frame is lost. A sees no ACK, doubles its backoff and tries again. With seed 1, retries go from 8 at d = 52 m to 1322 at d = 53 m. One metre, crossing the sensing edge, changes the MAC's life by two orders of magnitude.</p>
-<p>The signal-to-interference ratio at B is actually healthy here (11 dB at d = 70 m, Table 2). The loss is not caused by C being loud. It is caused by B being <i>busy</i> with C's frame when A's arrives. That is why the curve is flat across the whole region instead of improving gradually as C moves away.</p>
-<p>Two further points are easy to miss. First, the primary still loses most of its packets in its own queue, not on the air: only about 4 frames per run hit the retry limit, while about 1600 packets are dropped from the queue because retransmissions and doubled backoffs stretch the service time. Second, the network as a whole carries more in this region (2.74 + 5.67 = 8.4 Mbit/s) than in regime 1 (6.3 Mbit/s), because C now gets spatial reuse. The gain all goes to the interferer and the cost all lands on the primary. The standard deviation across seeds is also 4 to 7 times larger here, since outcomes depend on how often C's frames happen to start before A's.</p>
+<p>The worst region, even though C is farther away. A and C can no longer hear each other, so both transmit freely, but B still hears C (Fig. 3). When C's frame reaches B first, B locks onto it and A's frame is lost. Retries go from 8 at 52 m to 1322 at 53 m (seed 1). The SIR at B is a healthy 11 dB at 70 m, so the problem is B being busy, not C being loud, which is why the curve stays flat across the band.</p>
+<p>Most losses are still queue drops (about 4 retry-limit drops against roughly 1600 queue drops per run). Total network goodput is actually higher here (8.4 vs 6.3 Mbit/s) thanks to spatial reuse, but all of the gain goes to C.</p>
 
 <h3>Regime 3: out of range (d ≥ 83 m)</h3>
-<p>C's signal at B drops below the sensitivity threshold. B never syncs to it, and its energy is too small to hurt A's 25 dB margin. The primary is back at 100% delivery, 4.21 Mbit/s and about 1 ms delay, identical to the baseline, while the interferer runs at full rate. Both links coexist on one channel without any coordination.</p>
+<p>C falls below B's sensitivity. The primary returns to the baseline (100%, 4.21 Mbit/s, about 1 ms) while C runs at full rate.</p>
 
-<h3>What the load sweep adds</h3>
-<p>Fig. 7 shows the hidden terminal is a threshold problem, not a gradual one. At d = 70 m with the interferer at or below 4 Mbit/s, the primary delivers everything; MAC retries recover the occasional collision (891 retries at 2.7 Mbit/s, all recovered, 6 ms delay). The link only breaks once C's airtime fraction is high enough that retries keep running into it. In the shared region the decline is smooth and starts earlier, because there the cost is airtime, and every extra bit the interferer sends is taken out of the primary's share.</p>
+<h3>Load sweep</h3>
+<p>Fig. 7 shows the hidden terminal is a threshold effect: at 70 m the primary loses nothing until the interferer exceeds about 4 Mbit/s, then collapses. In the shared region the decline starts earlier and is smoother, because every extra interferer bit comes out of the primary's airtime.</p>
 
 <h2><span class="n">09</span>Conclusion</h2>
 <ul>
-<li>Without interference the 802.11b link at 30 m delivers 100% of 4.19 Mbit/s with about 1 ms delay.</li>
-<li>A saturated interferer within carrier-sense range cuts primary PDR to about 70%. The loss comes from sharing airtime, and frames on air rarely fail.</li>
-<li>The worst case is a hidden interferer (53 to 82 m here), giving 63 to 65% PDR, 6x more retransmissions and the highest variance. Moving the interferer away made things worse before it made them better.</li>
-<li>Past the receiver's sensing range (83 m and beyond) the interference vanishes completely and both links run at full rate.</li>
-<li>The PCAP captures confirm the mechanism directly: missing ACKs and back-to-back retransmissions from A, and C's frames decoded at B. Frame counts from the captures match the MAC trace sources exactly.</li>
+<li>Alone, the 30 m link delivers 100% with about 1 ms delay.</li>
+<li>An interferer within sensing range cuts PDR to about 70% by sharing airtime.</li>
+<li>A hidden interferer (53 to 82 m) is worst: 63 to 65% PDR and 6x more retransmissions.</li>
+<li>Beyond 83 m the interference disappears completely.</li>
+<li>PCAP captures confirm the mechanism and match the MAC counters exactly.</li>
 </ul>
-<p><b>Limitations.</b> Static nodes on a line, a deterministic log-distance channel with no fading, a single fixed rate with no rate adaptation, and no RTS/CTS. Enabling RTS/CTS (<code>RtsCtsThreshold</code> set to 0) is the obvious next experiment. It should mostly fix regime 2, because C would hear B's CTS and defer, at the cost of extra overhead in the other regimes.</p>
+<p><b>Limitations.</b> Static nodes, no fading, fixed rate, no RTS/CTS. Enabling RTS/CTS is the natural next step and should largely fix regime 2.</p>
 </body></html>"""
 
 (R / "report.html").write_text(HTML)
